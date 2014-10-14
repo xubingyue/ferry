@@ -3,3 +3,7 @@
 //
 
 #include "Service.h"
+
+namespace ferry {
+
+}

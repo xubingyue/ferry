@@ -5,8 +5,6 @@
 #include <set>
 #include "cocos2d.h"
 
-using namespace std;
-
 namespace eventbus{
 
     class BaseEvent: public cocos2d::Ref
@@ -39,7 +37,7 @@ namespace eventbus{
         void onEvent(BaseEvent* e);
     private:
         cocos2d::Vector<BaseEvent*> m_events;
-        set<IHandler*> m_handlers;
+        std::set<IHandler*> m_handlers;
     };
 
 }
