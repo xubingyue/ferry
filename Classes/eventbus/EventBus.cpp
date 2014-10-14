@@ -7,14 +7,13 @@ namespace eventbus {
         return true;
     }
 
-    EventBus::EventBus():m_events(cocos2d::CCArray::create())
+    EventBus::EventBus()
     {
-        m_events->retain();
     }
 
     EventBus::~EventBus()
     {
-        m_events->release();
+        m_events.clear();
     }
 
     void EventBus::reg(IHandler* handler)
@@ -55,17 +54,18 @@ namespace eventbus {
         }
     }
 
-    void EventBus::pushEvent(Event* event_)
+    void EventBus::pushEvent(Event* event)
     {
-        m_events->addObject(event_);
+        m_events.pushBack(event);
     }
 
     void EventBus::loopEvents()
     {
-        for(int i=0;i< m_events->count();++i){
-            onEvent((Event*)m_events->getObjectAtIndex(i));
+        for (auto& e: m_events) {
+            onEvent(e);
         }
-        m_events->removeAllObjects();
+
+        m_events.clear();
     }
 
 }

@@ -37,8 +37,7 @@ namespace eventbus{
     private:
         void onEvent(Event* e);
     private:
-        cocos2d::CCArray* m_events;
-        //cocos2d::Vector<IHandler*>* m_events2;
+        cocos2d::Vector<Event*> m_events;
         set<IHandler*> m_handlers;
     };
 
