@@ -2,11 +2,6 @@
 
 namespace eventbus {
 
-    bool Event::init()
-    {
-        return true;
-    }
-
     EventBus::EventBus()
     {
     }
@@ -26,7 +21,7 @@ namespace eventbus {
         m_handlers.erase(handler);
     }
 
-    void EventBus::onEvent(Event* e)
+    void EventBus::onEvent(BaseEvent* e)
     {
         set<IHandler*> handlers=m_handlers;
 
@@ -54,7 +49,7 @@ namespace eventbus {
         }
     }
 
-    void EventBus::pushEvent(Event* event)
+    void EventBus::pushEvent(BaseEvent* event)
     {
         m_events.pushBack(event);
     }

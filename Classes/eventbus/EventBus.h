@@ -8,21 +8,22 @@
 using namespace std;
 
 namespace eventbus{
-    class Event: public cocos2d::Ref
+
+    class BaseEvent: public cocos2d::Ref
     {
     public:
-        Event(){}
-        virtual ~Event(){}
+        BaseEvent(){}
+        virtual ~BaseEvent(){}
 
-        virtual bool init();
-        CREATE_FUNC(Event);
+        virtual bool init() {return true;}
+        CREATE_FUNC(BaseEvent);
     };
 
     class IHandler
     {
     public:
         virtual ~IHandler(){}
-        virtual void onEvent(Event*)=0;
+        virtual void onEvent(BaseEvent*)=0;
     };
 
     class EventBus
@@ -32,12 +33,12 @@ namespace eventbus{
         ~EventBus();
         void reg(IHandler*);
         void unReg(IHandler *);
-        void pushEvent(Event*);
+        void pushEvent(BaseEvent*);
         void loopEvents();
     private:
-        void onEvent(Event* e);
+        void onEvent(BaseEvent* e);
     private:
-        cocos2d::Vector<Event*> m_events;
+        cocos2d::Vector<BaseEvent*> m_events;
         set<IHandler*> m_handlers;
     };
 
