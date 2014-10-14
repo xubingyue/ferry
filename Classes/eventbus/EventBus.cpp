@@ -21,7 +21,7 @@ namespace eventbus {
         m_handlers.insert(handler);
     }
 
-    void EventBus::unreg(IHandler* handler)
+    void EventBus::unReg(IHandler *handler)
     {
         m_handlers.erase(handler);
     }
@@ -47,7 +47,7 @@ namespace eventbus {
             }
             catch(...)
             {
-                cout<<"Handler("<<*it<<"):Handler onEvent error"<<endl;
+                cocos2d::log("handler event exc");
             }
 
             handlers.erase(*it);

@@ -31,7 +31,7 @@ namespace eventbus{
         EventBus();
         ~EventBus();
         void reg(IHandler*);
-        void unreg(IHandler*);
+        void unReg(IHandler *);
         void pushEvent(Event*);
         void loopEvents();
     private:
