@@ -11,12 +11,12 @@
 
 #include <winsock2.h>
 #pragma comment(lib,"pthreadVSE2.lib")
-#define FERRY_SLEEP Sleep;
+#define FERRY_SLEEP(sec) Sleep((sec)*1000);
 
 #else
 #include <unistd.h>
 #include <arpa/inet.h>
-#define FERRY_SLEEP sleep;
+#define FERRY_SLEEP(sec) sleep(sec);
 #endif
 
 #include "cocos2d.h"
@@ -36,7 +36,7 @@ namespace ferry {
     };
 
 // 等待下次连接时间
-    const int CONNECT_SLEEP_TIME_MSEC = 1000;
+    const int CONNECT_SLEEP_TIME_SEC = 1;
 
 // 队列的大小
     const int MSG_FROM_SERVER_SIZE = 100;
@@ -250,7 +250,7 @@ namespace ferry {
 
                 if (!isConnected()) {
                     // 如果还没有建立链接，就等一下
-                    FERRY_SLEEP(CONNECT_SLEEP_TIME_MSEC);
+                    FERRY_SLEEP(CONNECT_SLEEP_TIME_SEC);
                 }
                 continue;
             }
