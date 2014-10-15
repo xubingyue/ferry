@@ -41,6 +41,7 @@ public:
     // 连接到服务器，如果断线重连要调用这个
     inline int connectToServer();
 
+    // 为了启动线程使用的，外面不要使用
     inline static void* _recvMsgFromServerThreadWorker(void *args);
     inline static void* _sendMsgToServerThreadWorker(void *args);
 
@@ -73,7 +74,9 @@ private:
     inline void _onMessageFromServer(BoxType* box);
 
     // 主线程的处理
-    inline void _onUIThreadReceiveMessage(Message *msg);
+    inline void _onMainThreadReceiveMessage(Message *msg);
+
+    inline void _registerMainThreadSchedule();
 
 
 private:
@@ -100,6 +103,9 @@ private:
     // 线程是否存在
     bool m_recvingMsgFromServer;
     bool m_sendingMsgToServer;
+
+    BoxType* m_sendBox;
+    Message* m_recvMsg;
 };
 
 }

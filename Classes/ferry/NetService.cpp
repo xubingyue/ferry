@@ -45,6 +45,9 @@ namespace ferry {
         m_sendingMsgToServer = false;
 
         m_should_connect = false;
+
+        m_sendBox = nullptr;
+        m_recvMsg = nullptr;
     }
 
     template<class BoxType>
@@ -81,8 +84,12 @@ namespace ferry {
         }
         m_enabled = true;
 
+        // 标记要连接服务器
         connectToServer();
+        // 启动线程
         _startThreads();
+        // 注册到主线程执行
+        _registerMainThreadSchedule();
     }
 
     template<class BoxType>
@@ -224,19 +231,14 @@ namespace ferry {
         m_sendingMsgToServer = true;
 
         while (m_enabled) {
-            BoxType *box = nullptr;
-            int ret = m_msgQueueToServer->pop(box);
+            int ret = m_msgQueueToServer->pop(m_sendBox);
 
             if (ret == 0) {
-                if (m_client && box) {
-                    m_client->write(box);
-                    delete box;
-                    box = nullptr;
+                if (m_client && m_sendBox) {
+                    m_client->write(m_sendBox);
+                    delete m_sendBox;
+                    m_sendBox = nullptr;
                 }
-            }
-            else {
-                cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
-                        ret);
             }
         }
 
@@ -281,7 +283,7 @@ namespace ferry {
     }
 
     template<class BoxType>
-    void NetService::_onUIThreadReceiveMessage(Message *msg) {
+    void NetService::_onMainThreadReceiveMessage(Message *msg) {
         if (!msg) {
             cocos2d::log("[%s]-[%s][%d][%s] null msg", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
             return;
@@ -308,5 +310,22 @@ namespace ferry {
 
         delete msg;
         msg = nullptr;
+    }
+
+    template<class BoxType>
+    void NetService::_registerMainThreadSchedule() {
+        auto func = [this](float dt){
+            while (1) {
+                int ret = this->m_msgQueueFromServer->pop_nowait(m_recvMsg);
+                if (ret == 0) {
+                    this->_onMainThreadReceiveMessage(m_recvMsg);
+                }
+                else {
+                    break;
+                }
+            }
+        };
+
+        cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "ferry_ui_loop");
     }
 }
