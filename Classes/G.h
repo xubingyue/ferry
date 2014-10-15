@@ -31,7 +31,7 @@ protected:
     {
         static std::auto_ptr<G> _auto_ptr = std::auto_ptr<G>(this);
     }
-    G(const G&);
+    G(const G&) {}
     virtual ~G(){}
     friend class std::auto_ptr<G>;
 
