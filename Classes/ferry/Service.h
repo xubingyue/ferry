@@ -36,6 +36,9 @@ public:
     // 是否连接成功
     bool isConnected();
 
+    // 发送消息
+    void send(BoxType* box);
+
     // 为了启动线程使用的，外面不要使用
     static void* _recvMsgFromServerThreadWorker(void *args);
     static void* _sendMsgToServerThreadWorker(void *args);

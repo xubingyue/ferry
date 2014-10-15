@@ -136,6 +136,14 @@ namespace ferry {
     }
 
     template<class BoxType>
+    void Service<BoxType>::send(BoxType *box) {
+        cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                box->cmd, box->sn);
+
+        m_msgQueueToServer->push_nowait(box);
+    }
+
+    template<class BoxType>
     inline void Service<BoxType>::_setEnabled(bool enabled) {
         pthread_mutex_lock(&m_enabled_mutex);
         m_enabled = enabled;
@@ -300,6 +308,8 @@ namespace ferry {
 
     template<class BoxType>
     void Service<BoxType>::_onConnOpen() {
+        cocos2d::log("[%s]-[%s][%d][%s]", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
+
         Message<BoxType> * msg = new Message<BoxType>();
         msg->what = DELEGATE_MSG_OPEN;
         int ret = m_msgQueueFromServer->push_nowait(msg);
@@ -311,6 +321,8 @@ namespace ferry {
 
     template<class BoxType>
     void Service<BoxType>::_onConnClose() {
+        cocos2d::log("[%s]-[%s][%d][%s]", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
+
         // 设置为不重连，等触发connectToServer再改状态
         m_should_connect = false;
 
@@ -325,13 +337,16 @@ namespace ferry {
 
     template<class BoxType>
     void Service<BoxType>::_onMessageFromServer(BoxType* box) {
+        cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                box->cmd, box->sn);
+
         Message<BoxType> * msg = new Message<BoxType>();
         msg->what = DELEGATE_MSG_RECV;
         msg->box = box;
         int ret = m_msgQueueFromServer->push_nowait(msg);
         if (ret) {
-            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
-                    ret);
+            cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                    box->cmd, box->sn);
         }
     }
 
