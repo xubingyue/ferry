@@ -3,18 +3,16 @@
 
 #include <iostream>
 #include <set>
-#include "cocos2d.h"
+#include <map>
+#include <list>
 
 namespace eventbus{
 
-    class BaseEvent: public cocos2d::Ref
+    class BaseEvent
     {
     public:
-        BaseEvent(){}
-        virtual ~BaseEvent(){}
-
-        virtual bool init() {return true;}
-        CREATE_FUNC(BaseEvent);
+        int what;
+        std::map<std::string, std::string> mapData;
     };
 
     class IHandler
@@ -36,7 +34,7 @@ namespace eventbus{
     private:
         void onEvent(BaseEvent* e);
     private:
-        cocos2d::Vector<BaseEvent*> m_events;
+        std::list<BaseEvent*> m_events;
         std::set<IHandler*> m_handlers;
     };
 

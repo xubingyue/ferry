@@ -42,7 +42,6 @@ namespace eventbus {
             }
             catch(...)
             {
-                cocos2d::log("handler event exc");
             }
 
             handlers.erase(*it);
@@ -51,13 +50,15 @@ namespace eventbus {
 
     void EventBus::pushEvent(BaseEvent* event)
     {
-        m_events.pushBack(event);
+        m_events.push_back(event);
     }
 
     void EventBus::loopEvents()
     {
         for (auto& e: m_events) {
             onEvent(e);
+            // event在用完了之后就要删掉
+            delete e;
         }
 
         m_events.clear();
