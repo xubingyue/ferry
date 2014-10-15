@@ -35,8 +35,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // run
     director->runWithScene(scene);
 
-    G::instance()->getFerryService()->init(new MyFerryDelegate(), "127.0.0.1", 7777);
-    G::instance()->getFerryService()->start();
+    G::instance()->getFerry()->init(new MyFerryDelegate(), "127.0.0.1", 7777);
+    G::instance()->getFerry()->start();
 
     return true;
 }

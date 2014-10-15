@@ -21,8 +21,8 @@ public:
         return _instance;
     }
 
-    ferry::Service<netkit::Box>*getFerryService() {
-        return &m_ferryService;
+    ferry::Service<netkit::Box>* getFerry() {
+        return &m_ferry;
     }
 
 
@@ -35,7 +35,7 @@ protected:
     virtual ~G(){}
     friend class std::auto_ptr<G>;
 
-    ferry::Service<netkit::Box> m_ferryService;
+    ferry::Service<netkit::Box> m_ferry;
 };
 
 
