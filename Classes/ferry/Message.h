@@ -8,7 +8,6 @@
 
 #include <iostream>
 #include <map>
-#include "EventBus.h"
 #include "IBox.h"
 
 // 析构的时候，不释放box
