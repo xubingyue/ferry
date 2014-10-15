@@ -6,7 +6,7 @@
 #define __NETSERVICE_H_20141014200634__
 
 #include <iostream>
-#include "block_queue.h"
+#include "BlockQueue.h"
 #include "Message.h"
 #include "TcpClient.h"
 
