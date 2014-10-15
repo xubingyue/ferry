@@ -122,7 +122,7 @@ namespace ferry {
     void Service<BoxType>::stop() {
         _setEnable(false);
         // 关闭连接
-        _closeConn();
+        closeConn();
     }
 
     template<class BoxType>
@@ -162,7 +162,7 @@ namespace ferry {
 
     template<class BoxType>
     void Service<BoxType>::_connectToServer() {
-        _closeConn();
+        closeConn();
         // 没有超时
         m_client = new netkit::TcpClient(m_host, m_port, -1);
 
@@ -196,7 +196,7 @@ namespace ferry {
     }
 
     template<class BoxType>
-    void Service<BoxType>::_closeConn() {
+    void Service<BoxType>::closeConn() {
         // 关闭，就要把所有消息先清空
         _clearMsgQueues();
 
