@@ -22,7 +22,7 @@
 #include "cocos2d.h"
 
 #include "NetService.h"
-#import "Delegate.h"
+#include "Delegate.h"
 
 // 等待下次连接时间
 #define CONNECT_SLEEP_TIME 1
