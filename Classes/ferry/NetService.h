@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include "block_queue.h"
-#include "MsgEvent.h"
+#include "Message.h"
 #include "TcpClient.h"
 
 namespace ferry {
@@ -64,6 +64,10 @@ private:
     // 当收到服务器消息
     inline void _onMessageFromServer(BoxType* box);
 
+    // 主线程的处理
+    inline void _onUIThreadReceiveMessage(Message *msg);
+
+
 private:
     // 是否运行中
     bool m_enabled;
@@ -77,10 +81,10 @@ private:
     bool m_should_connect;
 
     // 从server读取的消息
-    BlockQueue<MsgEvent*> *m_msgFromServer;
+    BlockQueue<Message *> *m_msgQueueFromServer;
 
     // 想要发送给server的消息
-    BlockQueue<MsgEvent*> *m_msgToServer;
+    BlockQueue<BoxType *> *m_msgQueueToServer;
 
     // 网络
     netkit::TcpClient *m_client;

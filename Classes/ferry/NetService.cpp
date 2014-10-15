@@ -21,7 +21,7 @@
 #include "NetService.h"
 #import "Delegate.h"
 
-// 连接等待时间
+// 等待下次连接时间
 #define CONNECT_SLEEP_TIME 1
 
 // 队列的大小
@@ -37,8 +37,8 @@ namespace ferry {
     NetService::NetService() {
         m_enabled = false;
         m_port = 0;
-        m_msgFromServer = new BlockQueue<MsgEvent*>(MSG_FROM_SERVER_SIZE);
-        m_msgToServer = new BlockQueue<MsgEvent*>(MSG_TO_SERVER_SIZE);
+        m_msgQueueFromServer = new BlockQueue<Message *>(MSG_FROM_SERVER_SIZE);
+        m_msgQueueToServer = new BlockQueue<BoxType *>(MSG_TO_SERVER_SIZE);
         m_client = nullptr;
 
         m_recvingMsgFromServer = false;
@@ -49,6 +49,20 @@ namespace ferry {
 
     template<class BoxType>
     NetService::~NetService() {
+        if (m_client) {
+            delete m_client;
+            m_client = nullptr;
+        }
+
+        if (m_msgQueueFromServer) {
+            delete m_msgQueueFromServer;
+            m_msgQueueFromServer = nullptr;
+        }
+
+        if (m_msgQueueToServer) {
+            delete m_msgQueueToServer;
+            m_msgQueueToServer = nullptr;
+        }
     }
 
     template<class BoxType>
@@ -161,7 +175,8 @@ namespace ferry {
         m_sendingMsgToServer = true;
 
         while (m_enabled) {
-
+            BoxType *box = nullptr;
+            int ret = m_msgQueueToServer->pop(box);
         }
 
         m_sendingMsgToServer = false;
@@ -169,8 +184,12 @@ namespace ferry {
 
     template<class BoxType>
     void NetService::_onConnOpen() {
-        if (m_delegate) {
-            m_delegate->OnOpen(this);
+        Message * msg = new Message();
+        msg->what = DELEGATE_MSG_OPEN;
+        int ret = m_msgQueueFromServer->push_nowait(msg);
+        if (ret) {
+            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                    ret);
         }
     }
 
@@ -179,15 +198,51 @@ namespace ferry {
         // 设置为不重连，等触发connectToServer再改状态
         m_should_connect = false;
 
-        if (m_delegate) {
-            m_delegate->OnClose(this);
+        Message * msg = new Message();
+        msg->what = DELEGATE_MSG_CLOSE;
+        int ret = m_msgQueueFromServer->push_nowait(msg);
+        if (ret) {
+            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                    ret);
         }
     }
 
     template<class BoxType>
     void NetService::_onMessageFromServer(BoxType* box) {
-        if (m_delegate) {
-            m_delegate->OnMessage(this, box);
+        Message * msg = new Message();
+        msg->what = DELEGATE_MSG_RECV;
+        msg->box = box;
+        int ret = m_msgQueueFromServer->push_nowait(msg);
+        if (ret) {
+            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                    ret);
         }
+    }
+
+    template<class BoxType>
+    void NetService::_onUIThreadReceiveMessage(Message *msg) {
+        if (!msg) {
+            cocos2d::log("[%s]-[%s][%d][%s] null msg", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
+            return;
+        }
+        if (!m_delegate) {
+            cocos2d::log("[%s]-[%s][%d][%s] null delegate", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
+            return;
+        }
+
+        switch (msg->what) {
+            case DELEGATE_MSG_OPEN:
+                m_delegate->OnOpen(this);
+                break;
+            case DELEGATE_MSG_RECV:
+                m_delegate->OnMessage(this, msg->box);
+                break;
+            case DELEGATE_MSG_CLOSE:
+                m_delegate->OnClose(this);
+                break;
+        }
+
+        delete msg;
+        msg = nullptr;
     }
 }
