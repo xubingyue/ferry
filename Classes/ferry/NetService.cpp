@@ -120,6 +120,20 @@ namespace ferry {
         }
     }
 
+    void* NetService::_recvMsgFromServerThreadWorker(void *args) {
+        NetService* netService = (NetService*)args;
+        netService->_recvMsgFromServer();
+
+        return nullptr;
+    }
+
+    void* NetService::_sendMsgToServerThreadWorker(void *args) {
+        NetService* netService = (NetService*)args;
+        netService->_sendMsgToServer();
+
+        return nullptr;
+    }
+
     template<class BoxType>
     void NetService::_closeConn() {
         if (m_client) {
@@ -130,8 +144,43 @@ namespace ferry {
 
     template<class BoxType>
     void NetService::_startThreads() {
+        _startRecvMsgFromServerThread();
+        _startSendMsgToServerThread();
     }
 
+    template<class BoxType>
+    void NetService::_startRecvMsgFromServerThread() {
+        pthread_attr_t attr;
+        pthread_attr_init (&attr);
+        pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
+
+        int ret;
+        pthread_t threadId;
+        ret= pthread_create(&threadId, &attr, &NetService::_recvMsgFromServerThreadWorker, (void *) this);
+        if(ret!=0){
+            //ERROR_LOG("Thread creation failed:%d",ret);
+            pthread_attr_destroy (&attr);
+        }
+
+        pthread_attr_destroy (&attr);
+    }
+
+    template<class BoxType>
+    void NetService::_startSendMsgToServerThread() {
+        pthread_attr_t attr;
+        pthread_attr_init (&attr);
+        pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
+
+        int ret;
+        pthread_t threadId;
+        ret= pthread_create(&threadId, &attr, &NetService::_sendMsgToServerThreadWorker, (void *) this);
+        if(ret!=0){
+            //ERROR_LOG("Thread creation failed:%d",ret);
+            pthread_attr_destroy (&attr);
+        }
+
+        pthread_attr_destroy (&attr);
+    }
 
     template<class BoxType>
     void NetService::_recvMsgFromServer() {
@@ -177,6 +226,18 @@ namespace ferry {
         while (m_enabled) {
             BoxType *box = nullptr;
             int ret = m_msgQueueToServer->pop(box);
+
+            if (ret == 0) {
+                if (m_client && box) {
+                    m_client->write(box);
+                    delete box;
+                    box = nullptr;
+                }
+            }
+            else {
+                cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                        ret);
+            }
         }
 
         m_sendingMsgToServer = false;
@@ -240,6 +301,9 @@ namespace ferry {
             case DELEGATE_MSG_CLOSE:
                 m_delegate->OnClose(this);
                 break;
+            default:
+                cocos2d::log("[%s]-[%s][%d][%s] msg.what: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                        msg->what);
         }
 
         delete msg;

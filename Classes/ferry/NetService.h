@@ -41,6 +41,9 @@ public:
     // 连接到服务器，如果断线重连要调用这个
     inline int connectToServer();
 
+    inline static void* _recvMsgFromServerThreadWorker(void *args);
+    inline static void* _sendMsgToServerThreadWorker(void *args);
+
 private:
     // 真实连接
     inline void _connect();
@@ -49,6 +52,11 @@ private:
 
     // 启动各种线程
     inline void _startThreads();
+
+    // 启动接收线程
+    inline void _startRecvMsgFromServerThread();
+    // 启动接收线程
+    inline void _startSendMsgToServerThread();
 
     // 从网络获取消息
     inline void _recvMsgFromServer();

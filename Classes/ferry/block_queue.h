@@ -1,4 +1,4 @@
-#ifndef BLOCK_QUEUE_H_20140728115604
+ï»¿#ifndef BLOCK_QUEUE_H_20140728115604
 #define BLOCK_QUEUE_H_20140728115604
 
 
@@ -23,27 +23,27 @@ public:
     }
 
     int push(DataType &d) {
-        // Ä¬ÈÏÊÇ×èÈûµÄ
+        // é»˜è®¤æ˜¯é˜»å¡çš„
 
         return this->push(d, -1);
     }
 
     int push_nowait(DataType &d) {
-        // ²»×èÈû
+        // ä¸é˜»å¡
         return this->push(d, 0);
     }
 
     int pop(DataType &d) {
-        // ×èÈû
+        // é˜»å¡
         return this->pop(d, -1);
     }
 
     int pop_nowait(DataType &d) {
-        // ·Ç×èÈû
+        // éé˜»å¡
         return this->pop(d, 0);
     }
 
-    // block_sec: 0: ²»×èÈû; <0: ÓÀ¾Ã×èÈû; >0: ×èÈûÊ±¼ä
+    // block_sec: 0: ä¸é˜»å¡; <0: æ°¸ä¹…é˜»å¡; >0: é˜»å¡æ—¶é—´
     int push(DataType &d, int block_sec) {
 
         int ret;
@@ -56,10 +56,10 @@ public:
                 timeout.tv_sec = time(NULL) + block_sec;
                 timeout.tv_nsec = 0;
 
-                // Èç¹ûÒª×èÈû£¬¾ÍµÈÔÚÕâÀï
+                // å¦‚æœè¦é˜»å¡ï¼Œå°±ç­‰åœ¨è¿™é‡Œ
                 ret = pthread_cond_timedwait(&m_not_full_cond, &m_not_full_mutex, &timeout);
                 if (ret == ETIMEDOUT) {
-                    // ÊÇ³¬Ê±ÁË£¬²¢Ã»ÓĞµÈµ½³É¹¦
+                    // æ˜¯è¶…æ—¶äº†ï¼Œå¹¶æ²¡æœ‰ç­‰åˆ°æˆåŠŸ
                 pthread_mutex_unlock(&m_not_full_mutex);
                     return ret;
                 }
@@ -68,7 +68,7 @@ public:
                 pthread_cond_wait(&m_not_full_cond, &m_not_full_mutex);
             }
             else {
-                // ·µ»Ø¸´ÖÆ£¬ËµÃ÷pushÊ§°Ü
+                // è¿”å›å¤åˆ¶ï¼Œè¯´æ˜pushå¤±è´¥
                 pthread_mutex_unlock(&m_not_full_mutex);
                 return -1;
             }
@@ -96,7 +96,7 @@ public:
                 
                 ret = pthread_cond_timedwait(&m_not_empty_cond, &m_not_empty_mutex, &timeout);
                 if (ret == ETIMEDOUT) {
-                    // ÊÇ³¬Ê±ÁË£¬²¢Ã»ÓĞµÈµ½³É¹¦
+                    // æ˜¯è¶…æ—¶äº†ï¼Œå¹¶æ²¡æœ‰ç­‰åˆ°æˆåŠŸ
                     pthread_mutex_unlock(&m_not_empty_mutex);
                     return ret;
                 }
