@@ -85,7 +85,7 @@ namespace ferry {
         m_enabled = true;
 
         // 标记要连接服务器
-        connectToServer();
+        connect();
         // 启动线程
         _startThreads();
         // 注册到主线程执行
@@ -103,13 +103,13 @@ namespace ferry {
     }
 
     template<class BoxType>
-    int NetService::connectToServer() {
+    int NetService::connect() {
         m_should_connect = true;
         return 0;
     }
 
     template<class BoxType>
-    void NetService::_connect() {
+    void NetService::_connectToServer() {
         _closeConn();
         // 没有超时
         m_client = new netkit::TcpClient(m_host, m_port, -1);
@@ -200,7 +200,7 @@ namespace ferry {
             if (!isConnected()) {
                 if (m_should_connect) {
                     // 连接服务器
-                    _connect();
+                    _connectToServer();
                 }
 
                 if (!isConnected()) {
@@ -316,6 +316,7 @@ namespace ferry {
     template<class BoxType>
     void NetService::_registerMainThreadSchedule() {
         auto func = [this](float dt){
+            // 只要有数据就拼命循环完
             while (1) {
                 int ret = this->m_msgQueueFromServer->pop_nowait(m_recvMsg);
                 if (ret == 0) {

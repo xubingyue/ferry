@@ -35,11 +35,11 @@ public:
     // 停止，一般在游戏结束时
     inline void stop();
 
+    // 连接到服务器，如果断线重连要调用这个
+    inline int connect();
+
     // 是否连接成功
     inline bool isConnected();
-
-    // 连接到服务器，如果断线重连要调用这个
-    inline int connectToServer();
 
     // 为了启动线程使用的，外面不要使用
     inline static void* _recvMsgFromServerThreadWorker(void *args);
@@ -47,7 +47,7 @@ public:
 
 private:
     // 真实连接
-    inline void _connect();
+    inline void _connectToServer();
     // 主动关闭连接，比如认为连接不正常时
     inline void _closeConn();
 
