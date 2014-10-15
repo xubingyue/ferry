@@ -339,7 +339,6 @@ namespace ferry {
 
         // 不清除box
         delete msg;
-        msg = nullptr;
     }
 
     template<class BoxType>
