@@ -17,6 +17,14 @@ public:
         box = nullptr;
     }
 
+    void forceRelease() {
+        // 强制清空资源
+        if (box) {
+            delete box;
+            box = nullptr;
+        }
+    }
+
 public:
     int what;
     BoxType *box;

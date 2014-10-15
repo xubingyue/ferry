@@ -60,9 +60,6 @@ namespace ferry {
 
         m_should_connect = false;
 
-        m_sendBox = nullptr;
-        m_recvMsg = nullptr;
-
 #if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
 	netkit::Stream::startupSocket();
 #endif
@@ -73,6 +70,8 @@ namespace ferry {
     Service<BoxType>::~Service() {
         pthread_mutex_destroy(&m_enabled_mutex);
         pthread_cond_destroy(&m_enabled_cond);
+
+        _clearMsgQueues();
 
         if (m_client) {
             delete m_client;
@@ -191,6 +190,9 @@ namespace ferry {
 
     template<class BoxType>
     void Service<BoxType>::_closeConn() {
+        // 关闭，就要把所有消息先清空
+        _clearMsgQueues();
+
         if (m_client) {
             m_client->closeStream();
             delete m_client;
@@ -282,6 +284,8 @@ namespace ferry {
 
     template<class BoxType>
     void Service<BoxType>::_sendMsgToServer() {
+        BoxType* box = nullptr;
+
         int ret;
 
         while (1) {
@@ -294,13 +298,13 @@ namespace ferry {
                 }
                 pthread_mutex_unlock(&m_enabled_mutex);
             }
-            ret = m_msgQueueToServer->pop(m_sendBox);
+            ret = m_msgQueueToServer->pop(box);
 
             if (ret == 0) {
-                if (m_client && m_sendBox) {
-                    m_client->write(m_sendBox);
-                    delete m_sendBox;
-                    m_sendBox = nullptr;
+                if (m_client && box) {
+                    m_client->write(box);
+                    delete box;
+                    box = nullptr;
                 }
             }
         }
@@ -383,11 +387,13 @@ namespace ferry {
     template<class BoxType>
     void Service<BoxType>::_registerMainThreadSchedule() {
         auto func = [this](float dt){
+            Message<BoxType>* message = nullptr;
+
             // 只要有数据就拼命循环完
             while (1) {
-                int ret = this->m_msgQueueFromServer->pop_nowait(m_recvMsg);
+                int ret = this->m_msgQueueFromServer->pop_nowait(message);
                 if (ret == 0) {
-                    this->_onMainThreadReceiveMessage(m_recvMsg);
+                    this->_onMainThreadReceiveMessage(message);
                 }
                 else {
                     break;
@@ -396,6 +402,24 @@ namespace ferry {
         };
 
         cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "ferry_ui_loop");
+    }
+
+    template<class BoxType>
+    void Service<BoxType>::_clearMsgQueues() {
+
+        Message<BoxType>* message = nullptr;
+        BoxType* box = nullptr;
+
+        while (m_msgQueueFromServer && m_msgQueueFromServer->pop_nowait(message) == 0) {
+            message->forceRelease();
+            delete message;
+            message = nullptr;
+        }
+
+        while (m_msgQueueToServer && m_msgQueueToServer->pop_nowait(box) == 0) {
+            delete box;
+            box = nullptr;
+        }
     }
 }
 

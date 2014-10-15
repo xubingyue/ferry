@@ -78,6 +78,8 @@ private:
 
     void _registerMainThreadSchedule();
 
+    void _clearMsgQueues();
+
 
 private:
     // 是否运行中
@@ -101,10 +103,6 @@ private:
 
     // 网络
     netkit::TcpClient *m_client;
-
-    // 不知道为什么，临时变量不能用
-    BoxType* m_sendBox;
-    Message<BoxType>* m_recvMsg;
 };
 
 }
