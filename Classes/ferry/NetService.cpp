@@ -322,13 +322,13 @@ namespace ferry {
 
         switch (msg->what) {
             case DELEGATE_MSG_OPEN:
-                m_delegate->OnOpen(this);
+                m_delegate->onOpen(this);
                 break;
             case DELEGATE_MSG_RECV:
-                m_delegate->OnMessage(this, msg->box);
+                m_delegate->onMessage(this, msg->box);
                 break;
             case DELEGATE_MSG_CLOSE:
-                m_delegate->OnClose(this);
+                m_delegate->onClose(this);
                 break;
             default:
                 cocos2d::log("[%s]-[%s][%d][%s] msg.what: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
