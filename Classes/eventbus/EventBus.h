@@ -36,6 +36,7 @@ namespace eventbus{
         void loopEvents();
     private:
         void onEvent(BaseEvent* e);
+        void clearEvents();
     private:
         std::list<BaseEvent*> m_events;
         std::set<IHandler*> m_handlers;

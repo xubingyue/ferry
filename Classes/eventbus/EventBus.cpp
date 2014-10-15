@@ -1,4 +1,5 @@
 ﻿#include "EventBus.h"
+#include "CCConsole.h"
 
 namespace eventbus {
 
@@ -8,7 +9,8 @@ namespace eventbus {
 
     EventBus::~EventBus()
     {
-        m_events.clear();
+        clearEvents();
+        m_handlers.clear();
     }
 
     void EventBus::regHandler(IHandler* handler)
@@ -58,9 +60,17 @@ namespace eventbus {
         for (auto& e: m_events) {
             onEvent(e);
             // event在用完了之后就要删掉
+            cocos2d::log("e: %d", e->what);
             delete e;
         }
 
+        m_events.clear();
+    }
+
+    void EventBus::clearEvents() {
+        for (auto& e: m_events) {
+            delete e;
+        }
         m_events.clear();
     }
 
