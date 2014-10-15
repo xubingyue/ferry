@@ -22,6 +22,15 @@ enum DELEGATE_MSG_TYPE {
     DELEGATE_MSG_CLOSE=3,
 };
 
+const std::string LOG_TAG = "ferry";
+// 等待下次连接时间
+const int CONNECT_SLEEP_TIME = 1;
+
+// 队列的大小
+const int MSG_FROM_SERVER_SIZE = 100;
+const int MSG_TO_SERVER_SIZE = 100;
+
+
 template <class BoxType>
 class NetService {
 

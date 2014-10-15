@@ -24,16 +24,6 @@
 #include "NetService.h"
 #include "Delegate.h"
 
-// 等待下次连接时间
-#define CONNECT_SLEEP_TIME 1
-
-// 队列的大小
-#define MSG_FROM_SERVER_SIZE 100
-#define MSG_TO_SERVER_SIZE 100
-
-// LOG TAG
-#define LOG_TAG   "ferry"
-
 namespace ferry {
 
     template<class BoxType>
