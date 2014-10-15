@@ -30,7 +30,7 @@ class MyFerryDelegate : public ferry::Delegate<netkit::Box> {
         event->what = 1;
         event->box = box;
 
-        G::instance()->getEventBus()->pushEvent(event);
+        G::getEventBus()->pushEvent(event);
     }
 
     virtual void onClose(ferry::Service<netkit::Box> *service) {

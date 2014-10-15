@@ -35,11 +35,11 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // run
     director->runWithScene(scene);
 
-    G::instance()->getFerry()->init(new MyFerryDelegate(), "127.0.0.1", 7777);
-    G::instance()->getFerry()->start();
+    G::getFerry()->init(new MyFerryDelegate(), "127.0.0.1", 7777);
+    G::getFerry()->start();
 
     auto func = [this](float dt){
-        G::instance()->getEventBus()->loopEvents();
+        G::getEventBus()->loopEvents();
     };
 
     cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "event_loop");
