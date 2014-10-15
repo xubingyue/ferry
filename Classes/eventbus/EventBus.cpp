@@ -23,14 +23,14 @@ namespace eventbus {
 
     void EventBus::onEvent(BaseEvent* e)
     {
-        set<IHandler*> handlers=m_handlers;
+        std::set<IHandler*> handlers=m_handlers;
 
         while(1) {
-            set<IHandler*> tmp_handler;
+            std::set<IHandler*> tmp_handler;
 
             set_intersection(handlers.begin(), handlers.end(),
                     m_handlers.begin(), m_handlers.end(),
-                    insert_iterator<set<IHandler*> >(tmp_handler, tmp_handler.begin()));
+                    std::insert_iterator<std::set<IHandler*> >(tmp_handler, tmp_handler.begin()));
 
             if (tmp_handler.empty()) {
                 break;
