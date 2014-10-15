@@ -35,60 +35,60 @@ template <class BoxType>
 class NetService {
 
 public:
-    inline NetService();
-    inline ~NetService();
+    NetService();
+    ~NetService();
 
     // 初始化
-    inline bool init(Delegate<BoxType> *delegate,std::string host, short port);
+    bool init(Delegate<BoxType> *delegate,std::string host, short port);
     // 启动
-    inline void start();
+    void start();
     // 停止，一般在游戏结束时
-    inline void stop();
+    void stop();
 
     // 连接到服务器，如果断线重连要调用这个
-    inline int connect();
+    int connect();
 
     // 是否连接成功
-    inline bool isConnected();
+    bool isConnected();
 
     // 为了启动线程使用的，外面不要使用
-    inline static void* _recvMsgFromServerThreadWorker(void *args);
-    inline static void* _sendMsgToServerThreadWorker(void *args);
+    static void* _recvMsgFromServerThreadWorker(void *args);
+    static void* _sendMsgToServerThreadWorker(void *args);
 
 private:
     // 设置enabled
-    inline void _setEnabled(bool enabled);
+    void _setEnabled(bool enabled);
     // 真实连接
-    inline void _connectToServer();
+    void _connectToServer();
     // 主动关闭连接，比如认为连接不正常时
-    inline void _closeConn();
+    void _closeConn();
 
     // 启动各种线程
-    inline void _startThreads();
+    void _startThreads();
 
     // 启动接收线程
-    inline void _startRecvMsgFromServerThread();
+    void _startRecvMsgFromServerThread();
     // 启动接收线程
-    inline void _startSendMsgToServerThread();
+    void _startSendMsgToServerThread();
 
     // 从网络获取消息
-    inline void _recvMsgFromServer();
+    void _recvMsgFromServer();
     // 从本地获取消息
-    inline void _sendMsgToServer();
+    void _sendMsgToServer();
 
     // 当链接建立
-    inline void _onConnOpen();
+    void _onConnOpen();
 
     // 当链接关闭
-    inline void _onConnClose();
+    void _onConnClose();
 
     // 当收到服务器消息
-    inline void _onMessageFromServer(BoxType* box);
+    void _onMessageFromServer(BoxType* box);
 
     // 主线程的处理
-    inline void _onMainThreadReceiveMessage(Message *msg);
+    void _onMainThreadReceiveMessage(Message *msg);
 
-    inline void _registerMainThreadSchedule();
+    void _registerMainThreadSchedule();
 
 
 private:
