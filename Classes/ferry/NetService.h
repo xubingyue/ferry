@@ -71,7 +71,7 @@ private:
     void _onMessageFromServer(BoxType* box);
 
     // 主线程的处理
-    void _onMainThreadReceiveMessage(Message *msg);
+    void _onMainThreadReceiveMessage(Message<BoxType> *msg);
 
     void _registerMainThreadSchedule();
 
@@ -91,7 +91,7 @@ private:
     bool m_should_connect;
 
     // 从server读取的消息
-    BlockQueue<Message *> *m_msgQueueFromServer;
+    BlockQueue<Message<BoxType> *> *m_msgQueueFromServer;
 
     // 想要发送给server的消息
     BlockQueue<BoxType *> *m_msgQueueToServer;
@@ -101,7 +101,7 @@ private:
 
     // 不知道为什么，临时变量不能用
     BoxType* m_sendBox;
-    Message* m_recvMsg;
+    Message<BoxType>* m_recvMsg;
 };
 
 }

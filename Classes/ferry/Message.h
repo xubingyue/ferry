@@ -8,19 +8,18 @@
 
 #include <iostream>
 #include <map>
-#include "IBox.h"
 
-// 析构的时候，不释放box
+template <class BoxType>
 class Message {
 public:
     Message() {
-        box = nullptr;
         what = 0;
+        box = nullptr;
     }
 
 public:
     int what;
-    netkit::IBox *box;
+    BoxType *box;
 };
 
 

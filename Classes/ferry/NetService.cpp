@@ -51,7 +51,7 @@ namespace ferry {
         pthread_cond_init(&m_enabled_cond, NULL);
 
         m_port = 0;
-        m_msgQueueFromServer = new BlockQueue<Message *>(MSG_FROM_SERVER_SIZE);
+        m_msgQueueFromServer = new BlockQueue<Message<BoxType> *>(MSG_FROM_SERVER_SIZE);
         m_msgQueueToServer = new BlockQueue<BoxType *>(MSG_TO_SERVER_SIZE);
         m_client = nullptr;
 
@@ -297,7 +297,7 @@ namespace ferry {
 
     template<class BoxType>
     void NetService<BoxType>::_onConnOpen() {
-        Message * msg = new Message();
+        Message<BoxType> * msg = new Message<BoxType>();
         msg->what = DELEGATE_MSG_OPEN;
         int ret = m_msgQueueFromServer->push_nowait(msg);
         if (ret) {
@@ -311,7 +311,7 @@ namespace ferry {
         // 设置为不重连，等触发connectToServer再改状态
         m_should_connect = false;
 
-        Message * msg = new Message();
+        Message<BoxType> * msg = new Message<BoxType>();
         msg->what = DELEGATE_MSG_CLOSE;
         int ret = m_msgQueueFromServer->push_nowait(msg);
         if (ret) {
@@ -322,7 +322,7 @@ namespace ferry {
 
     template<class BoxType>
     void NetService<BoxType>::_onMessageFromServer(BoxType* box) {
-        Message * msg = new Message();
+        Message<BoxType> * msg = new Message<BoxType>();
         msg->what = DELEGATE_MSG_RECV;
         msg->box = box;
         int ret = m_msgQueueFromServer->push_nowait(msg);
@@ -333,7 +333,7 @@ namespace ferry {
     }
 
     template<class BoxType>
-    void NetService<BoxType>::_onMainThreadReceiveMessage(Message *msg) {
+    void NetService<BoxType>::_onMainThreadReceiveMessage(Message<BoxType> *msg) {
         if (!msg) {
             cocos2d::log("[%s]-[%s][%d][%s] null msg", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
             return;
