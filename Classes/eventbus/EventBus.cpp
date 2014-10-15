@@ -60,7 +60,6 @@ namespace eventbus {
         for (auto& e: m_events) {
             onEvent(e);
             // event在用完了之后就要删掉
-            cocos2d::log("e: %d", e->what);
             delete e;
         }
 

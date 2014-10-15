@@ -14,6 +14,8 @@ namespace eventbus{
         BaseEvent() {
             what = 0;
         }
+        // 如果不标明虚函数，进行继承后delete会有bug
+        virtual ~BaseEvent() {}
         int what;
         std::map<std::string, std::string> mapData;
     };

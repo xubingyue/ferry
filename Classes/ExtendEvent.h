@@ -5,6 +5,7 @@
 #include <map>
 #include "EventBus.h"
 #include "Box.h"
+#include "cocos2d.h"
 
 class ExtendEvent :public eventbus::BaseEvent{
 public:
