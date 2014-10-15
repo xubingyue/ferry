@@ -308,6 +308,7 @@ namespace ferry {
                         msg->what);
         }
 
+        // 不清除box
         delete msg;
         msg = nullptr;
     }
