@@ -6,6 +6,7 @@
 #define __NETSERVICE_H_20141014200634__
 
 #include <iostream>
+#include <pthread.h>
 #include "BlockQueue.h"
 #include "Message.h"
 #include "TcpClient.h"
@@ -82,6 +83,8 @@ private:
 private:
     // 是否运行中
     bool m_enabled;
+    pthread_mutex_t m_enabled_mutex;
+    pthread_cond_t m_enabled_cond;
 
     Delegate<BoxType> *m_delegate;
     std::string m_host;

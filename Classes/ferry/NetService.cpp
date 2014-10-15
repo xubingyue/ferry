@@ -37,6 +37,9 @@ namespace ferry {
     template<class BoxType>
     NetService::NetService() {
         m_enabled = false;
+        pthread_mutex_init(&m_enabled_mutex, NULL);
+        pthread_cond_init(&m_enabled_cond, NULL);
+
         m_port = 0;
         m_msgQueueFromServer = new BlockQueue<Message *>(MSG_FROM_SERVER_SIZE);
         m_msgQueueToServer = new BlockQueue<BoxType *>(MSG_TO_SERVER_SIZE);
@@ -53,6 +56,9 @@ namespace ferry {
 
     template<class BoxType>
     NetService::~NetService() {
+        pthread_mutex_destroy(&m_enabled_mutex);
+        pthread_cond_destroy(&m_enabled_cond);
+
         if (m_client) {
             delete m_client;
             m_client = nullptr;

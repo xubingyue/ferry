@@ -7,10 +7,9 @@
 #include <stdio.h>
 #include <pthread.h>
 
-using namespace std;
+namespace ferry {
 
 template<class DataType>
-
 class BlockQueue {
 public:
     BlockQueue(int maxsize):m_count(0) {
@@ -20,6 +19,13 @@ public:
         pthread_mutex_init(&m_not_empty_mutex, NULL);
         pthread_cond_init(&m_not_full_cond, NULL);
         pthread_cond_init(&m_not_empty_cond, NULL);
+    }
+
+    ~BlockQueue() {
+        pthread_mutex_destroy(&m_not_full_mutex);
+        pthread_mutex_destroy(&m_not_empty_mutex);
+        pthread_cond_destroy(&m_not_full_cond);
+        pthread_cond_destroy(&m_not_empty_cond);
     }
 
     int push(DataType &d) {
@@ -60,7 +66,7 @@ public:
                 ret = pthread_cond_timedwait(&m_not_full_cond, &m_not_full_mutex, &timeout);
                 if (ret == ETIMEDOUT) {
                     // 是超时了，并没有等到成功
-                pthread_mutex_unlock(&m_not_full_mutex);
+                    pthread_mutex_unlock(&m_not_full_mutex);
                     return ret;
                 }
             }
@@ -136,7 +142,9 @@ private:
     pthread_cond_t m_not_full_cond;
     pthread_cond_t m_not_empty_cond;
 
-    deque<DataType> m_queue;
+    std::deque<DataType> m_queue;
 };
+
+}
 
 #endif /* end of include guard: BLOCK_QUEUE_H_20140728115604 */
