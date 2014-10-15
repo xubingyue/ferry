@@ -51,6 +51,11 @@ namespace ferry {
 
         m_sendBox = nullptr;
         m_recvMsg = nullptr;
+
+#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+	netkit::Stream::startupSocket();
+#endif
+
     }
 
     template<class BoxType>
@@ -72,6 +77,11 @@ namespace ferry {
             delete m_msgQueueToServer;
             m_msgQueueToServer = nullptr;
         }
+
+#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+	netkit::Stream::cleanupSocket();
+#endif
+
     }
 
     template<class BoxType>
@@ -164,8 +174,9 @@ namespace ferry {
     void NetService<BoxType>::_closeConn() {
         if (m_client) {
             m_client->closeStream();
+            delete m_client;
+            m_client = nullptr;
         }
-        m_client = nullptr;
     }
 
     template<class BoxType>
