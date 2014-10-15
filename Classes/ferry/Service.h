@@ -49,8 +49,8 @@ public:
     static void* _sendMsgToServerThreadWorker(void *args);
 
 private:
-    // 设置enabled
-    void _setEnable(bool enable);
+    // 设置running
+    void _setRunning(bool running);
     // 真实连接
     void _connectToServer();
 
@@ -86,9 +86,9 @@ private:
 
 private:
     // 是否运行中
-    bool m_enable;
-    pthread_mutex_t m_enable_mutex;
-    pthread_cond_t m_enable_cond;
+    bool m_running;
+    pthread_mutex_t m_running_mutex;
+    pthread_cond_t m_running_cond;
 
     Delegate<BoxType> *m_delegate;
     std::string m_host;
