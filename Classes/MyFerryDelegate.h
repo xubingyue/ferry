@@ -6,7 +6,7 @@
 #ifndef __NetDelegate_2014_10_15_H_
 #define __NetDelegate_2014_10_15_H_
 
-#include "ferry/Delegate.h"
+#include "ferry.h"
 #include "cocos2d.h"
 #include "Box.h"
 

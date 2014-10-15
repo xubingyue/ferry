@@ -7,8 +7,7 @@
 #define __G_2014_10_15_H_
 
 #include <iostream>
-#include "Service.h"
-#include "ferry/Service.cpp"
+#include "ferry.h"
 #include "Box.h"
 
 class G

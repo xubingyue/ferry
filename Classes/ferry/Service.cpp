@@ -1,6 +1,9 @@
 //
 // Created by dantezhu on 14-10-14.
 //
+#ifndef __SERVICE_CPP_20141015151947__
+#define __SERVICE_CPP_20141015151947__
+
 
 #include <stdio.h>
 #include <string.h>
@@ -380,3 +383,6 @@ namespace ferry {
         cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "ferry_ui_loop");
     }
 }
+
+
+#endif /* end of include guard: __SERVICE_CPP_20141015151947__ */
