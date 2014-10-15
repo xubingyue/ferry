@@ -1,4 +1,6 @@
-﻿#include "EventBus.h"
+﻿#include <algorithm>
+#include <iterator>
+#include "EventBus.h"
 
 namespace eventbus {
 
