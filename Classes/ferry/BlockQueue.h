@@ -125,9 +125,12 @@ public:
 
     }
 
+    // 不能有clear函数，否则指针都会内存泄漏
+    /*
     void clear() {
         this->m_queue.clear();
     }
+    */
 
     size_t size() {
         return this->m_queue.size();
