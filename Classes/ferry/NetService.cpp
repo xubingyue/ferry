@@ -24,7 +24,25 @@
 #include "NetService.h"
 #include "Delegate.h"
 
+
 namespace ferry {
+
+#define FERRY_LOG_TAG   "ferry"
+
+    enum DELEGATE_MSG_TYPE {
+        DELEGATE_MSG_OPEN=1,
+        DELEGATE_MSG_RECV=2,
+        DELEGATE_MSG_CLOSE=3,
+    };
+
+// 等待下次连接时间
+    const int CONNECT_SLEEP_TIME = 1;
+
+// 队列的大小
+    const int MSG_FROM_SERVER_SIZE = 100;
+    const int MSG_TO_SERVER_SIZE = 100;
+
+
 
     template<class BoxType>
     NetService<BoxType>::NetService() {
@@ -135,7 +153,7 @@ namespace ferry {
         if (ret) {
             // 链接失败了
             // 没关系，下个循环还会继续重连
-            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
                     ret);
         }
         else {
@@ -283,7 +301,7 @@ namespace ferry {
         msg->what = DELEGATE_MSG_OPEN;
         int ret = m_msgQueueFromServer->push_nowait(msg);
         if (ret) {
-            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
                     ret);
         }
     }
@@ -297,7 +315,7 @@ namespace ferry {
         msg->what = DELEGATE_MSG_CLOSE;
         int ret = m_msgQueueFromServer->push_nowait(msg);
         if (ret) {
-            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
                     ret);
         }
     }
@@ -309,7 +327,7 @@ namespace ferry {
         msg->box = box;
         int ret = m_msgQueueFromServer->push_nowait(msg);
         if (ret) {
-            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
                     ret);
         }
     }
@@ -317,11 +335,11 @@ namespace ferry {
     template<class BoxType>
     void NetService<BoxType>::_onMainThreadReceiveMessage(Message *msg) {
         if (!msg) {
-            cocos2d::log("[%s]-[%s][%d][%s] null msg", LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
+            cocos2d::log("[%s]-[%s][%d][%s] null msg", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
             return;
         }
         if (!m_delegate) {
-            cocos2d::log("[%s]-[%s][%d][%s] null delegate", LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
+            cocos2d::log("[%s]-[%s][%d][%s] null delegate", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
             return;
         }
 
@@ -336,7 +354,7 @@ namespace ferry {
                 m_delegate->onClose(this);
                 break;
             default:
-                cocos2d::log("[%s]-[%s][%d][%s] msg.what: %d", LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                cocos2d::log("[%s]-[%s][%d][%s] msg.what: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
                         msg->what);
         }
 

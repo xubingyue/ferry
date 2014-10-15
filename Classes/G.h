@@ -7,7 +7,8 @@
 #define __G_2014_10_15_H_
 
 #include <iostream>
-#include "NetService.h"
+#include "ferry/NetService.h"
+#include "ferry/NetService.cpp"
 #include "Box.h"
 
 class G
