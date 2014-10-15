@@ -104,6 +104,7 @@ private:
     bool m_recvingMsgFromServer;
     bool m_sendingMsgToServer;
 
+    // 不知道为什么，临时变量不能用
     BoxType* m_sendBox;
     Message* m_recvMsg;
 };
