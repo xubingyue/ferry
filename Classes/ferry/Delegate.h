@@ -3,7 +3,7 @@
 
 
 #include "Box.h"
-#include "NetService.h"
+#include "Service.h"
 
 namespace ferry {
 
@@ -11,9 +11,9 @@ template<class T>
 class Delegate
 {
 public:
-	virtual void onOpen(NetService<T> *netService) = 0;
-	virtual void onMessage(NetService<T> *netService, T *box) = 0;
-	virtual void onClose(NetService<T> *netService) = 0;
+	virtual void onOpen(Service<T> *service) = 0;
+	virtual void onMessage(Service<T> *service, T *box) = 0;
+	virtual void onClose(Service<T> *service) = 0;
 };
 
 }

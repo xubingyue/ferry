@@ -2,8 +2,8 @@
 // Created by dantezhu on 14-10-14.
 //
 
-#ifndef __NETSERVICE_H_20141014200634__
-#define __NETSERVICE_H_20141014200634__
+#ifndef __SERVICE_H_20141014200634__
+#define __SERVICE_H_20141014200634__
 
 #include <iostream>
 #include <pthread.h>
@@ -17,11 +17,11 @@ template<class T>
 class Delegate;
 
 template <class BoxType>
-class NetService {
+class Service {
 
 public:
-    NetService();
-    ~NetService();
+    Service();
+    ~Service();
 
     // 初始化
     bool init(Delegate<BoxType> *delegate,std::string host, short port);
@@ -106,4 +106,4 @@ private:
 
 }
 
-#endif /* end of include guard: __NETSERVICE_H_20141014200634__ */
+#endif /* end of include guard: __SERVICE_H_20141014200634__ */

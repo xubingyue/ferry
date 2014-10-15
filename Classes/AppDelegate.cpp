@@ -1,8 +1,8 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
 #include "G.h"
-#include "NetDelegate.h"
-#include "NetService.h"
+#include "MyFerryDelegate.h"
+#include "Service.h"
 
 USING_NS_CC;
 
@@ -35,8 +35,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // run
     director->runWithScene(scene);
 
-    G::instance()->getNetService()->init(new NetDelegate(), "127.0.0.1", 7777);
-    G::instance()->getNetService()->start();
+    G::instance()->getFerryService()->init(new MyFerryDelegate(), "127.0.0.1", 7777);
+    G::instance()->getFerryService()->start();
 
     return true;
 }
