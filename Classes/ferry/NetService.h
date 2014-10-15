@@ -47,6 +47,8 @@ public:
     inline static void* _sendMsgToServerThreadWorker(void *args);
 
 private:
+    // 设置enabled
+    inline void _setEnabled(bool enabled);
     // 真实连接
     inline void _connectToServer();
     // 主动关闭连接，比如认为连接不正常时
@@ -102,10 +104,6 @@ private:
 
     // 网络
     netkit::TcpClient *m_client;
-
-    // 线程是否存在
-    bool m_recvingMsgFromServer;
-    bool m_sendingMsgToServer;
 
     // 不知道为什么，临时变量不能用
     BoxType* m_sendBox;

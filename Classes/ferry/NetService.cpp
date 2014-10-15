@@ -45,9 +45,6 @@ namespace ferry {
         m_msgQueueToServer = new BlockQueue<BoxType *>(MSG_TO_SERVER_SIZE);
         m_client = nullptr;
 
-        m_recvingMsgFromServer = false;
-        m_sendingMsgToServer = false;
-
         m_should_connect = false;
 
         m_sendBox = nullptr;
@@ -89,7 +86,7 @@ namespace ferry {
             // 已经调用过一次，是不能再调用的
             return;
         }
-        m_enabled = true;
+        _setEnabled(true);
 
         // 标记要连接服务器
         connect();
@@ -101,7 +98,7 @@ namespace ferry {
 
     template<class BoxType>
     void NetService::stop() {
-        m_enabled = false;
+        _setEnabled(false);
     }
 
     template<class BoxType>
@@ -113,6 +110,17 @@ namespace ferry {
     int NetService::connect() {
         m_should_connect = true;
         return 0;
+    }
+
+    template<class BoxType>
+    inline void NetService::_setEnabled(bool enabled) {
+        pthread_mutex_lock(&m_enabled_mutex);
+        m_enabled = enabled;
+        if (m_enabled) {
+            // 只通知可用
+            pthread_cond_broadcast(&m_enabled_cond);
+        }
+        pthread_mutex_unlock(&m_enabled_mutex);
     }
 
     template<class BoxType>
@@ -200,9 +208,16 @@ namespace ferry {
     void NetService::_recvMsgFromServer() {
         int ret;
 
-        m_recvingMsgFromServer = true;
-
-        while (m_enabled) {
+        while (1) {
+            if (!m_enabled) {
+                pthread_mutex_lock(&m_enabled_mutex);
+                // 锁定后再确认一下
+                if (!m_enabled) {
+                    // 只通知可用
+                    pthread_cond_wait(&m_enabled_cond, &m_enabled_mutex);
+                }
+                pthread_mutex_unlock(&m_enabled_mutex);
+            }
 
             if (!isConnected()) {
                 if (m_should_connect) {
@@ -229,16 +244,23 @@ namespace ferry {
                 _onMessageFromServer(box);
             }
         }
-
-        m_recvingMsgFromServer = false;
     }
 
     template<class BoxType>
     void NetService::_sendMsgToServer() {
-        m_sendingMsgToServer = true;
+        int ret;
 
-        while (m_enabled) {
-            int ret = m_msgQueueToServer->pop(m_sendBox);
+        while (1) {
+            if (!m_enabled) {
+                pthread_mutex_lock(&m_enabled_mutex);
+                // 锁定后再确认一下
+                if (!m_enabled) {
+                    // 只通知可用
+                    pthread_cond_wait(&m_enabled_cond, &m_enabled_mutex);
+                }
+                pthread_mutex_unlock(&m_enabled_mutex);
+            }
+            ret = m_msgQueueToServer->pop(m_sendBox);
 
             if (ret == 0) {
                 if (m_client && m_sendBox) {
@@ -248,8 +270,6 @@ namespace ferry {
                 }
             }
         }
-
-        m_sendingMsgToServer = false;
     }
 
     template<class BoxType>
