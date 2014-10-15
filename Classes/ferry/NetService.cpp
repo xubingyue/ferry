@@ -11,12 +11,12 @@
 
 #include <winsock2.h>
 #pragma comment(lib,"pthreadVSE2.lib")
-#define SLEEP Sleep;
+#define FERRY_SLEEP Sleep;
 
 #else
 #include <unistd.h>
 #include <arpa/inet.h>
-#define SLEEP sleep;
+#define FERRY_SLEEP sleep;
 #endif
 
 #include "cocos2d.h"
@@ -250,7 +250,7 @@ namespace ferry {
 
                 if (!isConnected()) {
                     // 如果还没有建立链接，就等一下
-                    SLEEP(CONNECT_SLEEP_TIME);
+                    FERRY_SLEEP(CONNECT_SLEEP_TIME);
                 }
                 continue;
             }
