@@ -18,7 +18,7 @@ class TcpClient {
 public:
     // timeout <=0 代表永不超时
     TcpClient(const std::string &host, short port, double timeout);
-    ~TcpClient();
+    virtual ~TcpClient();
 
     int connectServer();
 
