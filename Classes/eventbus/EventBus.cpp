@@ -11,12 +11,12 @@ namespace eventbus {
         m_events.clear();
     }
 
-    void EventBus::reg(IHandler* handler)
+    void EventBus::regHandler(IHandler* handler)
     {
         m_handlers.insert(handler);
     }
 
-    void EventBus::unReg(IHandler *handler)
+    void EventBus::delHandler(IHandler *handler)
     {
         m_handlers.erase(handler);
     }

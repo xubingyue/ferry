@@ -29,8 +29,8 @@ namespace eventbus{
     public:
         EventBus();
         ~EventBus();
-        void reg(IHandler*);
-        void unReg(IHandler *);
+        void regHandler(IHandler *);
+        void delHandler(IHandler *);
         void pushEvent(BaseEvent*);
         void loopEvents();
     private:
