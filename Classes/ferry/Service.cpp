@@ -49,9 +49,9 @@ namespace ferry {
 
     template<class BoxType>
     Service<BoxType>::Service() {
-        m_enabled = false;
-        pthread_mutex_init(&m_enabled_mutex, NULL);
-        pthread_cond_init(&m_enabled_cond, NULL);
+        m_enable = false;
+        pthread_mutex_init(&m_enable_mutex, NULL);
+        pthread_cond_init(&m_enable_cond, NULL);
 
         m_port = 0;
         m_msgQueueFromServer = new BlockQueue<Message<BoxType> *>(MSG_FROM_SERVER_SIZE);
@@ -68,8 +68,8 @@ namespace ferry {
 
     template<class BoxType>
     Service<BoxType>::~Service() {
-        pthread_mutex_destroy(&m_enabled_mutex);
-        pthread_cond_destroy(&m_enabled_cond);
+        pthread_mutex_destroy(&m_enable_mutex);
+        pthread_cond_destroy(&m_enable_cond);
 
         _clearMsgQueues();
 
@@ -104,11 +104,11 @@ namespace ferry {
 
     template<class BoxType>
     void Service<BoxType>::start() {
-        if (m_enabled) {
+        if (m_enable) {
             // 已经调用过一次，是不能再调用的
             return;
         }
-        _setEnabled(true);
+        _setEnable(true);
 
         // 标记要连接服务器
         connect();
@@ -120,12 +120,19 @@ namespace ferry {
 
     template<class BoxType>
     void Service<BoxType>::stop() {
-        _setEnabled(false);
+        _setEnable(false);
+        // 关闭连接
+        _closeConn();
     }
 
     template<class BoxType>
     bool Service<BoxType>::isConnected() {
         return m_client == nullptr ? false : !m_client->isClosed();
+    }
+
+    template<class BoxType>
+    bool Service<BoxType>::isRunning() {
+        return m_enable;
     }
 
     template<class BoxType>
@@ -143,14 +150,14 @@ namespace ferry {
     }
 
     template<class BoxType>
-    inline void Service<BoxType>::_setEnabled(bool enabled) {
-        pthread_mutex_lock(&m_enabled_mutex);
-        m_enabled = enabled;
-        if (m_enabled) {
+    inline void Service<BoxType>::_setEnable(bool enable) {
+        pthread_mutex_lock(&m_enable_mutex);
+        m_enable = enable;
+        if (m_enable) {
             // 只通知可用
-            pthread_cond_broadcast(&m_enabled_cond);
+            pthread_cond_broadcast(&m_enable_cond);
         }
-        pthread_mutex_unlock(&m_enabled_mutex);
+        pthread_mutex_unlock(&m_enable_mutex);
     }
 
     template<class BoxType>
@@ -245,14 +252,14 @@ namespace ferry {
         int ret;
 
         while (1) {
-            if (!m_enabled) {
-                pthread_mutex_lock(&m_enabled_mutex);
+            if (!m_enable) {
+                pthread_mutex_lock(&m_enable_mutex);
                 // 锁定后再确认一下
-                if (!m_enabled) {
+                if (!m_enable) {
                     // 只通知可用
-                    pthread_cond_wait(&m_enabled_cond, &m_enabled_mutex);
+                    pthread_cond_wait(&m_enable_cond, &m_enable_mutex);
                 }
-                pthread_mutex_unlock(&m_enabled_mutex);
+                pthread_mutex_unlock(&m_enable_mutex);
             }
 
             if (!isConnected()) {
@@ -289,14 +296,14 @@ namespace ferry {
         int ret;
 
         while (1) {
-            if (!m_enabled) {
-                pthread_mutex_lock(&m_enabled_mutex);
+            if (!m_enable) {
+                pthread_mutex_lock(&m_enable_mutex);
                 // 锁定后再确认一下
-                if (!m_enabled) {
+                if (!m_enable) {
                     // 只通知可用
-                    pthread_cond_wait(&m_enabled_cond, &m_enabled_mutex);
+                    pthread_cond_wait(&m_enable_cond, &m_enable_mutex);
                 }
-                pthread_mutex_unlock(&m_enabled_mutex);
+                pthread_mutex_unlock(&m_enable_mutex);
             }
             ret = m_msgQueueToServer->pop(box);
 

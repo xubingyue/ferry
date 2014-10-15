@@ -36,6 +36,9 @@ public:
     // 是否连接成功
     bool isConnected();
 
+    // 是否运行中
+    bool isRunning();
+
     // 发送消息
     void send(BoxType* box);
 
@@ -45,7 +48,7 @@ public:
 
 private:
     // 设置enabled
-    void _setEnabled(bool enabled);
+    void _setEnable(bool enable);
     // 真实连接
     void _connectToServer();
     // 主动关闭连接，比如认为连接不正常时
@@ -83,9 +86,9 @@ private:
 
 private:
     // 是否运行中
-    bool m_enabled;
-    pthread_mutex_t m_enabled_mutex;
-    pthread_cond_t m_enabled_cond;
+    bool m_enable;
+    pthread_mutex_t m_enable_mutex;
+    pthread_cond_t m_enable_cond;
 
     Delegate<BoxType> *m_delegate;
     std::string m_host;
