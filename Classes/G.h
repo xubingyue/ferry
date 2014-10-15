@@ -7,7 +7,8 @@
 #define __G_2014_10_15_H_
 
 #include <iostream>
-#include "NetService.h"
+#include "ferry/NetService.h"
+#include "Box.h"
 
 class G
 {
@@ -20,7 +21,7 @@ public:
         return _instance;
     }
 
-    ferry::NetService* getNetService() {
+    ferry::NetService<netkit::Box>* getNetService() {
         return &m_netService;
     }
 
@@ -34,7 +35,7 @@ protected:
     virtual ~G(){}
     friend class std::auto_ptr<G>;
 
-    ferry::NetService m_netService;
+    ferry::NetService<netkit::Box> m_netService;
 };
 
 

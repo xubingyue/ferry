@@ -1,6 +1,7 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
 #include "G.h"
+#include "NetDelegate.h"
 
 USING_NS_CC;
 
@@ -32,6 +33,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     // run
     director->runWithScene(scene);
+
+    G::instance()->getNetService()->init(new NetDelegate<netkit::Box>(), "127.0.0.1", 7777);
+    G::instance()->getNetService()->start();
 
     return true;
 }
