@@ -14,8 +14,15 @@
 class MyFerryDelegate : public ferry::Delegate<netkit::Box> {
 
     virtual void onOpen(ferry::Service<netkit::Box> *service) {
+        netkit::Box *box = new netkit::Box();
+        box->cmd = 1;
+        box->setBody("aini", 4);
+
+        service->send(box);
     }
     virtual void onMessage(ferry::Service<netkit::Box> *service, netkit::Box *box) {
+        cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d, ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                box->cmd, box->sn, box->ret);
     }
     virtual void onClose(ferry::Service<netkit::Box> *service) {
         service->connect();

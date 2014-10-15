@@ -341,8 +341,8 @@ namespace ferry {
 
     template<class BoxType>
     void Service<BoxType>::_onMessageFromServer(BoxType* box) {
-        cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
-                box->cmd, box->sn);
+        cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d, ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                box->cmd, box->sn, box->ret);
 
         Message<BoxType> * msg = new Message<BoxType>();
         msg->what = DELEGATE_MSG_RECV;
