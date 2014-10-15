@@ -19,6 +19,8 @@
 #define SLEEP sleep;
 #endif
 
+#include "cocos2d.h"
+
 #include "NetService.h"
 #import "Delegate.h"
 
