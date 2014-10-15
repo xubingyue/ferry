@@ -36,7 +36,7 @@ namespace ferry {
     };
 
 // 等待下次连接时间
-    const int CONNECT_SLEEP_TIME = 1;
+    const int CONNECT_SLEEP_TIME_MSEC = 1000;
 
 // 队列的大小
     const int MSG_FROM_SERVER_SIZE = 100;
@@ -123,7 +123,7 @@ namespace ferry {
 
     template<class BoxType>
     bool NetService<BoxType>::isConnected() {
-        return m_client == nullptr ? true : !m_client->isClosed();
+        return m_client == nullptr ? false : !m_client->isClosed();
     }
 
     template<class BoxType>
@@ -250,7 +250,7 @@ namespace ferry {
 
                 if (!isConnected()) {
                     // 如果还没有建立链接，就等一下
-                    FERRY_SLEEP(CONNECT_SLEEP_TIME);
+                    FERRY_SLEEP(CONNECT_SLEEP_TIME_MSEC);
                 }
                 continue;
             }

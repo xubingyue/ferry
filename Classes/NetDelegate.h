@@ -13,14 +13,15 @@
 template <class T>
 class NetDelegate: public ferry::Delegate<T> {
 
-    virtual void onOpen(ferry::NetService<T> *net) {
-        cocos2d::log("[%s]-[%s][%d][%s] null delegate", "app_log", __FILE__, __LINE__, __FUNCTION__);
+    virtual void onOpen(ferry::NetService<T> *netService) {
+        cocos2d::log("[%s]-[%s][%d][%s]", "app_log", __FILE__, __LINE__, __FUNCTION__);
     }
-    virtual void onMessage(ferry::NetService<T> *net, T *box) {
-        cocos2d::log("[%s]-[%s][%d][%s] null delegate", "app_log", __FILE__, __LINE__, __FUNCTION__);
+    virtual void onMessage(ferry::NetService<T> *netService, T *box) {
+        cocos2d::log("[%s]-[%s][%d][%s]", "app_log", __FILE__, __LINE__, __FUNCTION__);
     }
-    virtual void onClose(ferry::NetService<T> *net) {
-        cocos2d::log("[%s]-[%s][%d][%s] null delegate", "app_log", __FILE__, __LINE__, __FUNCTION__);
+    virtual void onClose(ferry::NetService<T> *netService) {
+        cocos2d::log("[%s]-[%s][%d][%s]", "app_log", __FILE__, __LINE__, __FUNCTION__);
+        netService->connect();
     }
 };
 
