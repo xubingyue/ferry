@@ -29,7 +29,7 @@ namespace eventbus {
         while(1) {
             std::set<IHandler*> tmp_handler;
 
-            set_intersection(handlers.begin(), handlers.end(),
+            std::set_intersection(handlers.begin(), handlers.end(),
                     m_handlers.begin(), m_handlers.end(),
                     std::insert_iterator<std::set<IHandler*> >(tmp_handler, tmp_handler.begin()));
 
