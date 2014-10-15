@@ -1,5 +1,4 @@
 ﻿#include "EventBus.h"
-#include "CCConsole.h"
 
 namespace eventbus {
 
