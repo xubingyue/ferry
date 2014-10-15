@@ -8,14 +8,11 @@
 
 class ExtendEvent :public eventbus::BaseEvent{
 public:
-    CREATE_FUNC(ExtendEvent);
-
     ExtendEvent() {
         box = nullptr;
-        what = 0;
     }
     virtual ~ExtendEvent() {
-        if(box != nullptr) {
+        if(box) {
             delete box;
         }
         box = nullptr;
@@ -24,8 +21,6 @@ public:
 
 public:
     netkit::Box *box;
-    int what;
-    std::map <std::string, std::string> mapData;
 };
 
 #endif

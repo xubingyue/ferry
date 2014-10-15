@@ -9,6 +9,7 @@
 #include <iostream>
 #include "ferry.h"
 #include "Box.h"
+#include "EventBus.h"
 
 class G
 {
@@ -25,6 +26,10 @@ public:
         return &m_ferry;
     }
 
+    eventbus::EventBus* getEventBus() {
+        return &m_eventBus;
+    }
+
 
 protected:
     G()
@@ -36,6 +41,7 @@ protected:
     friend class std::auto_ptr<G>;
 
     ferry::Service<netkit::Box> m_ferry;
+    eventbus::EventBus m_eventBus;
 };
 
 

@@ -9,6 +9,7 @@
 #include "ferry.h"
 #include "cocos2d.h"
 #include "Box.h"
+#include "ExtendEvent.h"
 
 
 class MyFerryDelegate : public ferry::Delegate<netkit::Box> {
@@ -20,10 +21,18 @@ class MyFerryDelegate : public ferry::Delegate<netkit::Box> {
 
         service->send(box);
     }
+
     virtual void onMessage(ferry::Service<netkit::Box> *service, netkit::Box *box) {
         cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d, ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
                 box->cmd, box->sn, box->ret);
+
+        ExtendEvent* event = new ExtendEvent();
+        event->what = 1;
+        event->box = box;
+
+        G::instance()->getEventBus()->pushEvent(event);
     }
+
     virtual void onClose(ferry::Service<netkit::Box> *service) {
         service->connect();
     }

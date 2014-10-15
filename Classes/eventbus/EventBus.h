@@ -11,6 +11,9 @@ namespace eventbus{
     class BaseEvent
     {
     public:
+        BaseEvent() {
+            what = 0;
+        }
         int what;
         std::map<std::string, std::string> mapData;
     };
@@ -26,7 +29,7 @@ namespace eventbus{
     {
     public:
         EventBus();
-        ~EventBus();
+        virtual ~EventBus();
         void regHandler(IHandler *);
         void delHandler(IHandler *);
         void pushEvent(BaseEvent*);

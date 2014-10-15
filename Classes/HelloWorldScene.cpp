@@ -1,4 +1,5 @@
 #include "HelloWorldScene.h"
+#include "ExtendEvent.h"
 
 USING_NS_CC;
 
@@ -90,6 +91,7 @@ void HelloWorld::menuCloseCallback(Ref* pSender)
 #endif
 }
 
-void HelloWorld::onEvent(eventbus::BaseEvent *) {
-
+void HelloWorld::onEvent(eventbus::BaseEvent *event) {
+    ExtendEvent* extendEvent = (ExtendEvent*) event;
+    cocos2d::log("%d", extendEvent->what);
 }

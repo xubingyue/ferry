@@ -21,7 +21,7 @@ class Service {
 
 public:
     Service();
-    ~Service();
+    virtual ~Service();
 
     // 初始化
     bool init(Delegate<BoxType> *delegate,std::string host, short port);

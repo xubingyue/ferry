@@ -21,7 +21,7 @@ public:
         pthread_cond_init(&m_not_empty_cond, NULL);
     }
 
-    ~BlockQueue() {
+    virtual ~BlockQueue() {
         pthread_mutex_destroy(&m_not_full_mutex);
         pthread_mutex_destroy(&m_not_empty_mutex);
         pthread_cond_destroy(&m_not_full_cond);
