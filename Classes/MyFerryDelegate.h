@@ -3,8 +3,8 @@
 //
 
 
-#ifndef __NetDelegate_2014_10_15_H_
-#define __NetDelegate_2014_10_15_H_
+#ifndef __MyFerryDelegate_2014_10_15_H_
+#define __MyFerryDelegate_2014_10_15_H_
 
 #include "ferry.h"
 #include "cocos2d.h"
@@ -39,4 +39,4 @@ class MyFerryDelegate : public ferry::Delegate<netkit::Box> {
 };
 
 
-#endif //__NetDelegate_2014_10_15_H_
+#endif //__MyFerryDelegate_2014_10_15_H_
