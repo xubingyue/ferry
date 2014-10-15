@@ -35,7 +35,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // run
     director->runWithScene(scene);
 
-    G::instance()->getNetService()->init(new NetDelegate<netkit::Box>(), "127.0.0.1", 7777);
+    G::instance()->getNetService()->init(new NetDelegate(), "127.0.0.1", 7777);
     G::instance()->getNetService()->start();
 
     return true;
