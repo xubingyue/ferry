@@ -1,0 +1,8 @@
+1. Box、Message、BaseEvent，均没有使用cocos2d的内存管理，因为很大的原因是autorelease函数貌似不是线程安全。
+2. Message是不会负责释放Box的，从服务器接收到的box会给到应用层，由应用层负责保证。而app调用send传给ferry的box，在ferry发送完之后会自动delete.
+
+
+所以，简单来说，ferry在使用时，只要注意:
+1. onEvent中的event，只能在这个函数中使用，函数结束即会被释放。其中的box也是如此。不要在匿名函数中使用.
+2. 调用send的box，必须使用new创建，send之后，就不再使用
+3. 调用pushEvent的event，使用new创建，且pushEvent之后就不再使用
