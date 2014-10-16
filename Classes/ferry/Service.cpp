@@ -45,6 +45,7 @@ namespace ferry {
     const int MSG_FROM_SERVER_SIZE = 100;
     const int MSG_TO_SERVER_SIZE = 100;
 
+    const std::string COCOS_SCHEDULE_NAME = "ferry_service";
 
 
     template<class BoxType>
@@ -58,7 +59,9 @@ namespace ferry {
         m_msgQueueToServer = new BlockQueue<BoxType *>(MSG_TO_SERVER_SIZE);
         m_client = nullptr;
 
-        m_should_connect = false;
+        m_shouldConnect = false;
+
+        m_threadsRunning = false;
 
 #if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
 	netkit::Stream::startupSocket();
@@ -112,17 +115,24 @@ namespace ferry {
 
         // 标记要连接服务器
         connect();
-        // 启动线程
-        _startThreads();
+        // 启动线程，只要启动一次即可
+        if (!m_threadsRunning) {
+            _startThreads();
+            m_threadsRunning = true;
+        }
         // 注册到主线程执行
         _registerMainThreadSchedule();
     }
 
     template<class BoxType>
     void Service<BoxType>::stop() {
+        // 一定要放到最前面
         _setRunning(false);
         // 关闭连接
         closeConn();
+
+        // 取消主线程定时器
+        _unRegisterMainThreadSchedule();
     }
 
     template<class BoxType>
@@ -137,8 +147,20 @@ namespace ferry {
 
     template<class BoxType>
     int Service<BoxType>::connect() {
-        m_should_connect = true;
+        m_shouldConnect = true;
         return 0;
+    }
+
+    template<class BoxType>
+    void Service<BoxType>::closeConn() {
+        // 关闭，就要把所有消息先清空
+        _clearMsgQueues();
+
+        if (m_client) {
+            m_client->closeStream();
+            delete m_client;
+            m_client = nullptr;
+        }
     }
 
     template<class BoxType>
@@ -193,18 +215,6 @@ namespace ferry {
         netService->_sendMsgToServer();
 
         return nullptr;
-    }
-
-    template<class BoxType>
-    void Service<BoxType>::closeConn() {
-        // 关闭，就要把所有消息先清空
-        _clearMsgQueues();
-
-        if (m_client) {
-            m_client->closeStream();
-            delete m_client;
-            m_client = nullptr;
-        }
     }
 
     template<class BoxType>
@@ -263,7 +273,7 @@ namespace ferry {
             }
 
             if (!isConnected()) {
-                if (m_should_connect) {
+                if (m_shouldConnect) {
                     // 连接服务器
                     _connectToServer();
                 }
@@ -335,7 +345,7 @@ namespace ferry {
         cocos2d::log("[%s]-[%s][%d][%s]", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
 
         // 设置为不重连，等触发connectToServer再改状态
-        m_should_connect = false;
+        m_shouldConnect = false;
 
         Message<BoxType> * msg = new Message<BoxType>();
         msg->what = DELEGATE_MSG_CLOSE;
@@ -408,7 +418,12 @@ namespace ferry {
             }
         };
 
-        cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "ferry_ui_loop");
+        cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, COCOS_SCHEDULE_NAME);
+    }
+
+    template<class BoxType>
+    void Service<BoxType>::_unRegisterMainThreadSchedule() {
+        cocos2d::Director::getInstance()->getScheduler()->unschedule(COCOS_SCHEDULE_NAME, this);
     }
 
     template<class BoxType>

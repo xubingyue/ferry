@@ -80,6 +80,7 @@ private:
     void _onMainThreadReceiveMessage(Message<BoxType> *msg);
 
     void _registerMainThreadSchedule();
+    void _unRegisterMainThreadSchedule();
 
     void _clearMsgQueues();
 
@@ -96,7 +97,7 @@ private:
 
     // 是否要尝试连接，因为有时候会要提示用户链接断开
     // 用户点击重试才继续尝试
-    bool m_should_connect;
+    bool m_shouldConnect;
 
     // 从server读取的消息
     BlockQueue<Message<BoxType> *> *m_msgQueueFromServer;
@@ -106,6 +107,9 @@ private:
 
     // 网络
     netkit::TcpClient *m_client;
+
+    // 线程是否已经启动
+    bool m_threadsRunning;
 };
 
 }
