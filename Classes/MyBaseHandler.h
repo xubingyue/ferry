@@ -13,7 +13,7 @@
 class MyBaseHandler: public eventbus::IHandler {
 public:
     MyBaseHandler() {
-        G::getEventBus()->regHandler(this);
+        G::getEventBus()->addHandler(this);
     }
 
     ~MyBaseHandler() {

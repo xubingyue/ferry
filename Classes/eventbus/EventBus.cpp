@@ -14,7 +14,7 @@ namespace eventbus {
         m_handlers.clear();
     }
 
-    void EventBus::regHandler(IHandler* handler)
+    void EventBus::addHandler(IHandler* handler)
     {
         m_handlers.insert(handler);
     }

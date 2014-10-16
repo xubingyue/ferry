@@ -32,7 +32,7 @@ namespace eventbus{
     public:
         EventBus();
         virtual ~EventBus();
-        void regHandler(IHandler *);
+        void addHandler(IHandler *);
         void delHandler(IHandler *);
         void pushEvent(BaseEvent*);
         void loopEvents();
