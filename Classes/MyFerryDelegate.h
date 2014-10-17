@@ -12,9 +12,14 @@
 #include "ExtendEvent.h"
 
 
-class MyFerryDelegate : public ferry::Delegate<netkit::Box> {
+#define FERRY_DELEGATE_LOG_TAG "ferry_delegate"
 
-    virtual void onOpen(ferry::Service<netkit::Box> *service) {
+
+class MyFerryDelegate : public ferry::Delegate {
+
+    virtual void onOpen(ferry::Service *service) {
+        cocos2d::log("[%s]-[%s][%d][%s]", FERRY_DELEGATE_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
+
         netkit::Box *box = new netkit::Box();
         box->cmd = 1;
         box->setBody("aini", 4);
@@ -22,8 +27,17 @@ class MyFerryDelegate : public ferry::Delegate<netkit::Box> {
         service->send(box);
     }
 
-    virtual void onMessage(ferry::Service<netkit::Box> *service, netkit::Box *box) {
-        cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d, ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+    virtual void onSend(ferry::Service *service, netkit::IBox *ibox) {
+        netkit::Box* box = (netkit::Box*)ibox;
+
+        cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d, ret: %d", FERRY_DELEGATE_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                box->cmd, box->sn, box->ret);
+    }
+
+    virtual void onRecv(ferry::Service *service, netkit::IBox *ibox) {
+        netkit::Box* box = (netkit::Box*)ibox;
+
+        cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d, ret: %d", FERRY_DELEGATE_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
                 box->cmd, box->sn, box->ret);
 
         ExtendEvent* event = new ExtendEvent();
@@ -33,8 +47,18 @@ class MyFerryDelegate : public ferry::Delegate<netkit::Box> {
         G::getEventBus()->pushEvent(event);
     }
 
-    virtual void onClose(ferry::Service<netkit::Box> *service) {
+    virtual void onClose(ferry::Service *service) {
+        cocos2d::log("[%s]-[%s][%d][%s]", FERRY_DELEGATE_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
+
         service->connect();
+    }
+
+    virtual void onError(ferry::Service *service, int code){
+        cocos2d::log("[%s]-[%s][%d][%s] code: %d", FERRY_DELEGATE_LOG_TAG, __FILE__, __LINE__, __FUNCTION__, code);
+    };
+
+    virtual netkit::IBox* allocBox() {
+        return new netkit::Box();
     }
 };
 

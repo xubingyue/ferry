@@ -14,8 +14,8 @@
 class G
 {
 public:
-    static ferry::Service<netkit::Box>* getFerry() {
-        static ferry::Service<netkit::Box> ferry_;
+    static ferry::Service* getFerry() {
+        static ferry::Service ferry_;
         return &ferry_;
     }
 

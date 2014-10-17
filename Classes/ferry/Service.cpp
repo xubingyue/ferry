@@ -1,9 +1,6 @@
 //
 // Created by dantezhu on 14-10-14.
 //
-#ifndef __SERVICE_CPP_20141015151947__
-#define __SERVICE_CPP_20141015151947__
-
 
 #include <stdio.h>
 #include <string.h>
@@ -37,6 +34,12 @@ namespace ferry {
         DELEGATE_MSG_RECV=2,
         DELEGATE_MSG_CLOSE=3,
     };
+    enum ERROR_CODE {
+        ERROR_PUSH_OPEN_MSG_TO_QUEUE,
+        ERROR_PUSH_SEND_MSG_TO_QUEUE,
+        ERROR_PUSH_RECV_MSG_TO_QUEUE,
+        ERROR_PUSH_CLOSE_MSG_TO_QUEUE,
+    };
 
 // 等待下次连接时间
     const int CONNECT_SLEEP_TIME_SEC = 1;
@@ -48,15 +51,14 @@ namespace ferry {
     const std::string COCOS_SCHEDULE_NAME = "ferry_service";
 
 
-    template<class BoxType>
-    Service<BoxType>::Service() {
+    Service::Service() {
         m_running = false;
         pthread_mutex_init(&m_running_mutex, NULL);
         pthread_cond_init(&m_running_cond, NULL);
 
         m_port = 0;
-        m_msgQueueFromServer = new BlockQueue<Message<BoxType> *>(MSG_FROM_SERVER_SIZE);
-        m_msgQueueToServer = new BlockQueue<BoxType *>(MSG_TO_SERVER_SIZE);
+        m_msgQueueFromServer = new BlockQueue<Message *>(MSG_FROM_SERVER_SIZE);
+        m_msgQueueToServer = new BlockQueue<netkit::IBox *>(MSG_TO_SERVER_SIZE);
         m_client = nullptr;
 
         m_shouldConnect = false;
@@ -69,8 +71,7 @@ namespace ferry {
 
     }
 
-    template<class BoxType>
-    Service<BoxType>::~Service() {
+    Service::~Service() {
         pthread_mutex_destroy(&m_running_mutex);
         pthread_cond_destroy(&m_running_cond);
 
@@ -97,16 +98,14 @@ namespace ferry {
 
     }
 
-    template<class BoxType>
-    bool Service<BoxType>::init(Delegate<BoxType> *delegate, std::string host, short port) {
+    bool Service::init(Delegate *delegate, std::string host, short port) {
         m_delegate = delegate;
         m_host = host;
         m_port = port;
         return true;
     }
 
-    template<class BoxType>
-    void Service<BoxType>::start() {
+    void Service::start() {
         if (m_running) {
             // 已经调用过一次，是不能再调用的
             return;
@@ -124,8 +123,7 @@ namespace ferry {
         _registerMainThreadSchedule();
     }
 
-    template<class BoxType>
-    void Service<BoxType>::stop() {
+    void Service::stop() {
         // 一定要放到最前面
         _setRunning(false);
         // 关闭连接
@@ -135,24 +133,20 @@ namespace ferry {
         _unRegisterMainThreadSchedule();
     }
 
-    template<class BoxType>
-    bool Service<BoxType>::isConnected() {
+    bool Service::isConnected() {
         return m_client == nullptr ? false : !m_client->isClosed();
     }
 
-    template<class BoxType>
-    bool Service<BoxType>::isRunning() {
+    bool Service::isRunning() {
         return m_running;
     }
 
-    template<class BoxType>
-    int Service<BoxType>::connect() {
+    int Service::connect() {
         m_shouldConnect = true;
         return 0;
     }
 
-    template<class BoxType>
-    void Service<BoxType>::closeConn() {
+    void Service::closeConn() {
         // 关闭，就要把所有消息先清空
         _clearMsgQueues();
 
@@ -163,16 +157,17 @@ namespace ferry {
         }
     }
 
-    template<class BoxType>
-    void Service<BoxType>::send(BoxType *box) {
-        cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
-                box->cmd, box->sn);
+    void Service::send(netkit::IBox *box) {
+        // 放到前面，否则很可能box会被析构
+        m_delegate->onSend(this, box);
 
-        m_msgQueueToServer->push_nowait(box);
+        int ret = m_msgQueueToServer->push_nowait(box);
+        if (ret) {
+            m_delegate->onError(this, ERROR_PUSH_SEND_MSG_TO_QUEUE);
+        }
     }
 
-    template<class BoxType>
-    inline void Service<BoxType>::_setRunning(bool running) {
+    inline void Service::_setRunning(bool running) {
         pthread_mutex_lock(&m_running_mutex);
         m_running = running;
         if (m_running) {
@@ -182,8 +177,7 @@ namespace ferry {
         pthread_mutex_unlock(&m_running_mutex);
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_connectToServer() {
+    void Service::_connectToServer() {
         closeConn();
         // 没有超时
         m_client = new netkit::TcpClient(m_host, m_port, -1);
@@ -201,37 +195,33 @@ namespace ferry {
         }
     }
 
-    template<class BoxType>
-    void* Service<BoxType>::_recvMsgFromServerThreadWorker(void *args) {
-        Service<BoxType>* netService = (Service<BoxType>*)args;
+    void* Service::_recvMsgFromServerThreadWorker(void *args) {
+        Service* netService = (Service*)args;
         netService->_recvMsgFromServer();
 
         return nullptr;
     }
 
-    template<class BoxType>
-    void* Service<BoxType>::_sendMsgToServerThreadWorker(void *args) {
-        Service<BoxType>* netService = (Service<BoxType>*)args;
+    void* Service::_sendMsgToServerThreadWorker(void *args) {
+        Service* netService = (Service*)args;
         netService->_sendMsgToServer();
 
         return nullptr;
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_startThreads() {
+    void Service::_startThreads() {
         _startRecvMsgFromServerThread();
         _startSendMsgToServerThread();
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_startRecvMsgFromServerThread() {
+    void Service::_startRecvMsgFromServerThread() {
         pthread_attr_t attr;
         pthread_attr_init (&attr);
         pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
 
         int ret;
         pthread_t threadId;
-        ret= pthread_create(&threadId, &attr, &Service<BoxType>::_recvMsgFromServerThreadWorker, (void *) this);
+        ret= pthread_create(&threadId, &attr, &Service::_recvMsgFromServerThreadWorker, (void *) this);
         if(ret!=0){
             //ERROR_LOG("Thread creation failed:%d",ret);
             pthread_attr_destroy (&attr);
@@ -240,15 +230,14 @@ namespace ferry {
         pthread_attr_destroy (&attr);
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_startSendMsgToServerThread() {
+    void Service::_startSendMsgToServerThread() {
         pthread_attr_t attr;
         pthread_attr_init (&attr);
         pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
 
         int ret;
         pthread_t threadId;
-        ret= pthread_create(&threadId, &attr, &Service<BoxType>::_sendMsgToServerThreadWorker, (void *) this);
+        ret= pthread_create(&threadId, &attr, &Service::_sendMsgToServerThreadWorker, (void *) this);
         if(ret!=0){
             //ERROR_LOG("Thread creation failed:%d",ret);
             pthread_attr_destroy (&attr);
@@ -257,8 +246,7 @@ namespace ferry {
         pthread_attr_destroy (&attr);
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_recvMsgFromServer() {
+    void Service::_recvMsgFromServer() {
         int ret;
 
         while (1) {
@@ -285,7 +273,7 @@ namespace ferry {
                 continue;
             }
 
-            BoxType* box = new BoxType();
+            netkit::IBox* box = m_delegate->allocBox();
 
             ret = m_client->read(box);
             if (ret < 0) {
@@ -294,14 +282,13 @@ namespace ferry {
             }
             else {
                 // 有数据
-                _onMessageFromServer(box);
+                _onRecvMsgFromServer(box);
             }
         }
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_sendMsgToServer() {
-        BoxType* box = nullptr;
+    void Service::_sendMsgToServer() {
+        netkit::IBox* box = nullptr;
 
         int ret;
 
@@ -327,52 +314,40 @@ namespace ferry {
         }
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_onConnOpen() {
-        cocos2d::log("[%s]-[%s][%d][%s]", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
-
-        Message<BoxType> * msg = new Message<BoxType>();
+    void Service::_onConnOpen() {
+        Message * msg = new Message();
         msg->what = DELEGATE_MSG_OPEN;
         int ret = m_msgQueueFromServer->push_nowait(msg);
         if (ret) {
             cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
                     ret);
+            m_delegate->onError(this, ERROR_PUSH_OPEN_MSG_TO_QUEUE);
         }
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_onConnClose() {
-        cocos2d::log("[%s]-[%s][%d][%s]", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
-
+    void Service::_onConnClose() {
         // 设置为不重连，等触发connectToServer再改状态
         m_shouldConnect = false;
 
-        Message<BoxType> * msg = new Message<BoxType>();
+        Message * msg = new Message();
         msg->what = DELEGATE_MSG_CLOSE;
         int ret = m_msgQueueFromServer->push_nowait(msg);
         if (ret) {
-            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
-                    ret);
+            m_delegate->onError(this, ERROR_PUSH_CLOSE_MSG_TO_QUEUE);
         }
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_onMessageFromServer(BoxType* box) {
-        cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d, ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
-                box->cmd, box->sn, box->ret);
-
-        Message<BoxType> * msg = new Message<BoxType>();
+    void Service::_onRecvMsgFromServer(netkit::IBox *box) {
+        Message * msg = new Message();
         msg->what = DELEGATE_MSG_RECV;
         msg->box = box;
         int ret = m_msgQueueFromServer->push_nowait(msg);
         if (ret) {
-            cocos2d::log("[%s]-[%s][%d][%s] cmd: %d, sn: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
-                    box->cmd, box->sn);
+            m_delegate->onError(this, ERROR_PUSH_RECV_MSG_TO_QUEUE);
         }
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_onMainThreadReceiveMessage(Message<BoxType> *msg) {
+    void Service::_onMainThreadReceiveMessage(Message *msg) {
         if (!msg) {
             cocos2d::log("[%s]-[%s][%d][%s] null msg", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
             return;
@@ -387,7 +362,7 @@ namespace ferry {
                 m_delegate->onOpen(this);
                 break;
             case DELEGATE_MSG_RECV:
-                m_delegate->onMessage(this, msg->box);
+                m_delegate->onRecv(this, msg->box);
                 break;
             case DELEGATE_MSG_CLOSE:
                 m_delegate->onClose(this);
@@ -401,10 +376,9 @@ namespace ferry {
         delete msg;
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_registerMainThreadSchedule() {
+    void Service::_registerMainThreadSchedule() {
         auto func = [this](float dt){
-            Message<BoxType>* message = nullptr;
+            Message* message = nullptr;
 
             // 只要有数据就拼命循环完
             while (1) {
@@ -421,16 +395,13 @@ namespace ferry {
         cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, COCOS_SCHEDULE_NAME);
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_unRegisterMainThreadSchedule() {
+    void Service::_unRegisterMainThreadSchedule() {
         cocos2d::Director::getInstance()->getScheduler()->unschedule(COCOS_SCHEDULE_NAME, this);
     }
 
-    template<class BoxType>
-    void Service<BoxType>::_clearMsgQueues() {
-
-        Message<BoxType>* message = nullptr;
-        BoxType* box = nullptr;
+    void Service::_clearMsgQueues() {
+        Message* message = nullptr;
+        netkit::IBox* box = nullptr;
 
         while (m_msgQueueFromServer && m_msgQueueFromServer->pop_nowait(message) == 0) {
             message->forceRelease();
@@ -444,6 +415,3 @@ namespace ferry {
         }
     }
 }
-
-
-#endif /* end of include guard: __SERVICE_CPP_20141015151947__ */

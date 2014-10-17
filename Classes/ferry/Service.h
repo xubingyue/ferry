@@ -10,13 +10,12 @@
 #include "BlockQueue.h"
 #include "Message.h"
 #include "TcpClient.h"
+#include "IBox.h"
 
 namespace ferry {
 
-template<class T>
 class Delegate;
 
-template <class BoxType>
 class Service {
 
 public:
@@ -24,7 +23,7 @@ public:
     virtual ~Service();
 
     // 初始化
-    bool init(Delegate<BoxType> *delegate,std::string host, short port);
+    bool init(Delegate *delegate,std::string host, short port);
     // 启动
     void start();
     // 停止，一般在游戏结束时
@@ -42,7 +41,7 @@ public:
     bool isRunning();
 
     // 发送消息
-    void send(BoxType* box);
+    void send(netkit::IBox* box);
 
     // 为了启动线程使用的，外面不要使用
     static void* _recvMsgFromServerThreadWorker(void *args);
@@ -74,10 +73,10 @@ private:
     void _onConnClose();
 
     // 当收到服务器消息
-    void _onMessageFromServer(BoxType* box);
+    void _onRecvMsgFromServer(netkit::IBox *box);
 
     // 主线程的处理
-    void _onMainThreadReceiveMessage(Message<BoxType> *msg);
+    void _onMainThreadReceiveMessage(Message *msg);
 
     void _registerMainThreadSchedule();
     void _unRegisterMainThreadSchedule();
@@ -91,7 +90,7 @@ private:
     pthread_mutex_t m_running_mutex;
     pthread_cond_t m_running_cond;
 
-    Delegate<BoxType> *m_delegate;
+    Delegate *m_delegate;
     std::string m_host;
     short m_port;
 
@@ -100,10 +99,10 @@ private:
     bool m_shouldConnect;
 
     // 从server读取的消息
-    BlockQueue<Message<BoxType> *> *m_msgQueueFromServer;
+    BlockQueue<Message*> *m_msgQueueFromServer;
 
     // 想要发送给server的消息
-    BlockQueue<BoxType *> *m_msgQueueToServer;
+    BlockQueue<netkit::IBox *> *m_msgQueueToServer;
 
     // 网络
     netkit::TcpClient *m_client;

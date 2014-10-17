@@ -8,8 +8,8 @@
 
 #include <iostream>
 #include <map>
+#include "IBox.h"
 
-template <class BoxType>
 class Message {
 public:
     Message() {
@@ -27,7 +27,7 @@ public:
 
 public:
     int what;
-    BoxType *box;
+    netkit::IBox *box;
 };
 
 
