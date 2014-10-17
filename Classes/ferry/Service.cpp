@@ -72,6 +72,9 @@ namespace ferry {
     }
 
     Service::~Service() {
+        // 线程会有问题，最好的方式是不析构
+        stop();
+
         pthread_mutex_destroy(&m_running_mutex);
         pthread_cond_destroy(&m_running_cond);
 
@@ -124,6 +127,10 @@ namespace ferry {
     }
 
     void Service::stop() {
+        if (!m_running) {
+            return;
+        }
+
         // 一定要放到最前面
         _setRunning(false);
         // 关闭连接
