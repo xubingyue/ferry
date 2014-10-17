@@ -10,11 +10,13 @@ namespace ferry {
 class Delegate
 {
 public:
-	virtual void onOpen(Service *service) = 0;
+    virtual ~Delegate() {}
+
+    virtual void onOpen(Service *service) = 0;
     // 主要是打印log
     virtual void onSend(Service *service, netkit::IBox *ibox) = 0;
-	virtual void onRecv(Service *service, netkit::IBox *ibox) = 0;
-	virtual void onClose(Service *service) = 0;
+    virtual void onRecv(Service *service, netkit::IBox *ibox) = 0;
+    virtual void onClose(Service *service) = 0;
     virtual void onError(Service *service, int code) = 0;
 
     virtual netkit::IBox* allocBox() = 0;
