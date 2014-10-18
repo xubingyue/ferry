@@ -10,13 +10,13 @@
 #include "G.h"
 
 
-class MyBaseHandler: public eventbus::IHandler {
+class BaseEventHandler : public eventbus::IHandler {
 public:
-    MyBaseHandler() {
+    BaseEventHandler() {
         G::getEventBus()->addHandler(this);
     }
 
-    ~MyBaseHandler() {
+    ~BaseEventHandler() {
         G::getEventBus()->delHandler(this);
     }
 };
