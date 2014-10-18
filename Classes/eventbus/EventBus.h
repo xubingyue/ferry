@@ -13,7 +13,7 @@ namespace eventbus {
     public:
         BaseEvent() {
             what = 0;
-			_done = false;
+            _done = false;
         }
         // 如果不标明虚函数，进行继承后delete会有bug
         virtual ~BaseEvent() {}
@@ -22,8 +22,8 @@ namespace eventbus {
         int what;
         std::map<std::string, std::string> mapData;
 
-		// 是否完成，外界不要调用
-		bool _done;
+        // 是否完成，外界不要调用
+        bool _done;
     };
 
     class IHandler
@@ -49,7 +49,7 @@ namespace eventbus {
         std::list<BaseEvent*> m_events;
         std::set<IHandler*> m_handlers;
 
-		pthread_mutex_t m_visit_mutex;
+        pthread_mutex_t m_visit_mutex;
     };
 
 }

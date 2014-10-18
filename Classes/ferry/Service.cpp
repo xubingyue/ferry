@@ -66,7 +66,7 @@ namespace ferry {
         m_threadsRunning = false;
 
 #if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
-	netkit::Stream::startupSocket();
+    netkit::Stream::startupSocket();
 #endif
 
     }
@@ -96,7 +96,7 @@ namespace ferry {
         }
 
 #if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
-	netkit::Stream::cleanupSocket();
+    netkit::Stream::cleanupSocket();
 #endif
 
     }

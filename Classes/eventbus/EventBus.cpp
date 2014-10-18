@@ -74,30 +74,30 @@ namespace eventbus {
 
     void EventBus::loopEvents() {
         pthread_mutex_lock(&m_visit_mutex);
-		// 复制下来，防止访问冲突
+        // 复制下来，防止访问冲突
         std::list<BaseEvent*> events = m_events;
         pthread_mutex_unlock(&m_visit_mutex);
 
         for (auto& e: events) {
             onEvent(e);
-			e->_done = true;
+            e->_done = true;
         }
 
         pthread_mutex_lock(&m_visit_mutex);
-		for(auto it = m_events.begin(); it != m_events.end();)
-		{
-			auto e = (*it);
-			if (e->_done)
-			{
-				it = m_events.erase(it);
-				// event在用完了之后就要删掉
-				delete e;
-			}
-			else
-			{
-				++it;
-			}
-		}
+        for(auto it = m_events.begin(); it != m_events.end();)
+        {
+            auto e = (*it);
+            if (e->_done)
+            {
+                it = m_events.erase(it);
+                // event在用完了之后就要删掉
+                delete e;
+            }
+            else
+            {
+                ++it;
+            }
+        }
         pthread_mutex_unlock(&m_visit_mutex);
     }
 
