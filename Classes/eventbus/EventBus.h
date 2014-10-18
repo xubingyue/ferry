@@ -7,22 +7,32 @@
 #include <list>
 #include <pthread.h>
 
-namespace eventbus{
-
+namespace eventbus {
     class BaseEvent
     {
     public:
         BaseEvent() {
             what = 0;
-			_handled = false;
+			m_done = false;
         }
         // 如果不标明虚函数，进行继承后delete会有bug
         virtual ~BaseEvent() {}
+
+        bool isDone() {
+            return m_done;
+        }
+
+        // 应用层不许调用
+        void setDone(bool done) {
+            m_done = done;
+        }
+
         int what;
         std::map<std::string, std::string> mapData;
 
-		// 是否已经处理过. 外面不要使用
-		bool _handled;
+    private:
+		// 是否完成
+		bool m_done;
     };
 
     class IHandler

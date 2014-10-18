@@ -80,14 +80,14 @@ namespace eventbus {
 
         for (auto& e: events) {
             onEvent(e);
-			e->_handled = true;
+			e->setDone(true);
         }
 
         pthread_mutex_lock(&m_visit_mutex);
 		for(auto it = m_events.begin(); it != m_events.end();)
 		{
 			auto e = (*it);
-			if (e->_handled)
+			if (e->isDone())
 			{
 				it = m_events.erase(it);
 				// event在用完了之后就要删掉
