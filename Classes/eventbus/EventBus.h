@@ -5,6 +5,7 @@
 #include <set>
 #include <map>
 #include <list>
+#include <pthread.h>
 
 namespace eventbus{
 
@@ -13,11 +14,15 @@ namespace eventbus{
     public:
         BaseEvent() {
             what = 0;
+			_handled = false;
         }
         // 如果不标明虚函数，进行继承后delete会有bug
         virtual ~BaseEvent() {}
         int what;
         std::map<std::string, std::string> mapData;
+
+		// 是否已经处理过. 外面不要使用
+		bool _handled;
     };
 
     class IHandler
@@ -42,6 +47,8 @@ namespace eventbus{
     private:
         std::list<BaseEvent*> m_events;
         std::set<IHandler*> m_handlers;
+
+		pthread_mutex_t m_visit_mutex;
     };
 
 }

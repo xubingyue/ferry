@@ -2,30 +2,41 @@
 #include <iterator>
 #include "EventBus.h"
 
+#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+#pragma comment(lib,"pthreadVSE2.lib")
+#endif
+
 namespace eventbus {
 
-    EventBus::EventBus()
-    {
+    EventBus::EventBus() {
+        pthread_mutex_init(&m_visit_mutex, NULL);
     }
 
-    EventBus::~EventBus()
-    {
+    EventBus::~EventBus() {
+        pthread_mutex_destroy(&m_visit_mutex);
         clearEvents();
         m_handlers.clear();
     }
 
-    void EventBus::addHandler(IHandler* handler)
-    {
+    void EventBus::addHandler(IHandler* handler) {
+        pthread_mutex_lock(&m_visit_mutex);
+
         m_handlers.insert(handler);
+
+        pthread_mutex_unlock(&m_visit_mutex);
     }
 
-    void EventBus::delHandler(IHandler *handler)
-    {
+    void EventBus::delHandler(IHandler *handler) {
+        pthread_mutex_lock(&m_visit_mutex);
+
         m_handlers.erase(handler);
+
+        pthread_mutex_unlock(&m_visit_mutex);
     }
 
-    void EventBus::onEvent(BaseEvent* e)
-    {
+    void EventBus::onEvent(BaseEvent* e) {
+        pthread_mutex_lock(&m_visit_mutex);
+
         std::set<IHandler*> handlers=m_handlers;
 
         while(1) {
@@ -49,29 +60,56 @@ namespace eventbus {
 
             handlers.erase(*it);
         }
+
+        pthread_mutex_unlock(&m_visit_mutex);
     }
 
-    void EventBus::pushEvent(BaseEvent* event)
-    {
+    void EventBus::pushEvent(BaseEvent* event) {
+        pthread_mutex_lock(&m_visit_mutex);
+
         m_events.push_back(event);
+
+        pthread_mutex_unlock(&m_visit_mutex);
     }
 
-    void EventBus::loopEvents()
-    {
-        for (auto& e: m_events) {
+    void EventBus::loopEvents() {
+        pthread_mutex_lock(&m_visit_mutex);
+		// 复制下来，防止访问冲突
+        std::list<BaseEvent*> events = m_events;
+        pthread_mutex_unlock(&m_visit_mutex);
+
+        for (auto& e: events) {
             onEvent(e);
-            // event在用完了之后就要删掉
-            delete e;
+			e->_handled = true;
         }
 
-        m_events.clear();
+        pthread_mutex_lock(&m_visit_mutex);
+		for(auto it = m_events.begin(); it != m_events.end();)
+		{
+			auto e = (*it);
+			if (e->_handled)
+			{
+				it = m_events.erase(it);
+				// event在用完了之后就要删掉
+				delete e;
+			}
+			else
+			{
+				++it;
+			}
+		}
+        pthread_mutex_unlock(&m_visit_mutex);
     }
 
     void EventBus::clearEvents() {
+        pthread_mutex_lock(&m_visit_mutex);
+
         for (auto& e: m_events) {
             delete e;
         }
         m_events.clear();
+
+        pthread_mutex_unlock(&m_visit_mutex);
     }
 
 }

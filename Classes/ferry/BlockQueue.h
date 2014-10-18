@@ -7,6 +7,10 @@
 #include <stdio.h>
 #include <pthread.h>
 
+#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+#pragma comment(lib,"pthreadVSE2.lib")
+#endif
+
 namespace ferry {
 
 template<class DataType>
