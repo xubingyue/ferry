@@ -13,26 +13,17 @@ namespace eventbus {
     public:
         BaseEvent() {
             what = 0;
-			m_done = false;
+			_done = false;
         }
         // 如果不标明虚函数，进行继承后delete会有bug
         virtual ~BaseEvent() {}
 
-        bool isDone() {
-            return m_done;
-        }
-
-        // 应用层不许调用
-        void setDone(bool done) {
-            m_done = done;
-        }
-
+    public:
         int what;
         std::map<std::string, std::string> mapData;
 
-    private:
-		// 是否完成
-		bool m_done;
+		// 是否完成，外界不要调用
+		bool _done;
     };
 
     class IHandler
