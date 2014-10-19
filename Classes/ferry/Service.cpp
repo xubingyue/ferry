@@ -148,9 +148,8 @@ namespace ferry {
         return m_running;
     }
 
-    int Service::connect() {
+    void Service::connect() {
         m_shouldConnect = true;
-        return 0;
     }
 
     void Service::closeConn() {

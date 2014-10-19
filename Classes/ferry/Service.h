@@ -30,7 +30,7 @@ public:
     void stop();
 
     // 连接到服务器，如果断线重连要调用这个
-    int connect();
+    void connect();
     // 主动关闭连接，比如认为连接不正常时
     void closeConn();
 
