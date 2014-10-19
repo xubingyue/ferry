@@ -16,8 +16,12 @@ namespace ferry {
 template<class DataType>
 class BlockQueue {
 public:
-    BlockQueue(int maxsize):m_count(0) {
-        this->m_maxsize = maxsize;
+    BlockQueue():BlockQueue(0) {
+    }
+
+    BlockQueue(int maxsize) {
+        m_count = 0;
+        m_maxsize = maxsize;
 
         pthread_mutex_init(&m_not_full_mutex, NULL);
         pthread_mutex_init(&m_not_empty_mutex, NULL);
@@ -32,34 +36,38 @@ public:
         pthread_cond_destroy(&m_not_empty_cond);
     }
 
+    void setMaxSize(int maxsize) {
+        m_maxsize = maxsize;
+    }
+
     int push(DataType &d) {
         // 默认是阻塞的
 
-        return this->push(d, -1);
+        return push(d, -1);
     }
 
     int push_nowait(DataType &d) {
         // 不阻塞
-        return this->push(d, 0);
+        return push(d, 0);
     }
 
     int pop(DataType &d) {
         // 阻塞
-        return this->pop(d, -1);
+        return pop(d, -1);
     }
 
     int pop_nowait(DataType &d) {
         // 非阻塞
-        return this->pop(d, 0);
+        return pop(d, 0);
     }
 
     // block_sec: 0: 不阻塞; <0: 永久阻塞; >0: 阻塞时间
-    int push(DataType &d, int block_sec) {
+    int push(const DataType &d, int block_sec) {
 
         int ret;
 
         pthread_mutex_lock(&m_not_full_mutex);
-        while (m_count >= m_maxsize) {
+        while (m_maxsize > 0 && m_count >= m_maxsize) {
             if (block_sec > 0) {
                 struct timespec timeout;
 
@@ -132,12 +140,12 @@ public:
     // 不能有clear函数，否则指针都会内存泄漏
     /*
     void clear() {
-        this->m_queue.clear();
+        m_queue.clear();
     }
     */
 
     size_t size() {
-        return this->m_queue.size();
+        return m_queue.size();
     }
 
 
