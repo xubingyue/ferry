@@ -15,11 +15,9 @@ namespace ferry {
 
 template<class DataType>
 class BlockQueue {
-public:
-    BlockQueue():BlockQueue(0) {
-    }
 
-    BlockQueue(int maxsize) {
+private:
+    void _init(int maxsize) {
         m_count = 0;
         m_maxsize = maxsize;
 
@@ -27,6 +25,15 @@ public:
         pthread_mutex_init(&m_not_empty_mutex, NULL);
         pthread_cond_init(&m_not_full_cond, NULL);
         pthread_cond_init(&m_not_empty_cond, NULL);
+    }
+
+public:
+    BlockQueue() {
+        _init(0);
+    }
+
+    BlockQueue(int maxsize) {
+        _init(maxsize);
     }
 
     virtual ~BlockQueue() {
