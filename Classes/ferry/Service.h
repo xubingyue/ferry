@@ -43,6 +43,13 @@ public:
     // 发送消息
     void send(netkit::IBox* box);
 
+    // 设置消息队列大小
+    void setMsgQueueMaxSizeFromServer(int maxsize);
+    void setMsgQueueMaxSizeToServer(int maxsize);
+
+    // 设置链接失败后的重连间隔
+    void setConnectFailInterval(int interval);
+
     // 为了启动线程使用的，外面不要使用
     static void* _recvMsgFromServerThreadWorker(void *args);
     static void* _sendMsgToServerThreadWorker(void *args);
@@ -87,6 +94,10 @@ private:
 private:
     // 是否运行中
     bool m_running;
+
+    // 连接失败后的重连间隔
+    int m_connectFailInterval;
+
     pthread_mutex_t m_running_mutex;
     pthread_cond_t m_running_cond;
 

@@ -41,24 +41,23 @@ namespace ferry {
         ERROR_PUSH_CLOSE_MSG_TO_QUEUE,
     };
 
-// 等待下次连接时间
-    const int CONNECT_SLEEP_TIME_SEC = 1;
-
-// 队列的大小
-    const int MSG_FROM_SERVER_SIZE = 100;
-    const int MSG_TO_SERVER_SIZE = 100;
+    // 等待下次连接时间(秒)
+    const int CONNECT_FAIL_INTERVAL = 1;
 
     const std::string COCOS_SCHEDULE_NAME = "ferry_service";
 
 
     Service::Service() {
         m_running = false;
+
+        m_connectFailInterval = CONNECT_FAIL_INTERVAL;
+
         pthread_mutex_init(&m_running_mutex, NULL);
         pthread_cond_init(&m_running_cond, NULL);
 
         m_port = 0;
-        m_msgQueueFromServer = new BlockQueue<Message *>(MSG_FROM_SERVER_SIZE);
-        m_msgQueueToServer = new BlockQueue<netkit::IBox *>(MSG_TO_SERVER_SIZE);
+        m_msgQueueFromServer = new BlockQueue<Message *>();
+        m_msgQueueToServer = new BlockQueue<netkit::IBox *>();
         m_client = nullptr;
 
         m_shouldConnect = false;
@@ -173,7 +172,19 @@ namespace ferry {
         }
     }
 
-    inline void Service::_setRunning(bool running) {
+    void Service::setMsgQueueMaxSizeFromServer(int maxsize) {
+        m_msgQueueFromServer->setMaxSize(maxsize);
+    }
+
+    void Service::setMsgQueueMaxSizeToServer(int maxsize) {
+        m_msgQueueToServer->setMaxSize(maxsize);
+    }
+
+    void Service::setConnectFailInterval(int interval) {
+        m_connectFailInterval = interval;
+    }
+
+    void Service::_setRunning(bool running) {
         pthread_mutex_lock(&m_running_mutex);
         m_running = running;
         if (m_running) {
@@ -274,7 +285,7 @@ namespace ferry {
 
                 if (!isConnected()) {
                     // 如果还没有建立链接，就等一下
-                    FERRY_SLEEP(CONNECT_SLEEP_TIME_SEC);
+                    FERRY_SLEEP(m_connectFailInterval);
                 }
                 continue;
             }
