@@ -101,11 +101,11 @@ namespace ferry {
 
     }
 
-    bool Service::init(Delegate *delegate, std::string host, short port) {
+    int Service::init(Delegate *delegate, std::string host, short port) {
         m_delegate = delegate;
         m_host = host;
         m_port = port;
-        return true;
+        return 0;
     }
 
     void Service::start() {
