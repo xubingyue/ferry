@@ -43,6 +43,8 @@ namespace ferry {
 
     // 等待下次连接时间(秒)
     const int CONNECT_FAIL_INTERVAL = 1;
+    const int MSG_QUEUE_MAX_SIZE_FROM_SERVER = 100;
+    const int MSG_QUEUE_MAX_SIZE_TO_SERVER = 100;
 
     const std::string COCOS_SCHEDULE_NAME = "ferry_service";
 
@@ -56,8 +58,8 @@ namespace ferry {
         pthread_cond_init(&m_running_cond, NULL);
 
         m_port = 0;
-        m_msgQueueFromServer = new BlockQueue<Message *>();
-        m_msgQueueToServer = new BlockQueue<netkit::IBox *>();
+        m_msgQueueFromServer = new BlockQueue<Message *>(MSG_QUEUE_MAX_SIZE_FROM_SERVER);
+        m_msgQueueToServer = new BlockQueue<netkit::IBox *>(MSG_QUEUE_MAX_SIZE_TO_SERVER);
         m_client = nullptr;
 
         m_shouldConnect = false;
@@ -168,6 +170,8 @@ namespace ferry {
 
         int ret = m_msgQueueToServer->push_nowait(box);
         if (ret) {
+            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                    ret);
             m_delegate->onError(this, ERROR_PUSH_SEND_MSG_TO_QUEUE);
         }
     }
@@ -367,10 +371,6 @@ namespace ferry {
     void Service::_onMainThreadReceiveMessage(Message *msg) {
         if (!msg) {
             cocos2d::log("[%s]-[%s][%d][%s] null msg", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
-            return;
-        }
-        if (!m_delegate) {
-            cocos2d::log("[%s]-[%s][%d][%s] null delegate", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
             return;
         }
 
