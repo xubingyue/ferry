@@ -291,8 +291,8 @@ namespace ferry {
                 if (!isConnected()) {
                     // 如果还没有建立链接，就等一下
                     FERRY_SLEEP(m_tryConnectInterval);
+                    continue;
                 }
-                continue;
             }
 
             netkit::IBox* box = m_delegate->allocBox();
