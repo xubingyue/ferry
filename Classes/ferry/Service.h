@@ -44,7 +44,6 @@ public:
     void send(netkit::IBox* box);
 
     // 设置消息队列大小
-    void setMsgQueueMaxSizeFromServer(int maxsize);
     void setMsgQueueMaxSizeToServer(int maxsize);
 
     // 设置链接失败后的重连间隔
@@ -79,14 +78,14 @@ private:
     // 当链接关闭
     void _onConnClose();
 
+    // 当向服务器发送消息
+    void _onSendMsgToServer(netkit::IBox *box);
+
     // 当收到服务器消息
     void _onRecvMsgFromServer(netkit::IBox *box);
 
-    // 主线程的处理
-    void _onMainThreadReceiveMessage(Message *msg);
-
-    void _registerMainThreadSchedule();
-    void _unRegisterMainThreadSchedule();
+    // 当报错的时候
+    void _onError(int code);
 
     void _clearMsgQueues();
 
@@ -108,9 +107,6 @@ private:
     // 是否要尝试连接，因为有时候会要提示用户链接断开
     // 用户点击重试才继续尝试
     bool m_shouldConnect;
-
-    // 从server读取的消息
-    BlockQueue<Message*> *m_msgQueueFromServer;
 
     // 想要发送给server的消息
     BlockQueue<netkit::IBox *> *m_msgQueueToServer;

@@ -19,35 +19,21 @@
 #define FERRY_SLEEP(sec) sleep(sec);
 #endif
 
-#include "cocos2d.h"
-
 #include "Service.h"
 #include "Delegate.h"
 
 
 namespace ferry {
 
-#define FERRY_LOG_TAG   "ferry"
-
-    enum DELEGATE_MSG_TYPE {
-        DELEGATE_MSG_OPEN=1,
-        DELEGATE_MSG_RECV=2,
-        DELEGATE_MSG_CLOSE=3,
-    };
     enum ERROR_CODE {
-        ERROR_PUSH_OPEN_MSG_TO_QUEUE,
-        ERROR_PUSH_SEND_MSG_TO_QUEUE,
-        ERROR_PUSH_RECV_MSG_TO_QUEUE,
-        ERROR_PUSH_CLOSE_MSG_TO_QUEUE,
+        ERROR_PUSH_MSG_TO_SEND_QUEUE = 0,
+        ERROR_CONNECT_TO_SERVER_FAIL,
+        ERROR_SEND_MSG_TO_SERVER_FAIL,
     };
 
     // 等待下次连接时间(秒)
     const int TRY_CONNECT_INTERVAL = 1;
-
-    const int MSG_QUEUE_MAX_SIZE_FROM_SERVER = 100;
     const int MSG_QUEUE_MAX_SIZE_TO_SERVER = 100;
-
-    const std::string COCOS_SCHEDULE_NAME = "ferry_service";
 
 
     Service::Service() {
@@ -59,7 +45,6 @@ namespace ferry {
         pthread_cond_init(&m_running_cond, NULL);
 
         m_port = 0;
-        m_msgQueueFromServer = new BlockQueue<Message *>(MSG_QUEUE_MAX_SIZE_FROM_SERVER);
         m_msgQueueToServer = new BlockQueue<netkit::IBox *>(MSG_QUEUE_MAX_SIZE_TO_SERVER);
         m_client = nullptr;
 
@@ -85,11 +70,6 @@ namespace ferry {
         if (m_client) {
             delete m_client;
             m_client = nullptr;
-        }
-
-        if (m_msgQueueFromServer) {
-            delete m_msgQueueFromServer;
-            m_msgQueueFromServer = nullptr;
         }
 
         if (m_msgQueueToServer) {
@@ -124,8 +104,6 @@ namespace ferry {
             _startThreads();
             m_threadsRunning = true;
         }
-        // 注册到主线程执行
-        _registerMainThreadSchedule();
     }
 
     void Service::stop() {
@@ -137,9 +115,6 @@ namespace ferry {
         _setRunning(false);
         // 关闭连接
         closeConn();
-
-        // 取消主线程定时器
-        _unRegisterMainThreadSchedule();
     }
 
     bool Service::isConnected() {
@@ -166,19 +141,10 @@ namespace ferry {
     }
 
     void Service::send(netkit::IBox *box) {
-        // 放到前面，否则很可能box会被析构
-        m_delegate->onSend(this, box);
-
         int ret = m_msgQueueToServer->push_nowait(box);
         if (ret) {
-            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
-                    ret);
-            m_delegate->onError(this, ERROR_PUSH_SEND_MSG_TO_QUEUE);
+            _onError(ERROR_PUSH_MSG_TO_SEND_QUEUE);
         }
-    }
-
-    void Service::setMsgQueueMaxSizeFromServer(int maxsize) {
-        m_msgQueueFromServer->setMaxSize(maxsize);
     }
 
     void Service::setMsgQueueMaxSizeToServer(int maxsize) {
@@ -208,8 +174,7 @@ namespace ferry {
         if (ret) {
             // 链接失败了
             // 没关系，下个循环还会继续重连
-            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
-                    ret);
+            _onError(ERROR_CONNECT_TO_SERVER_FAIL);
         }
         else {
             // 分发链接成功的消息
@@ -331,10 +296,11 @@ namespace ferry {
             if (ret == 0 && box) {
                 // 因为本身重连之后消息就要清空，所以未连接状态直接忽略box也没什么问题
                 if (isConnected()) {
+                    _onSendMsgToServer(box);
+
                     ret = m_client->write(box);
                     if (ret) {
-                        cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
-                                ret);
+                        _onError(ERROR_SEND_MSG_TO_SERVER_FAIL);
                     }
                 }
                 delete box;
@@ -344,95 +310,30 @@ namespace ferry {
     }
 
     void Service::_onConnOpen() {
-        Message * msg = new Message();
-        msg->what = DELEGATE_MSG_OPEN;
-        int ret = m_msgQueueFromServer->push_nowait(msg);
-        if (ret) {
-            cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
-                    ret);
-            m_delegate->onError(this, ERROR_PUSH_OPEN_MSG_TO_QUEUE);
-        }
+        m_delegate->onOpen(this);
     }
 
     void Service::_onConnClose() {
         // 设置为不重连，等触发connectToServer再改状态
         m_shouldConnect = false;
 
-        Message * msg = new Message();
-        msg->what = DELEGATE_MSG_CLOSE;
-        int ret = m_msgQueueFromServer->push_nowait(msg);
-        if (ret) {
-            m_delegate->onError(this, ERROR_PUSH_CLOSE_MSG_TO_QUEUE);
-        }
+        m_delegate->onClose(this);
+    }
+
+    void Service::_onSendMsgToServer(netkit::IBox *box) {
+        m_delegate->onSend(this, box);
     }
 
     void Service::_onRecvMsgFromServer(netkit::IBox *box) {
-        Message * msg = new Message();
-        msg->what = DELEGATE_MSG_RECV;
-        msg->box = box;
-        int ret = m_msgQueueFromServer->push_nowait(msg);
-        if (ret) {
-            m_delegate->onError(this, ERROR_PUSH_RECV_MSG_TO_QUEUE);
-        }
+        m_delegate->onRecv(this, box);
     }
 
-    void Service::_onMainThreadReceiveMessage(Message *msg) {
-        if (!msg) {
-            cocos2d::log("[%s]-[%s][%d][%s] null msg", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
-            return;
-        }
-
-        switch (msg->what) {
-            case DELEGATE_MSG_OPEN:
-                m_delegate->onOpen(this);
-                break;
-            case DELEGATE_MSG_RECV:
-                m_delegate->onRecv(this, msg->box);
-                break;
-            case DELEGATE_MSG_CLOSE:
-                m_delegate->onClose(this);
-                break;
-            default:
-                cocos2d::log("[%s]-[%s][%d][%s] msg.what: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
-                        msg->what);
-        }
-
-        // 不清除box
-        delete msg;
-    }
-
-    void Service::_registerMainThreadSchedule() {
-        auto func = [this](float dt){
-            Message* message = nullptr;
-
-            // 只要有数据就拼命循环完
-            while (1) {
-                int ret = this->m_msgQueueFromServer->pop_nowait(message);
-                if (ret == 0) {
-                    this->_onMainThreadReceiveMessage(message);
-                }
-                else {
-                    break;
-                }
-            }
-        };
-
-        cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, COCOS_SCHEDULE_NAME);
-    }
-
-    void Service::_unRegisterMainThreadSchedule() {
-        cocos2d::Director::getInstance()->getScheduler()->unschedule(COCOS_SCHEDULE_NAME, this);
+    void Service::_onError(int code) {
+        m_delegate->onError(this, code);
     }
 
     void Service::_clearMsgQueues() {
-        Message* message = nullptr;
         netkit::IBox* box = nullptr;
-
-        while (m_msgQueueFromServer && m_msgQueueFromServer->pop_nowait(message) == 0) {
-            message->forceRelease();
-            delete message;
-            message = nullptr;
-        }
 
         while (m_msgQueueToServer && m_msgQueueToServer->pop_nowait(box) == 0) {
             delete box;
