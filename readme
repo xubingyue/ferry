@@ -6,3 +6,5 @@
 1. onEvent中的event，只能在这个函数中使用，函数结束即会被释放。其中的box也是如此。不要在匿名函数中使用.
 2. 调用send的box，必须使用new创建，send之后，就不再使用
 3. 调用pushEvent的event，使用new创建，且pushEvent之后就不再使用
+4. delegate的函数是可能在任何线程调用的，所以如果想要全部转化成主线程，请使用eventbus做转化
+5. eventbus是线程安全的
