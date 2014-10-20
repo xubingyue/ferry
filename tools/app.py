@@ -16,4 +16,4 @@ def index(request):
     request.box.ret = 100
     request.write(request.box)
 
-app.run(port=7777, debug=True)
+app.run(host="0.0.0.0", port=7777, debug=True)
