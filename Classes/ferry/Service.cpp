@@ -299,6 +299,8 @@ namespace ferry {
 
             ret = m_client->read(box);
             if (ret < 0) {
+                // 手工先关闭掉
+                closeConn();
                 // 统一按照断掉链接处理
                 _onConnClose();
             }
@@ -328,7 +330,11 @@ namespace ferry {
 
             if (ret == 0) {
                 if (m_client && box) {
-                    m_client->write(box);
+                    ret = m_client->write(box);
+                    if (ret) {
+                        cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
+                                ret);
+                    }
                     delete box;
                     box = nullptr;
                 }
