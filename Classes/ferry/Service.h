@@ -8,7 +8,6 @@
 #include <iostream>
 #include <pthread.h>
 #include "BlockQueue.h"
-#include "Message.h"
 #include "TcpClient.h"
 #include "IBox.h"
 
