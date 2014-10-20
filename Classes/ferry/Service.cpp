@@ -42,7 +42,8 @@ namespace ferry {
     };
 
     // 等待下次连接时间(秒)
-    const int CONNECT_FAIL_INTERVAL = 1;
+    const int TRY_CONNECT_INTERVAL = 1;
+
     const int MSG_QUEUE_MAX_SIZE_FROM_SERVER = 100;
     const int MSG_QUEUE_MAX_SIZE_TO_SERVER = 100;
 
@@ -52,7 +53,7 @@ namespace ferry {
     Service::Service() {
         m_running = false;
 
-        m_connectFailInterval = CONNECT_FAIL_INTERVAL;
+        m_tryConnectInterval = TRY_CONNECT_INTERVAL;
 
         pthread_mutex_init(&m_running_mutex, NULL);
         pthread_cond_init(&m_running_cond, NULL);
@@ -184,8 +185,8 @@ namespace ferry {
         m_msgQueueToServer->setMaxSize(maxsize);
     }
 
-    void Service::setConnectFailInterval(int interval) {
-        m_connectFailInterval = interval;
+    void Service::setTryConnectInterval(int interval) {
+        m_tryConnectInterval = interval;
     }
 
     void Service::_setRunning(bool running) {
@@ -289,7 +290,7 @@ namespace ferry {
 
                 if (!isConnected()) {
                     // 如果还没有建立链接，就等一下
-                    FERRY_SLEEP(m_connectFailInterval);
+                    FERRY_SLEEP(m_tryConnectInterval);
                 }
                 continue;
             }

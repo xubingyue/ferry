@@ -48,7 +48,7 @@ public:
     void setMsgQueueMaxSizeToServer(int maxsize);
 
     // 设置链接失败后的重连间隔
-    void setConnectFailInterval(int interval);
+    void setTryConnectInterval(int interval);
 
     // 为了启动线程使用的，外面不要使用
     static void* _recvMsgFromServerThreadWorker(void *args);
@@ -96,7 +96,7 @@ private:
     bool m_running;
 
     // 连接失败后的重连间隔
-    int m_connectFailInterval;
+    int m_tryConnectInterval;
 
     pthread_mutex_t m_running_mutex;
     pthread_cond_t m_running_cond;
