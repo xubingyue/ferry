@@ -27,8 +27,8 @@ namespace ferry {
 
     enum ERROR_CODE {
         ERROR_PUSH_MSG_TO_SEND_QUEUE = 0,
-        ERROR_CONNECT_TO_SERVER_FAIL,
-        ERROR_SEND_MSG_TO_SERVER_FAIL,
+        ERROR_CONNECT_TO_SERVER,
+        ERROR_SEND_MSG_TO_SERVER,
     };
 
     // 等待下次连接时间(秒)
@@ -174,7 +174,7 @@ namespace ferry {
         if (ret) {
             // 链接失败了
             // 没关系，下个循环还会继续重连
-            _onError(ERROR_CONNECT_TO_SERVER_FAIL);
+            _onError(ERROR_CONNECT_TO_SERVER);
         }
         else {
             // 分发链接成功的消息
@@ -300,7 +300,7 @@ namespace ferry {
 
                     ret = m_client->write(box);
                     if (ret) {
-                        _onError(ERROR_SEND_MSG_TO_SERVER_FAIL);
+                        _onError(ERROR_SEND_MSG_TO_SERVER);
                     }
                 }
                 delete box;
