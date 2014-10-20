@@ -1,3 +1,7 @@
+依赖项目
+github: cpp_netkit cpp_eventbus
+
+
 1. Box、Message、BaseEvent，均没有使用cocos2d的内存管理，因为很大的原因是autorelease函数貌似不是线程安全。
 2. Message是不会负责释放Box的，从服务器接收到的box会给到应用层，由应用层负责保证。而app调用send传给ferry的box，在ferry发送完之后会自动delete.
 
