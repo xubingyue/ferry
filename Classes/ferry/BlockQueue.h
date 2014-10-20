@@ -29,7 +29,7 @@ private:
 
 public:
     BlockQueue() {
-        _init(0);
+        _init(-1);
     }
 
     BlockQueue(int maxsize) {
@@ -74,7 +74,7 @@ public:
         int ret;
 
         pthread_mutex_lock(&m_not_full_mutex);
-        while (m_maxsize > 0 && m_count >= m_maxsize) {
+        while (m_maxsize >= 0 && m_count >= m_maxsize) {
             if (block_sec > 0) {
                 struct timespec timeout;
 
