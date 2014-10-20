@@ -328,16 +328,17 @@ namespace ferry {
             }
             ret = m_msgQueueToServer->pop(box);
 
-            if (ret == 0) {
-                if (m_client && box) {
+            if (ret == 0 && box) {
+                // 因为本身重连之后消息就要清空，所以未连接状态直接忽略box也没什么问题
+                if (isConnected()) {
                     ret = m_client->write(box);
                     if (ret) {
                         cocos2d::log("[%s]-[%s][%d][%s] ret: %d", FERRY_LOG_TAG, __FILE__, __LINE__, __FUNCTION__,
                                 ret);
                     }
-                    delete box;
-                    box = nullptr;
                 }
+                delete box;
+                box = nullptr;
             }
         }
     }
