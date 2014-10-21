@@ -21,6 +21,7 @@ public:
 
 public:
     netkit::Box *box;
+    std::map<std::string, std::string> mapData;
 };
 
 #endif
