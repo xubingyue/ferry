@@ -25,17 +25,6 @@
 
 namespace ferry {
 
-    enum ERROR_CODE {
-        ERROR_PUSH_MSG_TO_SEND_QUEUE = 0,
-        ERROR_CONNECT_TO_SERVER,
-        ERROR_SEND_MSG_TO_SERVER,
-    };
-
-    // 等待下次连接时间(秒)
-    const int TRY_CONNECT_INTERVAL = 1;
-    const int MSG_QUEUE_MAX_SIZE_TO_SERVER = 100;
-
-
     Service::Service() {
         m_running = false;
 
