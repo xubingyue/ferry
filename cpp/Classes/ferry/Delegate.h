@@ -19,7 +19,7 @@ public:
     virtual void onClose(Service *service) = 0;
     virtual void onError(Service *service, int code) = 0;
 
-    virtual netkit::IBox* allocBox() = 0;
+    virtual netkit::IBox* createBox() = 0;
 };
 
 }

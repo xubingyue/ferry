@@ -249,7 +249,7 @@ namespace ferry {
                 }
             }
 
-            netkit::IBox* box = m_delegate->allocBox();
+            netkit::IBox* box = m_delegate->createBox();
 
             ret = m_client->read(box);
             if (ret < 0) {

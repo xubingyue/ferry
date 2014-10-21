@@ -57,7 +57,7 @@ class MyFerryDelegate : public ferry::Delegate {
         cocos2d::log("[%s]-[%s][%d][%s] code: %d", FERRY_DELEGATE_LOG_TAG, __FILE__, __LINE__, __FUNCTION__, code);
     };
 
-    virtual netkit::IBox* allocBox() {
+    virtual netkit::IBox* createBox() {
         return new netkit::Box();
     }
 };
