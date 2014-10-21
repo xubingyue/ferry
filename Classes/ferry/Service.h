@@ -45,7 +45,7 @@ public:
     // 设置消息队列大小
     void setMsgQueueMaxSizeToServer(int maxsize);
 
-    // 设置链接失败后的重连间隔
+    // 设置连接失败后的重连间隔
     void setTryConnectInterval(int interval);
 
     // 为了启动线程使用的，外面不要使用
@@ -71,10 +71,10 @@ private:
     // 从本地获取消息
     void _sendMsgToServer();
 
-    // 当链接建立
+    // 当连接建立
     void _onConnOpen();
 
-    // 当链接关闭
+    // 当连接关闭
     void _onConnClose();
 
     // 当向服务器发送消息
@@ -103,7 +103,7 @@ private:
     std::string m_host;
     short m_port;
 
-    // 是否要尝试连接，因为有时候会要提示用户链接断开
+    // 是否要尝试连接，因为有时候会要提示用户连接断开
     // 用户点击重试才继续尝试
     bool m_shouldConnect;
 

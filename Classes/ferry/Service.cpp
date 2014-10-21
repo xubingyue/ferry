@@ -172,12 +172,12 @@ namespace ferry {
 
         int ret = m_client->connectServer();
         if (ret) {
-            // 链接失败了
+            // 连接失败了
             // 没关系，下个循环还会继续重连
             _onError(ERROR_CONNECT_TO_SERVER);
         }
         else {
-            // 分发链接成功的消息
+            // 分发连接成功的消息
             _onConnOpen();
         }
     }
@@ -254,7 +254,7 @@ namespace ferry {
                 }
 
                 if (!isConnected()) {
-                    // 如果还没有建立链接，就等一下
+                    // 如果还没有建立连接，就等一下
                     FERRY_SLEEP(m_tryConnectInterval);
                     continue;
                 }
@@ -266,7 +266,7 @@ namespace ferry {
             if (ret < 0) {
                 // 手工先关闭掉
                 closeConn();
-                // 统一按照断掉链接处理
+                // 统一按照断掉连接处理
                 _onConnClose();
             }
             else {
