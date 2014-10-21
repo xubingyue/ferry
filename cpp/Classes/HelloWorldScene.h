@@ -19,7 +19,7 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
 
-    void onEvent(eventbus::BaseEvent*);
+    void onEvent(eventbus::BaseEvent* e);
 };
 
 #endif // __HELLOWORLD_SCENE_H__

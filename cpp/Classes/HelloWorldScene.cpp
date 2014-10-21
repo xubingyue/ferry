@@ -91,7 +91,7 @@ void HelloWorld::menuCloseCallback(Ref* pSender)
 #endif
 }
 
-void HelloWorld::onEvent(eventbus::BaseEvent *event) {
-    ExtendEvent* extendEvent = (ExtendEvent*) event;
-    cocos2d::log("%d", extendEvent->what);
+void HelloWorld::onEvent(eventbus::BaseEvent *e) {
+    ExtendEvent* event = (ExtendEvent*)e;
+    cocos2d::log("%d", event->what);
 }

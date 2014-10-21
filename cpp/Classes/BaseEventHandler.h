@@ -19,6 +19,8 @@ public:
     virtual ~BaseEventHandler() {
         G::getEventBus()->delHandler(this);
     }
+
+    virtual void onEvent(eventbus::BaseEvent* e) {}
 };
 
 
