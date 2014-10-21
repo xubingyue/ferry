@@ -34,7 +34,7 @@ namespace ferry {
         pthread_cond_init(&m_running_cond, NULL);
 
         m_port = 0;
-        m_msgQueueToServer = new BlockQueue<netkit::IBox *>(MSG_QUEUE_MAX_SIZE_TO_SERVER);
+        m_msgQueueToServer = new BlockQueue<netkit::IBox *>(MSG_QUEUE_TO_SERVER_MAX_SIZE);
         m_client = nullptr;
 
         m_shouldConnect = false;
@@ -136,7 +136,7 @@ namespace ferry {
         }
     }
 
-    void Service::setMsgQueueMaxSizeToServer(int maxsize) {
+    void Service::setMsgQueueToServerMaxSize(int maxsize) {
         m_msgQueueToServer->setMaxSize(maxsize);
     }
 

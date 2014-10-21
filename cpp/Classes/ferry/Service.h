@@ -21,7 +21,7 @@ enum ERROR_CODE {
 
 // 等待下次连接时间(秒)
 const int TRY_CONNECT_INTERVAL = 1;
-const int MSG_QUEUE_MAX_SIZE_TO_SERVER = 100;
+const int MSG_QUEUE_TO_SERVER_MAX_SIZE = 100;
 
 
 class Delegate;
@@ -54,7 +54,7 @@ public:
     void send(netkit::IBox* box);
 
     // 设置消息队列大小
-    void setMsgQueueMaxSizeToServer(int maxsize);
+    void setMsgQueueToServerMaxSize(int maxsize);
 
     // 设置连接失败后的重连间隔
     void setTryConnectInterval(int interval);
