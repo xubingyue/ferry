@@ -16,7 +16,7 @@ public:
         G::getEventBus()->addHandler(this);
     }
 
-    ~BaseEventHandler() {
+    virtual ~BaseEventHandler() {
         G::getEventBus()->delHandler(this);
     }
 };
