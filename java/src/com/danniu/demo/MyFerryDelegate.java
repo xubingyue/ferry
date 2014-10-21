@@ -38,7 +38,7 @@ public class MyFerryDelegate implements Delegate {
         Log.v(G.LOG_TAG, "onError code: " + code);
     }
 
-    public IBox allocBox() {
+    public IBox createBox() {
         return new Box();
     }
 

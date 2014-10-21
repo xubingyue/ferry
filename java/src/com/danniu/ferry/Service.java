@@ -166,7 +166,7 @@ public class Service {
                 }
             }
 
-            IBox box = delegate.allocBox();
+            IBox box = delegate.createBox();
 
             try{
                 boolean succ = client.read(box);

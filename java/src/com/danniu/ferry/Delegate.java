@@ -13,5 +13,5 @@ public interface Delegate {
     public void onClose(Service service);
     public void onError(Service service, int code);
 
-    public IBox allocBox();
+    public IBox createBox();
 }
