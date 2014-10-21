@@ -19,7 +19,7 @@ public class Service {
 
     public final static String LOG_TAG = "ferry";
 
-    public final static int MSG_QUEUE_MAX_SIZE_TO_SERVER = 100;
+    public final static int MSG_QUEUE_TO_SERVER_MAX_SIZE = 100;
     public final static int TRY_CONNECT_INTERVAL = 1;
 
     public final static int ERROR_PUSH_MSG_TO_SEND_QUEUE = 0;
@@ -27,7 +27,7 @@ public class Service {
     public final static int ERROR_SEND_MSG_TO_SERVER = 2;
 
 
-    private ArrayBlockingQueue<IBox> msgQueueToServer = new ArrayBlockingQueue<IBox>(MSG_QUEUE_MAX_SIZE_TO_SERVER);
+    private ArrayBlockingQueue<IBox> msgQueueToServer = new ArrayBlockingQueue<IBox>(MSG_QUEUE_TO_SERVER_MAX_SIZE);
 
     private Delegate delegate;
     private String host;
