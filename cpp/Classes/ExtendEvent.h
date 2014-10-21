@@ -18,7 +18,6 @@ public:
         }
         box = nullptr;
     }
-    virtual bool init() {return true;}
 
 public:
     netkit::Box *box;
