@@ -12,6 +12,8 @@
 #include <functional>
 #include <time.h>
 
+// 如果cocos2d.h不放在最前，win下会编译报错
+#include "cocos2d.h"
 #include "EventBus.h"
 #include "Delegate.h"
 #include "Service.h"

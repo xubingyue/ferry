@@ -4,7 +4,6 @@
 
 #include "Ferry.h"
 #include "Box.h"
-#include "cocos2d.h"
 
 namespace ferry {
 Ferry *Ferry::getInstance() {
