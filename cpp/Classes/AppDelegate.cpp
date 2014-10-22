@@ -1,6 +1,6 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
-#include "ferry.h"
+#include "Ferry.h"
 
 USING_NS_CC;
 
@@ -49,7 +49,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
         switch (e->what) {
             case ferry::EVENT_ON_CLOSE:
-                ferry::FerryMix::getInstance()->connect();
+                ferry::Ferry::getInstance()->connect();
                 break;
             case ferry::EVENT_ON_OPEN:
                 auto func = [&](int code, netkit::Box* box) {
@@ -60,15 +60,15 @@ bool AppDelegate::applicationDidFinishLaunching() {
                 box->cmd = 1;
                 box->setBody("aini", 4);
 
-                ferry::FerryMix::getInstance()->send(box, func, 10);
+                ferry::Ferry::getInstance()->send(box, func, 10);
                 break;
         }
     };
 
-    ferry::FerryMix::getInstance()->addEventCallback(eventCallback, this, "event_callback");
+    ferry::Ferry::getInstance()->addEventCallback(eventCallback, this, "event_callback");
 
-    ferry::FerryMix::getInstance()->init("127.0.0.1", 7777);
-    ferry::FerryMix::getInstance()->start();
+    ferry::Ferry::getInstance()->init("127.0.0.1", 7777);
+    ferry::Ferry::getInstance()->start();
 
 
     return true;

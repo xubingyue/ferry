@@ -43,13 +43,13 @@ struct RspCallbackContainer {
     rsp_callback_type callback;
 };
 
-class FerryMix : public eventbus::IHandler, public ferry::Delegate {
+class Ferry : public eventbus::IHandler, public ferry::Delegate {
 public:
-    static FerryMix *getInstance();
+    static Ferry *getInstance();
 
-    FerryMix();
+    Ferry();
 
-    virtual ~FerryMix();
+    virtual ~Ferry();
 
     ferry::Service* getService();
 
