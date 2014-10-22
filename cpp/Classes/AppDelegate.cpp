@@ -85,7 +85,7 @@ void AppDelegate::eventCallback(eventbus::BaseEvent* e) {
             box->cmd = 1;
             box->setBody("aini", 4);
 
-            ferry::Ferry::getInstance()->send(box, func, 10);
+            ferry::Ferry::getInstance()->send(box, func, 10, this);
             break;
     }
 }

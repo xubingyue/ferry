@@ -86,6 +86,7 @@ void Ferry::send(netkit::Box *box, rsp_callback_type rsp_callback, float timeout
     RspCallbackContainer callbackContainer;
     callbackContainer.timeout = timeout;
     callbackContainer.callback = rsp_callback;
+    callbackContainer.target = target;
     gettimeofday(&callbackContainer.createTime, NULL);
 
     m_mapRspCallbacks[sn] = callbackContainer;
