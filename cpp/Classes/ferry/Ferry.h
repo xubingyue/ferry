@@ -9,7 +9,13 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <functional>
+
+#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+#include <windows.h>
+#else
 #include <sys/time.h>
+#endif
 
 #include "EventBus.h"
 #include "Delegate.h"
