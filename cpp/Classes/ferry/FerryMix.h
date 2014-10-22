@@ -9,16 +9,30 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <sys/time.h>
+
 #include "EventBus.h"
 #include "Delegate.h"
 
 namespace ferry {
 
+// 超时的错误码
+const int ERROR_TIMEOUT = -999;
+
+// 超时检查间隔
+const float TIMEOUT_CHECK_INTERVAL = 1.0;
+
 // 事件注册的回调
 typedef std::function<void(eventbus::BaseEvent*)> event_callback_type;
 
 // 收到服务器响应的回调
-typedef std::function<void(netkit::IBox*)> rsp_callback_type;
+typedef std::function<void(int, netkit::IBox*)> rsp_callback_type;
+
+struct RspCallbackContainer {
+    struct timeval createTime;
+    float timeout;
+    rsp_callback_type callback;
+};
 
 class FerryMix : public eventbus::IHandler, public ferry::Delegate {
 public:
@@ -39,10 +53,10 @@ public:
     void connect();
 
     // 发送消息
-    void send(netkit::IBox *box);
+    void send(netkit::IBox *ibox);
 
-    // 带回调的发送
-    void send(netkit::IBox *box, rsp_callback_type rsp_callback);
+    // 带回调的发送，以及超时，超时为秒
+    void send(netkit::IBox *ibox, rsp_callback_type rsp_callback, float timeout);
 
     // 注册事件回调
     void addEventCallback(event_callback_type callback, void* target, const std::string& name);
@@ -72,15 +86,25 @@ public:
 private:
     int newBoxSn();
 
+    void scheduleEventBusLoop();
+    void scheduleTimeoutCheckLoop();
+
+    void checkTimeout();
+
+    // 减法，秒
+    float decTime(struct timeval& first, struct timeval& second);
+
 private:
     eventbus::EventBus m_eventBus;
     ferry::Service m_service;
 
     std::map<void*, std::map<std::string, event_callback_type> > m_mapEventCallbacks;
 
-    std::map<int, rsp_callback_type> m_mapRspCallbacks;
+    std::map<int, RspCallbackContainer> m_mapRspCallbacks;
 
     int m_boxSn;
+
+    float m_timeoutCheckInterval;
 };
 
 }

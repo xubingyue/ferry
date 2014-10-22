@@ -39,6 +39,8 @@ FerryMix* FerryMix::getInstance() {
 
 FerryMix::FerryMix() {
     m_boxSn = 0;
+    m_timeoutCheckInterval = TIMEOUT_CHECK_INTERVAL;
+
     m_eventBus.addHandler(this);
 }
 
@@ -55,12 +57,8 @@ int FerryMix::init(const std::string& host, short port) {
 }
 
 void FerryMix::start() {
-    auto func = [this](float dt){
-        m_eventBus.loopEvents();
-    };
-
-    // 先调用这个
-    cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "ferry_mix_eventbus");
+    scheduleEventBusLoop();
+    scheduleTimeoutCheckLoop();
 
     m_service.start();
 }
@@ -73,8 +71,24 @@ void FerryMix::connect() {
     m_service.connect();
 }
 
-void FerryMix::send(netkit::IBox *box) {
-    m_service.send(box);
+void FerryMix::send(netkit::IBox *ibox) {
+    m_service.send(ibox);
+}
+
+void FerryMix::send(netkit::IBox *ibox, rsp_callback_type rsp_callback, float timeout) {
+    int sn = newBoxSn();
+
+    netkit::Box* box = (netkit::Box*)ibox;
+    box->sn = sn;
+
+    RspCallbackContainer callbackContainer;
+    callbackContainer.timeout = timeout;
+    callbackContainer.callback = rsp_callback;
+    gettimeofday(&callbackContainer.createTime, NULL);
+
+    m_mapRspCallbacks[sn] = callbackContainer;
+
+    m_service.send(ibox);
 }
 
 void FerryMix::addEventCallback(event_callback_type callback, void *target, const std::string &name) {
@@ -171,6 +185,56 @@ int FerryMix::newBoxSn() {
 
     // 即最小也是1
     return ++m_boxSn;
+}
+
+void FerryMix::scheduleEventBusLoop() {
+    auto func = [this](float dt){
+        m_eventBus.loopEvents();
+    };
+
+    // 先调用这个
+    cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "ferry_mix_eventbus");
+}
+
+void FerryMix::scheduleTimeoutCheckLoop() {
+    auto func = [this](float dt){
+        checkTimeout();
+    };
+
+    // 先调用这个
+    cocos2d::Director::getInstance()->getScheduler()->schedule(
+            func, this, m_timeoutCheckInterval, false, "ferry_mix_timeout_check"
+    );
+}
+
+void FerryMix::checkTimeout() {
+
+    struct timeval nowTime;
+
+    gettimeofday(&nowTime, NULL);
+
+    for(auto it = m_mapRspCallbacks.begin(); it != m_mapRspCallbacks.end();) {
+        RspCallbackContainer& container = it->second;
+        float past = decTime(nowTime, container.createTime);
+        auto tempit = it;
+        it++;
+        if (past > container.timeout)
+        {
+            // 超时了
+            container.callback(ERROR_TIMEOUT, nullptr);
+
+            // 移除
+            m_mapRspCallbacks.erase(tempit);
+        }
+
+    }
+}
+
+float FerryMix::decTime(struct timeval &first, struct timeval &second) {
+    long long intervalMS = ((long long)(first.tv_sec  - second.tv_sec ) * 1000000 + (first.tv_usec - second.tv_usec)) / 1000;
+
+    // 强转float
+    return (float)(intervalMS / 1000.0);
 }
 
 }
