@@ -72,7 +72,7 @@ namespace ferry {
 
     }
 
-    int Service::init(Delegate *delegate, std::string host, short port) {
+    int Service::init(Delegate *delegate, const std::string& host, short port) {
         m_delegate = delegate;
         m_host = host;
         m_port = port;

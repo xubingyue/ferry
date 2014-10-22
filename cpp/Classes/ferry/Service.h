@@ -33,7 +33,7 @@ public:
     virtual ~Service();
 
     // 初始化
-    int init(Delegate *delegate,std::string host, short port);
+    int init(Delegate *delegate, const std::string& host, short port);
     // 启动
     void start();
     // 停止，一般在游戏结束时
