@@ -107,8 +107,8 @@ private:
     // 连接失败后的重连间隔
     int m_tryConnectInterval;
 
-    pthread_mutex_t m_running_mutex;
-    pthread_cond_t m_running_cond;
+    pthread_mutex_t m_runningMutex;
+    pthread_cond_t m_runningCond;
 
     Delegate *m_delegate;
     std::string m_host;

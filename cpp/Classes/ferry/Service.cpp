@@ -30,8 +30,8 @@ namespace ferry {
 
         m_tryConnectInterval = TRY_CONNECT_INTERVAL;
 
-        pthread_mutex_init(&m_running_mutex, NULL);
-        pthread_cond_init(&m_running_cond, NULL);
+        pthread_mutex_init(&m_runningMutex, NULL);
+        pthread_cond_init(&m_runningCond, NULL);
 
         m_port = 0;
         m_msgQueueToServer = new BlockQueue<netkit::IBox *>(MSG_QUEUE_TO_SERVER_MAX_SIZE);
@@ -51,8 +51,8 @@ namespace ferry {
         // 线程会有问题，最好的方式是不析构
         stop();
 
-        pthread_mutex_destroy(&m_running_mutex);
-        pthread_cond_destroy(&m_running_cond);
+        pthread_mutex_destroy(&m_runningMutex);
+        pthread_cond_destroy(&m_runningCond);
 
         _clearMsgQueues();
 
@@ -146,13 +146,13 @@ namespace ferry {
     }
 
     void Service::_setRunning(bool running) {
-        pthread_mutex_lock(&m_running_mutex);
+        pthread_mutex_lock(&m_runningMutex);
         m_running = running;
         if (m_running) {
             // 只通知可用
-            pthread_cond_broadcast(&m_running_cond);
+            pthread_cond_broadcast(&m_runningCond);
         }
-        pthread_mutex_unlock(&m_running_mutex);
+        pthread_mutex_unlock(&m_runningMutex);
     }
 
     void Service::_connectToServer() {
@@ -228,13 +228,13 @@ namespace ferry {
 
         while (1) {
             if (!m_running) {
-                pthread_mutex_lock(&m_running_mutex);
+                pthread_mutex_lock(&m_runningMutex);
                 // 锁定后再确认一下
                 if (!m_running) {
                     // 只通知可用
-                    pthread_cond_wait(&m_running_cond, &m_running_mutex);
+                    pthread_cond_wait(&m_runningCond, &m_runningMutex);
                 }
-                pthread_mutex_unlock(&m_running_mutex);
+                pthread_mutex_unlock(&m_runningMutex);
             }
 
             if (!isConnected()) {
@@ -273,13 +273,13 @@ namespace ferry {
 
         while (1) {
             if (!m_running) {
-                pthread_mutex_lock(&m_running_mutex);
+                pthread_mutex_lock(&m_runningMutex);
                 // 锁定后再确认一下
                 if (!m_running) {
                     // 只通知可用
-                    pthread_cond_wait(&m_running_cond, &m_running_mutex);
+                    pthread_cond_wait(&m_runningCond, &m_runningMutex);
                 }
-                pthread_mutex_unlock(&m_running_mutex);
+                pthread_mutex_unlock(&m_runningMutex);
             }
             ret = m_msgQueueToServer->pop(box);
 
