@@ -25,6 +25,25 @@ enum EVENT_TYPE {
     EVENT_ON_ERROR,
 };
 
+class Event :public eventbus::BaseEvent{
+public:
+    Event() {
+        box = nullptr;
+        errcode = 0;
+    }
+    virtual ~Event() {
+        if(box) {
+            delete box;
+        }
+        box = nullptr;
+    }
+
+public:
+    netkit::Box *box;
+    int errcode;
+};
+
+
 // 响应超时的错误码
 const int RSP_ERROR_TIMEOUT = -999;
 
@@ -32,7 +51,7 @@ const int RSP_ERROR_TIMEOUT = -999;
 const float TIMEOUT_CHECK_INTERVAL = 1.0;
 
 // 事件注册的回调
-typedef std::function<void(eventbus::BaseEvent*)> event_callback_type;
+typedef std::function<void(Event*)> event_callback_type;
 
 // 收到服务器响应的回调
 typedef std::function<void(int, netkit::Box*)> rsp_callback_type;

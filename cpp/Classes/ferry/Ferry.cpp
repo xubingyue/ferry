@@ -6,24 +6,6 @@
 #include "cocos2d.h"
 
 namespace ferry {
-class InnerEvent :public eventbus::BaseEvent{
-public:
-    InnerEvent() {
-        box = nullptr;
-        errcode = 0;
-    }
-    virtual ~InnerEvent() {
-        if(box) {
-            delete box;
-        }
-        box = nullptr;
-    }
-
-public:
-    netkit::Box *box;
-    int errcode;
-};
-
 Ferry *Ferry::getInstance() {
     static Ferry instance;
     return &instance;
@@ -148,9 +130,9 @@ void Ferry::delAllEventCallback() {
 
 
 void Ferry::onEvent(eventbus::BaseEvent *e) {
+    Event * event = (Event *)e;
 
-    if(e->what == EVENT_ON_RECV) {
-        InnerEvent* event = (InnerEvent*)e;
+    if(event->what == EVENT_ON_RECV) {
         handleRsp(event->box);
     }
 
@@ -174,13 +156,13 @@ void Ferry::onEvent(eventbus::BaseEvent *e) {
                 continue;
             }
 
-            subit->second(e);
+            subit->second(event);
         }
     }
 }
 
 void Ferry::onOpen(ferry::Service *service) {
-    InnerEvent * e = new InnerEvent();
+    Event * e = new Event();
     e->what = EVENT_ON_OPEN;
     m_eventBus.pushEvent(e);
 }
@@ -190,20 +172,20 @@ void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
 }
 
 void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
-    InnerEvent * e = new InnerEvent();
+    Event * e = new Event();
     e->what = EVENT_ON_RECV;
     e->box = (netkit::Box*)ibox;
     m_eventBus.pushEvent(e);
 }
 
 void Ferry::onClose(ferry::Service *service) {
-    InnerEvent * e = new InnerEvent();
+    Event * e = new Event();
     e->what = EVENT_ON_CLOSE;
     m_eventBus.pushEvent(e);
 }
 
 void Ferry::onError(ferry::Service *service, int code) {
-    InnerEvent * e = new InnerEvent();
+    Event * e = new Event();
     e->what = EVENT_ON_ERROR;
     e->errcode = code;
     m_eventBus.pushEvent(e);

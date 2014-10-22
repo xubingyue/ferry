@@ -69,7 +69,7 @@ void AppDelegate::applicationWillEnterForeground() {
     // SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
 }
 
-void AppDelegate::eventCallback(eventbus::BaseEvent* e) {
+void AppDelegate::eventCallback(ferry::Event* e) {
     cocos2d::log("e.what: %d", e->what);
 
     switch (e->what) {
