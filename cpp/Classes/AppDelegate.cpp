@@ -35,6 +35,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // run
     director->runWithScene(scene);
 
+    /*
     G::getFerry()->init(new MyFerryDelegate(), "127.0.0.1", 7777);
     G::getFerry()->start();
 
@@ -43,6 +44,20 @@ bool AppDelegate::applicationDidFinishLaunching() {
     };
 
     cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "eventbus_loop");
+    */
+
+    ferry::FerryMix::getInstance()->init("127.0.0.1", 7777);
+    ferry::FerryMix::getInstance()->start();
+
+    auto func = [&](int code, netkit::Box* box) {
+        cocos2d::log("code: %d", code);
+    };
+
+    netkit::Box *box = new netkit::Box();
+    box->cmd = 1;
+    box->setBody("aini", 4);
+
+    ferry::FerryMix::getInstance()->send(box, func, 10);
 
     return true;
 }
