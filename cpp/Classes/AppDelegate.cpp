@@ -70,10 +70,10 @@ void AppDelegate::applicationWillEnterForeground() {
     // SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
 }
 
-void AppDelegate::eventCallback(ferry::Event* e) {
-    cocos2d::log("e.what: %d", e->what);
+void AppDelegate::eventCallback(ferry::Event* event) {
+    cocos2d::log("event.what: %d", event->what);
 
-    switch (e->what) {
+    switch (event->what) {
         case ferry::EVENT_ON_CLOSE:
             ferry::Ferry::getInstance()->connect();
             break;
