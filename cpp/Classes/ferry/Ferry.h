@@ -70,8 +70,8 @@ public:
     // 注册事件回调
     void addEventCallback(event_callback_type callback, void* target, const std::string& name);
     void delEventCallback(const std::string& name, void* target);
-    void delAllEventCallback();
     void delAllEventCallbacksForTarget(void* target);
+    void delAllEventCallback();
 
 
     // IHandler begin

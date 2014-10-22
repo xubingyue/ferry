@@ -5,11 +5,12 @@
 USING_NS_CC;
 
 AppDelegate::AppDelegate() {
-
+    ferry::Ferry::getInstance()->addEventCallback(std::bind(&AppDelegate::eventCallback, this, std::placeholders::_1), this, "event_callback");
 }
 
 AppDelegate::~AppDelegate() 
 {
+    ferry::Ferry::getInstance()->delAllEventCallbacksForTarget(this);
 }
 
 bool AppDelegate::applicationDidFinishLaunching() {
@@ -44,28 +45,6 @@ bool AppDelegate::applicationDidFinishLaunching() {
     cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "eventbus_loop");
     */
 
-    auto eventCallback = [&](eventbus::BaseEvent* e) {
-        cocos2d::log("e.what: %d", e->what);
-
-        switch (e->what) {
-            case ferry::EVENT_ON_CLOSE:
-                ferry::Ferry::getInstance()->connect();
-                break;
-            case ferry::EVENT_ON_OPEN:
-                auto func = [&](int code, netkit::Box* box) {
-                    cocos2d::log("code: %d", code);
-                };
-
-                netkit::Box *box = new netkit::Box();
-                box->cmd = 1;
-                box->setBody("aini", 4);
-
-                ferry::Ferry::getInstance()->send(box, func, 10);
-                break;
-        }
-    };
-
-    ferry::Ferry::getInstance()->addEventCallback(eventCallback, this, "event_callback");
 
     ferry::Ferry::getInstance()->init("127.0.0.1", 7777);
     ferry::Ferry::getInstance()->start();
@@ -88,4 +67,25 @@ void AppDelegate::applicationWillEnterForeground() {
 
     // if you use SimpleAudioEngine, it must resume here
     // SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
+}
+
+void AppDelegate::eventCallback(eventbus::BaseEvent* e) {
+    cocos2d::log("e.what: %d", e->what);
+
+    switch (e->what) {
+        case ferry::EVENT_ON_CLOSE:
+            ferry::Ferry::getInstance()->connect();
+            break;
+        case ferry::EVENT_ON_OPEN:
+            auto func = [&](int code, netkit::Box* box) {
+                cocos2d::log("code: %d", code);
+            };
+
+            netkit::Box *box = new netkit::Box();
+            box->cmd = 1;
+            box->setBody("aini", 4);
+
+            ferry::Ferry::getInstance()->send(box, func, 10);
+            break;
+    }
 }
