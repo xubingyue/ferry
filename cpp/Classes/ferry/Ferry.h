@@ -3,8 +3,8 @@
 //
 
 
-#ifndef __FerryMix_2014_10_22_H_
-#define __FerryMix_2014_10_22_H_
+#ifndef __Ferry_2014_10_22_H_
+#define __Ferry_2014_10_22_H_
 
 #include <iostream>
 #include <map>
@@ -152,4 +152,4 @@ private:
 
 }
 
-#endif //__FerryMix_2014_10_22_H_
+#endif //__Ferry_2014_10_22_H_
