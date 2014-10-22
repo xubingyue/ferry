@@ -71,11 +71,11 @@ void Ferry::delAllCallbacks() {
     delAllRspCallbacks();
 }
 
-void Ferry::send(netkit::IBox *box) {
-    m_service.send(box);
+int Ferry::send(netkit::IBox *box) {
+    return m_service.send(box);
 }
 
-void Ferry::send(netkit::IBox *box, rsp_callback_type rsp_callback, float timeout, void* target) {
+int Ferry::send(netkit::IBox *box, rsp_callback_type rsp_callback, float timeout, void* target) {
     int sn = newBoxSn();
 
     setSnToBox(box, sn);
@@ -88,7 +88,7 @@ void Ferry::send(netkit::IBox *box, rsp_callback_type rsp_callback, float timeou
 
     m_mapRspCallbacks[sn] = callbackContainer;
 
-    m_service.send(box);
+    return m_service.send(box);
 }
 
 void Ferry::delAllRspCallbacksForTarget(void* target) {
@@ -250,7 +250,7 @@ void Ferry::checkRspTimeout() {
         if (past > container.timeout)
         {
             // 超时了
-            container.callback(nullptr);
+            container.callback(RSP_ERROR_TIMEOUT, nullptr);
 
             // 移除
             m_mapRspCallbacks.erase(tempit);
@@ -268,7 +268,7 @@ void Ferry::handleRsp(netkit::IBox* box) {
     }
 
     auto& container = m_mapRspCallbacks[sn];
-    container.callback(box);
+    container.callback(0, box);
 
     m_mapRspCallbacks.erase(sn);
 }

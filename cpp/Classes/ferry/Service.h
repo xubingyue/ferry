@@ -51,7 +51,7 @@ public:
     bool isRunning();
 
     // 发送消息
-    void send(netkit::IBox* box);
+    int send(netkit::IBox* box);
 
     // 设置消息队列大小
     void setMsgQueueToServerMaxSize(int maxsize);

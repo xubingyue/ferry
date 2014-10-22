@@ -78,7 +78,8 @@ void AppDelegate::eventCallback(ferry::Event* e) {
             ferry::Ferry::getInstance()->connect();
             break;
         case ferry::EVENT_ON_OPEN:
-            auto func = [&](netkit::IBox* box) {
+            auto func = [&](int code, netkit::IBox* box) {
+                cocos2d::log("rsp code: %d", code);
                 if (box) {
                     cocos2d::log("rsp succ");
                 }
