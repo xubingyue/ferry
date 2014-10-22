@@ -1,5 +1,4 @@
 #include "HelloWorldScene.h"
-#include "ExtendEvent.h"
 
 USING_NS_CC;
 
@@ -89,9 +88,4 @@ void HelloWorld::menuCloseCallback(Ref* pSender)
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     exit(0);
 #endif
-}
-
-void HelloWorld::onEvent(eventbus::BaseEvent *e) {
-    ExtendEvent* event = (ExtendEvent*)e;
-    cocos2d::log("event->what: %d", event->what);
 }

@@ -1,8 +1,6 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
-#include "G.h"
-#include "MyFerryDelegate.h"
-#include "Service.h"
+#include "ferry.h"
 
 USING_NS_CC;
 
