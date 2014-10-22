@@ -10,7 +10,7 @@ AppDelegate::AppDelegate() {
 
 AppDelegate::~AppDelegate() 
 {
-    ferry::Ferry::getInstance()->delAllEventCallbacksForTarget(this);
+    ferry::Ferry::getInstance()->delAllCallbacksForTarget(this);
 }
 
 bool AppDelegate::applicationDidFinishLaunching() {

@@ -41,6 +41,7 @@ struct RspCallbackContainer {
     struct timeval createTime;
     float timeout;
     rsp_callback_type callback;
+    void* target;
 };
 
 class Ferry : public eventbus::IHandler, public ferry::Delegate {
@@ -61,11 +62,19 @@ public:
 
     void connect();
 
+    // 删除类对应的所有回调，务必在使用ferry的类的析构函数里调用
+    void delAllCallbacksForTarget(void* target);
+    // 删除所有回调
+    void delAllCallbacks();
+
     // 发送消息
     void send(netkit::Box *box);
+    // 带回调的发送，以及超时，超时为秒。target很有用，可以用来防止崩溃
+    void send(netkit::Box *box, rsp_callback_type rsp_callback, float timeout, void* target);
 
-    // 带回调的发送，以及超时，超时为秒
-    void send(netkit::Box *box, rsp_callback_type rsp_callback, float timeout);
+    // 删除send对应的回调
+    void delAllRspCallbacksForTarget(void* target);
+    void delAllRspCallbacks();
 
     // 注册事件回调
     void addEventCallback(event_callback_type callback, void* target, const std::string& name);
