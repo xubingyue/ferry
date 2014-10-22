@@ -104,15 +104,17 @@ public:
 private:
     int newBoxSn();
 
-    void scheduleEventBusLoop();
-    void scheduleRspTimeoutCheckLoop();
+    void cocosScheduleEventBusLoop();
+    void cocosScheduleRspTimeoutCheckLoop();
 
     void checkRspTimeout();
 
     void handleRsp(netkit::Box* box);
 
+    void cocosUnScheduleAll();
+
     // 减法，秒
-    float decTime(struct timeval& first, struct timeval& second);
+    float calcTimeSub(struct timeval &first, struct timeval &second);
 
 private:
     eventbus::EventBus m_eventBus;
@@ -125,6 +127,8 @@ private:
     int m_boxSn;
 
     float m_timeoutCheckInterval;
+
+    bool m_running;
 };
 
 }
