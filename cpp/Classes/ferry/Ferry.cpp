@@ -257,7 +257,7 @@ void Ferry::checkRspTimeout() {
         if (past > container.timeout)
         {
             // 超时了
-            container.callback(ERROR_TIMEOUT, nullptr);
+            container.callback(RSP_ERROR_TIMEOUT, nullptr);
 
             // 移除
             m_mapRspCallbacks.erase(tempit);

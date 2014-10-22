@@ -25,8 +25,8 @@ enum EVENT_TYPE {
     EVENT_ON_ERROR,
 };
 
-// 超时的错误码
-const int ERROR_TIMEOUT = -999;
+// 响应超时的错误码
+const int RSP_ERROR_TIMEOUT = -999;
 
 // 超时检查间隔
 const float TIMEOUT_CHECK_INTERVAL = 1.0;
