@@ -13,6 +13,7 @@
 
 #include "EventBus.h"
 #include "Delegate.h"
+#include "Service.h"
 #include "Box.h"
 
 namespace ferry {
