@@ -42,7 +42,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
         G::getEventBus()->loopEvents();
     };
 
-    cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "event_loop");
+    cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "eventbus_loop");
 
     return true;
 }
