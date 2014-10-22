@@ -46,18 +46,32 @@ bool AppDelegate::applicationDidFinishLaunching() {
     cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "eventbus_loop");
     */
 
+    auto eventCallback = [&](eventbus::BaseEvent* e) {
+        cocos2d::log("e.what: %d", e->what);
+
+        switch (e->what) {
+            case ferry::EVENT_ON_CLOSE:
+                ferry::FerryMix::getInstance()->connect();
+                break;
+            case ferry::EVENT_ON_OPEN:
+                auto func = [&](int code, netkit::Box* box) {
+                    cocos2d::log("code: %d", code);
+                };
+
+                netkit::Box *box = new netkit::Box();
+                box->cmd = 1;
+                box->setBody("aini", 4);
+
+                ferry::FerryMix::getInstance()->send(box, func, 10);
+                break;
+        }
+    };
+
+    ferry::FerryMix::getInstance()->addEventCallback(eventCallback, this, "event_callback");
+
     ferry::FerryMix::getInstance()->init("127.0.0.1", 7777);
     ferry::FerryMix::getInstance()->start();
 
-    auto func = [&](int code, netkit::Box* box) {
-        cocos2d::log("code: %d", code);
-    };
-
-    netkit::Box *box = new netkit::Box();
-    box->cmd = 1;
-    box->setBody("aini", 4);
-
-    ferry::FerryMix::getInstance()->send(box, func, 10);
 
     return true;
 }

@@ -7,13 +7,6 @@
 #include "cocos2d.h"
 
 namespace ferry {
-enum EVENT_TYPE {
-    EVENT_ON_OPEN=0,
-    EVENT_ON_RECV,
-    EVENT_ON_CLOSE,
-    EVENT_ON_ERROR,
-};
-
 class InnerEvent :public eventbus::BaseEvent{
 public:
     InnerEvent() {

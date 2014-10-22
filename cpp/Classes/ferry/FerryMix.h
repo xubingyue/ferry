@@ -17,6 +17,13 @@
 
 namespace ferry {
 
+enum EVENT_TYPE {
+    EVENT_ON_OPEN=0,
+    EVENT_ON_RECV,
+    EVENT_ON_CLOSE,
+    EVENT_ON_ERROR,
+};
+
 // 超时的错误码
 const int ERROR_TIMEOUT = -999;
 
