@@ -13,6 +13,7 @@
 
 #include "EventBus.h"
 #include "Delegate.h"
+#include "Box.h"
 
 namespace ferry {
 
@@ -26,7 +27,7 @@ const float TIMEOUT_CHECK_INTERVAL = 1.0;
 typedef std::function<void(eventbus::BaseEvent*)> event_callback_type;
 
 // 收到服务器响应的回调
-typedef std::function<void(int, netkit::IBox*)> rsp_callback_type;
+typedef std::function<void(int, netkit::Box*)> rsp_callback_type;
 
 struct RspCallbackContainer {
     struct timeval createTime;
@@ -53,10 +54,10 @@ public:
     void connect();
 
     // 发送消息
-    void send(netkit::IBox *ibox);
+    void send(netkit::Box *box);
 
     // 带回调的发送，以及超时，超时为秒
-    void send(netkit::IBox *ibox, rsp_callback_type rsp_callback, float timeout);
+    void send(netkit::Box *box, rsp_callback_type rsp_callback, float timeout);
 
     // 注册事件回调
     void addEventCallback(event_callback_type callback, void* target, const std::string& name);
@@ -87,9 +88,11 @@ private:
     int newBoxSn();
 
     void scheduleEventBusLoop();
-    void scheduleTimeoutCheckLoop();
+    void scheduleRspTimeoutCheckLoop();
 
-    void checkTimeout();
+    void checkRspTimeout();
+
+    void handleRsp(netkit::Box* box);
 
     // 减法，秒
     float decTime(struct timeval& first, struct timeval& second);

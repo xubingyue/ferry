@@ -28,7 +28,7 @@ public:
     }
 
 public:
-    netkit::IBox *box;
+    netkit::Box *box;
     int errcode;
 };
 
@@ -58,7 +58,7 @@ int FerryMix::init(const std::string& host, short port) {
 
 void FerryMix::start() {
     scheduleEventBusLoop();
-    scheduleTimeoutCheckLoop();
+    scheduleRspTimeoutCheckLoop();
 
     m_service.start();
 }
@@ -71,14 +71,13 @@ void FerryMix::connect() {
     m_service.connect();
 }
 
-void FerryMix::send(netkit::IBox *ibox) {
-    m_service.send(ibox);
+void FerryMix::send(netkit::Box *box) {
+    m_service.send(box);
 }
 
-void FerryMix::send(netkit::IBox *ibox, rsp_callback_type rsp_callback, float timeout) {
+void FerryMix::send(netkit::Box *box, rsp_callback_type rsp_callback, float timeout) {
     int sn = newBoxSn();
 
-    netkit::Box* box = (netkit::Box*)ibox;
     box->sn = sn;
 
     RspCallbackContainer callbackContainer;
@@ -88,7 +87,7 @@ void FerryMix::send(netkit::IBox *ibox, rsp_callback_type rsp_callback, float ti
 
     m_mapRspCallbacks[sn] = callbackContainer;
 
-    m_service.send(ibox);
+    m_service.send(box);
 }
 
 void FerryMix::addEventCallback(event_callback_type callback, void *target, const std::string &name) {
@@ -113,6 +112,12 @@ void FerryMix::delAllEventCallback() {
 
 
 void FerryMix::onEvent(eventbus::BaseEvent *e) {
+
+    if(e->what == EVENT_ON_RECV) {
+        InnerEvent* event = (InnerEvent*)e;
+        handleRsp(event->box);
+    }
+
     auto mapEventCallbacks = m_mapEventCallbacks;
 
     for(auto it = mapEventCallbacks.begin(); it != mapEventCallbacks.end(); ++it) {
@@ -156,7 +161,7 @@ void FerryMix::onSend(ferry::Service *service, netkit::IBox *ibox) {
 void FerryMix::onRecv(ferry::Service *service, netkit::IBox *ibox) {
     InnerEvent * e = new InnerEvent();
     e->what = EVENT_ON_RECV;
-    e->box = ibox;
+    e->box = (netkit::Box*)ibox;
     m_eventBus.pushEvent(e);
 }
 
@@ -196,9 +201,9 @@ void FerryMix::scheduleEventBusLoop() {
     cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "ferry_mix_eventbus");
 }
 
-void FerryMix::scheduleTimeoutCheckLoop() {
+void FerryMix::scheduleRspTimeoutCheckLoop() {
     auto func = [this](float dt){
-        checkTimeout();
+        checkRspTimeout();
     };
 
     // 先调用这个
@@ -207,14 +212,14 @@ void FerryMix::scheduleTimeoutCheckLoop() {
     );
 }
 
-void FerryMix::checkTimeout() {
+void FerryMix::checkRspTimeout() {
 
     struct timeval nowTime;
 
     gettimeofday(&nowTime, NULL);
 
     for(auto it = m_mapRspCallbacks.begin(); it != m_mapRspCallbacks.end();) {
-        RspCallbackContainer& container = it->second;
+        auto& container = it->second;
         float past = decTime(nowTime, container.createTime);
         auto tempit = it;
         it++;
@@ -228,6 +233,18 @@ void FerryMix::checkTimeout() {
         }
 
     }
+}
+
+void FerryMix::handleRsp(netkit::Box* box) {
+    if (m_mapRspCallbacks.find(box->sn) == m_mapRspCallbacks.end()) {
+        // 没有找到
+        return;
+    }
+
+    auto& container = m_mapRspCallbacks[box->sn];
+    container.callback(box->ret, box);
+
+    m_mapRspCallbacks.erase(box->sn);
 }
 
 float FerryMix::decTime(struct timeval &first, struct timeval &second) {
