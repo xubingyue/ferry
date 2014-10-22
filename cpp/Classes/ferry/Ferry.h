@@ -10,12 +10,7 @@
 #include <map>
 #include <set>
 #include <functional>
-
-#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
-#include <windows.h>
-#else
-#include <sys/time.h>
-#endif
+#include <time.h>
 
 #include "EventBus.h"
 #include "Delegate.h"
@@ -62,7 +57,7 @@ typedef std::function<void(Event*)> event_callback_type;
 typedef std::function<void(int, netkit::IBox*)> rsp_callback_type;
 
 struct RspCallbackContainer {
-    struct timeval createTime;
+    time_t createTime;
     float timeout;
     rsp_callback_type callback;
     void* target;
@@ -139,9 +134,6 @@ private:
     void handleRsp(netkit::IBox* box);
 
     void cocosUnScheduleAll();
-
-    // 减法，秒
-    float calcTimeSub(struct timeval &first, struct timeval &second);
 
 private:
     eventbus::EventBus m_eventBus;

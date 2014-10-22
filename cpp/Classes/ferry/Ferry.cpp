@@ -84,7 +84,7 @@ int Ferry::send(netkit::IBox *box, rsp_callback_type rsp_callback, float timeout
     callbackContainer.timeout = timeout;
     callbackContainer.callback = rsp_callback;
     callbackContainer.target = target;
-    gettimeofday(&callbackContainer.createTime, NULL);
+    callbackContainer.createTime = time(NULL);
 
     m_mapRspCallbacks[sn] = callbackContainer;
 
@@ -238,13 +238,11 @@ void Ferry::cocosScheduleRspTimeoutCheckLoop() {
 
 void Ferry::checkRspTimeout() {
 
-    struct timeval nowTime;
-
-    gettimeofday(&nowTime, NULL);
+    time_t nowTime = time(NULL);
 
     for(auto it = m_mapRspCallbacks.begin(); it != m_mapRspCallbacks.end();) {
         auto& container = it->second;
-        float past = calcTimeSub(nowTime, container.createTime);
+        float past = nowTime - container.createTime;
         auto tempit = it;
         it++;
         if (past > container.timeout)
@@ -277,12 +275,4 @@ void Ferry::handleRsp(netkit::IBox* box) {
 void Ferry::cocosUnScheduleAll() {
     cocos2d::Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
 }
-
-float Ferry::calcTimeSub(struct timeval &first, struct timeval &second) {
-    long long intervalMS = ((long long)(first.tv_sec  - second.tv_sec ) * 1000000 + (first.tv_usec - second.tv_usec)) / 1000;
-
-    // 强转float
-    return (float)(intervalMS / 1000.0);
-}
-
 }

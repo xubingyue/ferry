@@ -79,12 +79,11 @@ void AppDelegate::eventCallback(ferry::Event* e) {
             break;
         case ferry::EVENT_ON_OPEN:
             auto func = [&](int code, netkit::IBox* box) {
-                cocos2d::log("rsp code: %d", code);
-                if (box) {
+                if (code == 0) {
                     cocos2d::log("rsp succ");
                 }
                 else {
-                    cocos2d::log("rsp timeout");
+                    cocos2d::log("rsp fail, code: %d", code);
                 }
             };
 
@@ -92,7 +91,7 @@ void AppDelegate::eventCallback(ferry::Event* e) {
             box->cmd = 1;
             box->setBody("aini", 4);
 
-            ferry::Ferry::getInstance()->send(box, func, 10, this);
+            ferry::Ferry::getInstance()->send(box, func, 5, this);
             break;
     }
 }
