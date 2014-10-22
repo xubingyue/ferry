@@ -1,6 +1,7 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
 #include "Ferry.h"
+#include "Box.h"
 
 USING_NS_CC;
 
@@ -77,8 +78,13 @@ void AppDelegate::eventCallback(ferry::Event* e) {
             ferry::Ferry::getInstance()->connect();
             break;
         case ferry::EVENT_ON_OPEN:
-            auto func = [&](int code, netkit::Box* box) {
-                cocos2d::log("code: %d", code);
+            auto func = [&](netkit::IBox* box) {
+                if (box) {
+                    cocos2d::log("rsp succ");
+                }
+                else {
+                    cocos2d::log("rsp timeout");
+                }
             };
 
             netkit::Box *box = new netkit::Box();

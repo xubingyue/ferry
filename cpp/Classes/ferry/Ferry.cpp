@@ -3,6 +3,7 @@
 //
 
 #include "Ferry.h"
+#include "Box.h"
 #include "cocos2d.h"
 
 namespace ferry {
@@ -70,14 +71,14 @@ void Ferry::delAllCallbacks() {
     delAllRspCallbacks();
 }
 
-void Ferry::send(netkit::Box *box) {
+void Ferry::send(netkit::IBox *box) {
     m_service.send(box);
 }
 
-void Ferry::send(netkit::Box *box, rsp_callback_type rsp_callback, float timeout, void* target) {
+void Ferry::send(netkit::IBox *box, rsp_callback_type rsp_callback, float timeout, void* target) {
     int sn = newBoxSn();
 
-    box->sn = sn;
+    setSnToBox(box, sn);
 
     RspCallbackContainer callbackContainer;
     callbackContainer.timeout = timeout;
@@ -195,6 +196,16 @@ netkit::IBox*Ferry::createBox() {
     return new netkit::Box();
 }
 
+void Ferry::setSnToBox(netkit::IBox* ibox, int sn) {
+    netkit::Box* box = (netkit::Box*)ibox;
+    box->sn = sn;
+}
+
+int Ferry::getSnFromBox(netkit::IBox* ibox) {
+    netkit::Box* box = (netkit::Box*)ibox;
+    return box->sn;
+}
+
 
 int Ferry::newBoxSn() {
     if (m_boxSn <= 0) {
@@ -239,7 +250,7 @@ void Ferry::checkRspTimeout() {
         if (past > container.timeout)
         {
             // 超时了
-            container.callback(RSP_ERROR_TIMEOUT, nullptr);
+            container.callback(nullptr);
 
             // 移除
             m_mapRspCallbacks.erase(tempit);
@@ -248,16 +259,18 @@ void Ferry::checkRspTimeout() {
     }
 }
 
-void Ferry::handleRsp(netkit::Box* box) {
-    if (m_mapRspCallbacks.find(box->sn) == m_mapRspCallbacks.end()) {
+void Ferry::handleRsp(netkit::IBox* box) {
+    int sn = getSnFromBox(box);
+
+    if (m_mapRspCallbacks.find(sn) == m_mapRspCallbacks.end()) {
         // 没有找到
         return;
     }
 
-    auto& container = m_mapRspCallbacks[box->sn];
-    container.callback(box->ret, box);
+    auto& container = m_mapRspCallbacks[sn];
+    container.callback(box);
 
-    m_mapRspCallbacks.erase(box->sn);
+    m_mapRspCallbacks.erase(sn);
 }
 
 

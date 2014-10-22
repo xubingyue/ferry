@@ -14,7 +14,7 @@
 #include "EventBus.h"
 #include "Delegate.h"
 #include "Service.h"
-#include "Box.h"
+#include "IBox.h"
 
 namespace ferry {
 
@@ -39,13 +39,10 @@ public:
     }
 
 public:
-    netkit::Box *box;
+    netkit::IBox *box;
     int code;
 };
 
-
-// 响应超时的错误码
-const int RSP_ERROR_TIMEOUT = -999;
 
 // 超时检查间隔
 const float TIMEOUT_CHECK_INTERVAL = 1.0;
@@ -54,7 +51,7 @@ const float TIMEOUT_CHECK_INTERVAL = 1.0;
 typedef std::function<void(Event*)> event_callback_type;
 
 // 收到服务器响应的回调
-typedef std::function<void(int, netkit::Box*)> rsp_callback_type;
+typedef std::function<void(netkit::IBox*)> rsp_callback_type;
 
 struct RspCallbackContainer {
     struct timeval createTime;
@@ -87,9 +84,9 @@ public:
     void delAllCallbacks();
 
     // 发送消息
-    void send(netkit::Box *box);
+    void send(netkit::IBox *box);
     // 带回调的发送，以及超时，超时为秒。target很有用，可以用来防止崩溃
-    void send(netkit::Box *box, rsp_callback_type rsp_callback, float timeout, void* target);
+    void send(netkit::IBox *box, rsp_callback_type rsp_callback, float timeout, void* target);
 
     // 删除send对应的回调
     void delAllRspCallbacksForTarget(void* target);
@@ -120,6 +117,9 @@ public:
     virtual netkit::IBox *createBox();
     // Delegate end
 
+    virtual void setSnToBox(netkit::IBox* ibox, int sn);
+    virtual int getSnFromBox(netkit::IBox* ibox);
+
 private:
     int newBoxSn();
 
@@ -128,7 +128,7 @@ private:
 
     void checkRspTimeout();
 
-    void handleRsp(netkit::Box* box);
+    void handleRsp(netkit::IBox* box);
 
     void cocosUnScheduleAll();
 
