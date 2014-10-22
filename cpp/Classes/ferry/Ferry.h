@@ -105,7 +105,7 @@ public:
 
 
     // IHandler begin
-    virtual void onEvent(eventbus::BaseEvent *e);
+    virtual void onEvent(eventbus::BaseEvent *event);
     // IHandler end
 
     // Delegate begin

@@ -129,11 +129,11 @@ void Ferry::delAllEventCallback() {
 }
 
 
-void Ferry::onEvent(eventbus::BaseEvent *e) {
-    Event * event = (Event *)e;
+void Ferry::onEvent(eventbus::BaseEvent *event) {
+    Event* evt = (Event *) event;
 
-    if(event->what == EVENT_ON_RECV) {
-        handleRsp(event->box);
+    if(evt->what == EVENT_ON_RECV) {
+        handleRsp(evt->box);
     }
 
     auto mapEventCallbacks = m_mapEventCallbacks;
@@ -156,15 +156,15 @@ void Ferry::onEvent(eventbus::BaseEvent *e) {
                 continue;
             }
 
-            subit->second(event);
+            subit->second(evt);
         }
     }
 }
 
 void Ferry::onOpen(ferry::Service *service) {
-    Event * e = new Event();
-    e->what = EVENT_ON_OPEN;
-    m_eventBus.pushEvent(e);
+    Event *event = new Event();
+    event->what = EVENT_ON_OPEN;
+    m_eventBus.pushEvent(event);
 }
 
 void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
@@ -172,23 +172,23 @@ void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
 }
 
 void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
-    Event * e = new Event();
-    e->what = EVENT_ON_RECV;
-    e->box = (netkit::Box*)ibox;
-    m_eventBus.pushEvent(e);
+    Event *event = new Event();
+    event->what = EVENT_ON_RECV;
+    event->box = (netkit::Box*)ibox;
+    m_eventBus.pushEvent(event);
 }
 
 void Ferry::onClose(ferry::Service *service) {
-    Event * e = new Event();
-    e->what = EVENT_ON_CLOSE;
-    m_eventBus.pushEvent(e);
+    Event *event = new Event();
+    event->what = EVENT_ON_CLOSE;
+    m_eventBus.pushEvent(event);
 }
 
 void Ferry::onError(ferry::Service *service, int code) {
-    Event * e = new Event();
-    e->what = EVENT_ON_ERROR;
-    e->code = code;
-    m_eventBus.pushEvent(e);
+    Event *event = new Event();
+    event->what = EVENT_ON_ERROR;
+    event->code = code;
+    m_eventBus.pushEvent(event);
 }
 
 netkit::IBox*Ferry::createBox() {
