@@ -187,7 +187,7 @@ void Ferry::onClose(ferry::Service *service) {
 void Ferry::onError(ferry::Service *service, int code) {
     Event * e = new Event();
     e->what = EVENT_ON_ERROR;
-    e->errcode = code;
+    e->code = code;
     m_eventBus.pushEvent(e);
 }
 

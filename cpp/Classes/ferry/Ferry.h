@@ -29,7 +29,7 @@ class Event :public eventbus::BaseEvent{
 public:
     Event() {
         box = nullptr;
-        errcode = 0;
+        code = 0;
     }
     virtual ~Event() {
         if(box) {
@@ -40,7 +40,7 @@ public:
 
 public:
     netkit::Box *box;
-    int errcode;
+    int code;
 };
 
 
