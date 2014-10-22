@@ -4,7 +4,7 @@
 #include <iostream>
 #include <map>
 #include "EventBus.h"
-#include "Box.h"
+#include "IBox.h"
 #include "cocos2d.h"
 
 class ExtendEvent :public eventbus::BaseEvent{
@@ -20,7 +20,7 @@ public:
     }
 
 public:
-    netkit::Box *box;
+    netkit::IBox *box;
     std::map<std::string, std::string> mapData;
 };
 
