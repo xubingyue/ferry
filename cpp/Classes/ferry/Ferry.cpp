@@ -132,7 +132,7 @@ void Ferry::delAllEventCallbacks() {
 void Ferry::onOpen(ferry::Service *service) {
     cocos2d::log("[%s]-[%s][%d][%s]", LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
 
-    Event *event = Event::create();
+    Event *event = new Event();
     event->what = EVENT_OPEN;
     pushEvent(event);
 }
@@ -144,7 +144,7 @@ void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
 void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
     cocos2d::log("[%s]-[%s][%d][%s] box: %s", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, ibox->toString().c_str());
 
-    Event *event = Event::create();
+    Event *event = new Event();
     event->what = EVENT_RECV;
     event->box = (netkit::Box*)ibox;
     pushEvent(event);
@@ -153,7 +153,7 @@ void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
 void Ferry::onClose(ferry::Service *service) {
     cocos2d::log("[%s]-[%s][%d][%s]", LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
 
-    Event *event = Event::create();
+    Event *event = new Event();
     event->what = EVENT_CLOSE;
     pushEvent(event);
 }
@@ -161,7 +161,7 @@ void Ferry::onClose(ferry::Service *service) {
 void Ferry::onError(ferry::Service *service, int code) {
     cocos2d::log("[%s]-[%s][%d][%s] code: %d", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, code);
 
-    Event *event = Event::create();
+    Event *event = new Event();
     event->what = EVENT_ERROR;
     event->code = code;
     pushEvent(event);
@@ -184,7 +184,7 @@ int Ferry::getSnFromBox(netkit::IBox* ibox) {
 void Ferry::loopEvents() {
     pthread_mutex_lock(&m_eventsMutex);
     // 复制下来，防止访问冲突
-    cocos2d::Vector<Event*> events = m_events;
+    std::list<Event*> events = m_events;
     pthread_mutex_unlock(&m_eventsMutex);
 
     for (auto& event: events) {
@@ -200,6 +200,7 @@ void Ferry::loopEvents() {
         {
             // event在用完了之后就要删掉
             // event是引用的话，就一定要先delete再erase，否则event引用的位置就没了
+            delete event;
             it = m_events.erase(it);
         }
         else
@@ -213,7 +214,7 @@ void Ferry::loopEvents() {
 void Ferry::pushEvent(Event *event) {
     pthread_mutex_lock(&m_eventsMutex);
 
-    m_events.pushBack(event);
+    m_events.push_back(event);
 
     pthread_mutex_unlock(&m_eventsMutex);
 }
@@ -284,7 +285,7 @@ void Ferry::checkRspTimeout() {
     time_t nowTime = time(NULL);
 
     // 再进入下一帧之前，不会释放
-    Event *event = Event::create();
+    Event *event = new Event();
     event->what = EVENT_TIMEOUT;
 
     // 提前申请好，免得每次都要传
@@ -302,6 +303,8 @@ void Ferry::checkRspTimeout() {
             m_mapRspCallbacks.erase(tempit);
         }
     }
+
+    delete event;
 }
 
 void Ferry::handleRsp(Event* event) {

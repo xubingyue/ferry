@@ -9,6 +9,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <list>
 #include <functional>
 #include <time.h>
 #include <pthread.h>
@@ -29,8 +30,8 @@ enum EVENT_TYPE {
     EVENT_TIMEOUT,
 };
 
-class Event :public cocos2d::Ref {
-private:
+class Event {
+public:
     Event() {
         what = 0;
         box = nullptr;
@@ -38,19 +39,12 @@ private:
         _done = false;
     }
 
-public:
     virtual ~Event() {
         if(box) {
             delete box;
         }
         box = nullptr;
     }
-
-    bool init() {
-        return true;
-    }
-
-    CREATE_FUNC(Event);
 
 public:
     int what;
@@ -148,7 +142,7 @@ private:
     ferry::Service m_service;
 
     pthread_mutex_t m_eventsMutex;
-    cocos2d::Vector<Event*> m_events;
+    std::list<Event*> m_events;
 
     std::map<void*, std::map<std::string, CallbackType> > m_mapEventCallbacks;
 
