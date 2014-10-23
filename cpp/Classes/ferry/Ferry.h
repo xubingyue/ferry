@@ -125,7 +125,7 @@ public:
 protected:
     // 继承后可以修改
     virtual void onEvent(Event *event);
-    virtual void onRspTimeoutCheck();
+    virtual void onCheckRspTimeout();
 
     void loopEvents();
     void pushEvent(Event *event);

@@ -220,13 +220,11 @@ void Ferry::pushEvent(Event *event) {
 }
 
 void Ferry::onEvent(Event *event) {
-    Event* evt = event;
-
-    if(evt->what == EVENT_RECV) {
-        handleWithRspCallbacks(evt);
+    if(event->what == EVENT_RECV) {
+        handleWithRspCallbacks(event);
     }
 
-    handleWithEventCallbacks(evt);
+    handleWithEventCallbacks(event);
 }
 
 int Ferry::newBoxSn() {
@@ -249,7 +247,7 @@ void Ferry::cocosScheduleLoopEvents() {
 
 void Ferry::cocosScheduleRspTimeoutCheck() {
     auto func = [this](float dt){
-        onRspTimeoutCheck();
+        onCheckRspTimeout();
     };
 
     // 先调用这个
@@ -258,7 +256,7 @@ void Ferry::cocosScheduleRspTimeoutCheck() {
     );
 }
 
-void Ferry::onRspTimeoutCheck() {
+void Ferry::onCheckRspTimeout() {
 
     time_t nowTime = time(NULL);
 
