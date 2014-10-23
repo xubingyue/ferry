@@ -249,7 +249,7 @@ void Ferry::cocosScheduleLoopEvents() {
 
 void Ferry::cocosScheduleRspTimeoutCheck() {
     auto func = [this](float dt){
-        checkRspTimeout();
+        onRspTimeoutCheck();
     };
 
     // 先调用这个
@@ -258,7 +258,7 @@ void Ferry::cocosScheduleRspTimeoutCheck() {
     );
 }
 
-void Ferry::checkRspTimeout() {
+void Ferry::onRspTimeoutCheck() {
 
     time_t nowTime = time(NULL);
 

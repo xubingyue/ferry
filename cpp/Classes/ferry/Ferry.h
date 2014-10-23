@@ -123,16 +123,17 @@ public:
     virtual int getSnFromBox(netkit::IBox* ibox);
 
 protected:
+    // 继承后可以修改
+    virtual void onEvent(Event *event);
+    virtual void onRspTimeoutCheck();
+
     void loopEvents();
     void pushEvent(Event *event);
-    void onEvent(Event *event);
 
     int newBoxSn();
 
     void cocosScheduleLoopEvents();
     void cocosScheduleRspTimeoutCheck();
-
-    void checkRspTimeout();
 
     void handleWithRspCallbacks(Event *event);
     void handleWithEventCallbacks(Event *event);
