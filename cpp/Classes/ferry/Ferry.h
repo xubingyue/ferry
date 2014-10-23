@@ -130,6 +130,7 @@ public:
 
 private:
     void loopEvents();
+    void pushEvent(Event *event);
     void onEvent(Event *event);
 
     int newBoxSn();

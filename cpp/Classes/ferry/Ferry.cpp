@@ -14,6 +14,8 @@ Ferry *Ferry::getInstance() {
 }
 
 Ferry::Ferry() {
+    pthread_mutex_init(&m_eventsMutex, NULL);
+
     m_boxSn = 0;
     m_running = false;
     m_timeoutCheckInterval = TIMEOUT_CHECK_INTERVAL;
@@ -21,6 +23,7 @@ Ferry::Ferry() {
 
 Ferry::~Ferry() {
     stop();
+    pthread_mutex_destroy(&m_eventsMutex);
 }
 
 ferry::Service*Ferry::getService() {
@@ -131,7 +134,7 @@ void Ferry::onOpen(ferry::Service *service) {
 
     Event *event = Event::create();
     event->what = EVENT_OPEN;
-    m_events.pushBack(event);
+    pushEvent(event);
 }
 
 void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
@@ -144,7 +147,7 @@ void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
     Event *event = Event::create();
     event->what = EVENT_RECV;
     event->box = (netkit::Box*)ibox;
-    m_events.pushBack(event);
+    pushEvent(event);
 }
 
 void Ferry::onClose(ferry::Service *service) {
@@ -152,7 +155,7 @@ void Ferry::onClose(ferry::Service *service) {
 
     Event *event = Event::create();
     event->what = EVENT_CLOSE;
-    m_events.pushBack(event);
+    pushEvent(event);
 }
 
 void Ferry::onError(ferry::Service *service, int code) {
@@ -161,7 +164,7 @@ void Ferry::onError(ferry::Service *service, int code) {
     Event *event = Event::create();
     event->what = EVENT_ERROR;
     event->code = code;
-    m_events.pushBack(event);
+    pushEvent(event);
 }
 
 netkit::IBox*Ferry::createBox() {
@@ -204,6 +207,14 @@ void Ferry::loopEvents() {
             ++it;
         }
     }
+    pthread_mutex_unlock(&m_eventsMutex);
+}
+
+void Ferry::pushEvent(Event *event) {
+    pthread_mutex_lock(&m_eventsMutex);
+
+    m_events.pushBack(event);
+
     pthread_mutex_unlock(&m_eventsMutex);
 }
 
