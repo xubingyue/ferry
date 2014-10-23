@@ -223,32 +223,10 @@ void Ferry::onEvent(Event *event) {
     Event* evt = event;
 
     if(evt->what == EVENT_RECV) {
-        handleRsp(evt);
+        handleWithRspCallbacks(evt);
     }
 
-    auto mapEventCallbacks = m_mapEventCallbacks;
-
-    for(auto it = mapEventCallbacks.begin(); it != mapEventCallbacks.end(); ++it) {
-        auto target = it->first;
-        if (m_mapEventCallbacks.find(target) == m_mapEventCallbacks.end()) {
-            // 不用这个了
-            continue;
-        }
-
-        // 这里注意是引用
-        auto&real_callbacks = it->second;
-        auto callbacks = real_callbacks;
-
-        for(auto subit = callbacks.begin(); subit != callbacks.end(); ++subit) {
-            auto name = subit->first;
-
-            if (real_callbacks.find(name) == real_callbacks.end()) {
-                continue;
-            }
-
-            subit->second(evt);
-        }
-    }
+    handleWithEventCallbacks(evt);
 }
 
 int Ferry::newBoxSn() {
@@ -307,7 +285,7 @@ void Ferry::checkRspTimeout() {
     delete event;
 }
 
-void Ferry::handleRsp(Event* event) {
+void Ferry::handleWithRspCallbacks(Event *event) {
     int sn = getSnFromBox(event->box);
 
     if (m_mapRspCallbacks.find(sn) == m_mapRspCallbacks.end()) {
@@ -321,6 +299,31 @@ void Ferry::handleRsp(Event* event) {
     m_mapRspCallbacks.erase(sn);
 }
 
+void Ferry::handleWithEventCallbacks(Event *event) {
+    auto mapEventCallbacks = m_mapEventCallbacks;
+
+    for(auto it = mapEventCallbacks.begin(); it != mapEventCallbacks.end(); ++it) {
+        auto target = it->first;
+        if (m_mapEventCallbacks.find(target) == m_mapEventCallbacks.end()) {
+            // 不用这个了
+            continue;
+        }
+
+        // 这里注意是引用
+        auto&real_callbacks = it->second;
+        auto callbacks = real_callbacks;
+
+        for(auto subit = callbacks.begin(); subit != callbacks.end(); ++subit) {
+            auto name = subit->first;
+
+            if (real_callbacks.find(name) == real_callbacks.end()) {
+                continue;
+            }
+
+            subit->second(event);
+        }
+    }
+}
 
 void Ferry::cocosUnScheduleAll() {
     cocos2d::Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);

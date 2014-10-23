@@ -122,7 +122,7 @@ public:
     virtual void setSnToBox(netkit::IBox* ibox, int sn);
     virtual int getSnFromBox(netkit::IBox* ibox);
 
-private:
+protected:
     void loopEvents();
     void pushEvent(Event *event);
     void onEvent(Event *event);
@@ -134,11 +134,12 @@ private:
 
     void checkRspTimeout();
 
-    void handleRsp(Event* event);
+    void handleWithRspCallbacks(Event *event);
+    void handleWithEventCallbacks(Event *event);
 
     void cocosUnScheduleAll();
 
-private:
+protected:
     ferry::Service m_service;
 
     pthread_mutex_t m_eventsMutex;
