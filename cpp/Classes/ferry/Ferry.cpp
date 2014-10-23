@@ -17,14 +17,10 @@ Ferry::Ferry() {
     m_boxSn = 0;
     m_running = false;
     m_timeoutCheckInterval = TIMEOUT_CHECK_INTERVAL;
-
-    m_eventBus.addHandler(this);
 }
 
 Ferry::~Ferry() {
     stop();
-
-    m_eventBus.delHandler(this);
 }
 
 ferry::Service*Ferry::getService() {
@@ -130,9 +126,89 @@ void Ferry::delAllEventCallbacks() {
     m_mapEventCallbacks.clear();
 }
 
+void Ferry::onOpen(ferry::Service *service) {
+    cocos2d::log("[%s]-[%s][%d][%s]", LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
 
-void Ferry::onEvent(eventbus::BaseEvent *event) {
-    Event* evt = (Event *) event;
+    Event *event = Event::create();
+    event->what = EVENT_OPEN;
+    m_events.pushBack(event);
+}
+
+void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
+    cocos2d::log("[%s]-[%s][%d][%s] box: %s", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, ibox->toString().c_str());
+}
+
+void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
+    cocos2d::log("[%s]-[%s][%d][%s] box: %s", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, ibox->toString().c_str());
+
+    Event *event = Event::create();
+    event->what = EVENT_RECV;
+    event->box = (netkit::Box*)ibox;
+    m_events.pushBack(event);
+}
+
+void Ferry::onClose(ferry::Service *service) {
+    cocos2d::log("[%s]-[%s][%d][%s]", LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
+
+    Event *event = Event::create();
+    event->what = EVENT_CLOSE;
+    m_events.pushBack(event);
+}
+
+void Ferry::onError(ferry::Service *service, int code) {
+    cocos2d::log("[%s]-[%s][%d][%s] code: %d", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, code);
+
+    Event *event = Event::create();
+    event->what = EVENT_ERROR;
+    event->code = code;
+    m_events.pushBack(event);
+}
+
+netkit::IBox*Ferry::createBox() {
+    return new netkit::Box();
+}
+
+void Ferry::setSnToBox(netkit::IBox* ibox, int sn) {
+    netkit::Box* box = (netkit::Box*)ibox;
+    box->sn = sn;
+}
+
+int Ferry::getSnFromBox(netkit::IBox* ibox) {
+    netkit::Box* box = (netkit::Box*)ibox;
+    return box->sn;
+}
+
+void Ferry::loopEvents() {
+    pthread_mutex_lock(&m_eventsMutex);
+    // 复制下来，防止访问冲突
+    cocos2d::Vector<Event*> events = m_events;
+    pthread_mutex_unlock(&m_eventsMutex);
+
+    for (auto& event: events) {
+        onEvent(event);
+        event->_done = true;
+    }
+
+    pthread_mutex_lock(&m_eventsMutex);
+    for(auto it = m_events.begin(); it != m_events.end();)
+    {
+        auto& event = (*it);
+        if (event->_done)
+        {
+            // event在用完了之后就要删掉
+            // event是引用的话，就一定要先delete再erase，否则event引用的位置就没了
+            it = m_events.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+    pthread_mutex_unlock(&m_eventsMutex);
+}
+
+void Ferry::onEvent(Event *event) {
+    Event* evt = event;
 
     if(evt->what == EVENT_RECV) {
         handleRsp(evt);
@@ -163,59 +239,6 @@ void Ferry::onEvent(eventbus::BaseEvent *event) {
     }
 }
 
-void Ferry::onOpen(ferry::Service *service) {
-    cocos2d::log("[%s]-[%s][%d][%s]", LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
-
-    Event *event = new Event();
-    event->what = EVENT_OPEN;
-    m_eventBus.pushEvent(event);
-}
-
-void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
-    cocos2d::log("[%s]-[%s][%d][%s] box: %s", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, ibox->toString().c_str());
-}
-
-void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
-    cocos2d::log("[%s]-[%s][%d][%s] box: %s", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, ibox->toString().c_str());
-
-    Event *event = new Event();
-    event->what = EVENT_RECV;
-    event->box = (netkit::Box*)ibox;
-    m_eventBus.pushEvent(event);
-}
-
-void Ferry::onClose(ferry::Service *service) {
-    cocos2d::log("[%s]-[%s][%d][%s]", LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
-
-    Event *event = new Event();
-    event->what = EVENT_CLOSE;
-    m_eventBus.pushEvent(event);
-}
-
-void Ferry::onError(ferry::Service *service, int code) {
-    cocos2d::log("[%s]-[%s][%d][%s] code: %d", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, code);
-
-    Event *event = new Event();
-    event->what = EVENT_ERROR;
-    event->code = code;
-    m_eventBus.pushEvent(event);
-}
-
-netkit::IBox*Ferry::createBox() {
-    return new netkit::Box();
-}
-
-void Ferry::setSnToBox(netkit::IBox* ibox, int sn) {
-    netkit::Box* box = (netkit::Box*)ibox;
-    box->sn = sn;
-}
-
-int Ferry::getSnFromBox(netkit::IBox* ibox) {
-    netkit::Box* box = (netkit::Box*)ibox;
-    return box->sn;
-}
-
-
 int Ferry::newBoxSn() {
     if (m_boxSn <= 0) {
         m_boxSn = 0;
@@ -227,7 +250,7 @@ int Ferry::newBoxSn() {
 
 void Ferry::cocosScheduleEventBusLoop() {
     auto func = [this](float dt){
-        m_eventBus.loopEvents();
+        loopEvents();
     };
 
     // 先调用这个
@@ -249,10 +272,11 @@ void Ferry::checkRspTimeout() {
 
     time_t nowTime = time(NULL);
 
-    // 提前申请好，免得每次都要传
-    Event *event = new Event();
+    // 再进入下一帧之前，不会释放
+    Event *event = Event::create();
     event->what = EVENT_TIMEOUT;
 
+    // 提前申请好，免得每次都要传
     for(auto it = m_mapRspCallbacks.begin(); it != m_mapRspCallbacks.end();) {
         auto& container = it->second;
         float past = nowTime - container.createTime;
@@ -262,14 +286,11 @@ void Ferry::checkRspTimeout() {
         {
             // 超时了
             container.callback(event);
-            // 用完就删掉
 
             // 移除
             m_mapRspCallbacks.erase(tempit);
         }
     }
-
-    delete event;
 }
 
 void Ferry::handleRsp(Event* event) {

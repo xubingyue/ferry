@@ -11,10 +11,10 @@
 #include <set>
 #include <functional>
 #include <time.h>
+#include <pthread.h>
 
 // 如果cocos2d.h不放在最前，win下会编译报错
 #include "cocos2d.h"
-#include "EventBus.h"
 #include "Delegate.h"
 #include "Service.h"
 #include "IBox.h"
@@ -29,12 +29,16 @@ enum EVENT_TYPE {
     EVENT_TIMEOUT,
 };
 
-class Event :public eventbus::BaseEvent{
-public:
+class Event :public cocos2d::Ref {
+private:
     Event() {
+        what = 0;
         box = nullptr;
         code = 0;
+        _done = false;
     }
+
+public:
     virtual ~Event() {
         if(box) {
             delete box;
@@ -42,9 +46,18 @@ public:
         box = nullptr;
     }
 
+    bool init() {
+        return true;
+    }
+
+    CREATE_FUNC(Event);
+
 public:
+    int what;
     netkit::IBox *box;
     int code;
+
+    bool _done;
 };
 
 // 超时检查间隔
@@ -60,7 +73,7 @@ struct RspCallbackContainer {
     void* target;
 };
 
-class Ferry : public eventbus::IHandler, public ferry::Delegate {
+class Ferry : public ferry::Delegate {
 public:
     static Ferry *getInstance();
 
@@ -98,11 +111,6 @@ public:
     void delEventCallbacksForTarget(void *target);
     void delAllEventCallbacks();
 
-
-    // IHandler begin
-    virtual void onEvent(eventbus::BaseEvent *event);
-    // IHandler end
-
     // Delegate begin
     virtual void onOpen(ferry::Service *service);
 
@@ -121,6 +129,9 @@ public:
     virtual int getSnFromBox(netkit::IBox* ibox);
 
 private:
+    void loopEvents();
+    void onEvent(Event *event);
+
     int newBoxSn();
 
     void cocosScheduleEventBusLoop();
@@ -133,8 +144,10 @@ private:
     void cocosUnScheduleAll();
 
 private:
-    eventbus::EventBus m_eventBus;
     ferry::Service m_service;
+
+    pthread_mutex_t m_eventsMutex;
+    cocos2d::Vector<Event*> m_events;
 
     std::map<void*, std::map<std::string, CallbackType> > m_mapEventCallbacks;
 
