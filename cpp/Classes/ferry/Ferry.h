@@ -134,8 +134,8 @@ private:
 
     int newBoxSn();
 
-    void cocosScheduleEventBusLoop();
-    void cocosScheduleRspTimeoutCheckLoop();
+    void cocosScheduleLoopEvents();
+    void cocosScheduleRspTimeoutCheck();
 
     void checkRspTimeout();
 

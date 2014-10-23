@@ -37,8 +37,8 @@ void Ferry::start() {
     }
     m_running = true;
 
-    cocosScheduleEventBusLoop();
-    cocosScheduleRspTimeoutCheckLoop();
+    cocosScheduleLoopEvents();
+    cocosScheduleRspTimeoutCheck();
 
     m_service.start();
 }
@@ -248,23 +248,23 @@ int Ferry::newBoxSn() {
     return ++m_boxSn;
 }
 
-void Ferry::cocosScheduleEventBusLoop() {
+void Ferry::cocosScheduleLoopEvents() {
     auto func = [this](float dt){
         loopEvents();
     };
 
     // 先调用这个
-    cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "ferry_eventbus");
+    cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, __FUNCTION__);
 }
 
-void Ferry::cocosScheduleRspTimeoutCheckLoop() {
+void Ferry::cocosScheduleRspTimeoutCheck() {
     auto func = [this](float dt){
         checkRspTimeout();
     };
 
     // 先调用这个
     cocos2d::Director::getInstance()->getScheduler()->schedule(
-            func, this, m_timeoutCheckInterval, false, "ferry_timeout_check"
+            func, this, m_timeoutCheckInterval, false, __FUNCTION__
     );
 }
 
