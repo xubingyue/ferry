@@ -146,15 +146,15 @@ protected:
     pthread_mutex_t m_eventsMutex;
     std::list<Event*> m_events;
 
-    std::map<void*, std::map<std::string, CallbackType> > m_mapEventCallbacks;
-
-    std::map<int, RspCallbackContainer> m_mapRspCallbacks;
-
-    int m_boxSn;
-
     float m_timeoutCheckInterval;
 
     bool m_running;
+
+private:
+    int m_boxSn;
+
+    std::map<void*, std::map<std::string, CallbackType> > m_mapEventCallbacks;
+    std::map<int, RspCallbackContainer> m_mapRspCallbacks;
 };
 
 }
