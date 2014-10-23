@@ -76,7 +76,7 @@ int Ferry::send(netkit::IBox *box) {
     return m_service.send(box);
 }
 
-int Ferry::send(netkit::IBox *box, rsp_callback_type rsp_callback, float timeout, void* target) {
+int Ferry::send(netkit::IBox *box, CallbackType rsp_callback, float timeout, void* target) {
     int sn = newBoxSn();
 
     setSnToBox(box, sn);
@@ -110,7 +110,7 @@ void Ferry::delAllRspCallbacks() {
     m_mapRspCallbacks.clear();
 }
 
-void Ferry::addEventCallback(event_callback_type callback, void *target, const std::string &name) {
+void Ferry::addEventCallback(CallbackType callback, void *target, const std::string &name) {
     m_mapEventCallbacks[target][name]= callback;
 }
 
@@ -135,7 +135,7 @@ void Ferry::onEvent(eventbus::BaseEvent *event) {
     Event* evt = (Event *) event;
 
     if(evt->what == EVENT_RECV) {
-        handleRsp(evt->box);
+        handleRsp(evt);
     }
 
     auto mapEventCallbacks = m_mapEventCallbacks;
@@ -249,6 +249,10 @@ void Ferry::checkRspTimeout() {
 
     time_t nowTime = time(NULL);
 
+    // 提前申请好，免得每次都要传
+    Event *event = new Event();
+    event->what = EVENT_TIMEOUT;
+
     for(auto it = m_mapRspCallbacks.begin(); it != m_mapRspCallbacks.end();) {
         auto& container = it->second;
         float past = nowTime - container.createTime;
@@ -257,17 +261,19 @@ void Ferry::checkRspTimeout() {
         if (past > container.timeout)
         {
             // 超时了
-            container.callback(RSP_ERROR_TIMEOUT, nullptr);
+            container.callback(event);
+            // 用完就删掉
 
             // 移除
             m_mapRspCallbacks.erase(tempit);
         }
-
     }
+
+    delete event;
 }
 
-void Ferry::handleRsp(netkit::IBox* box) {
-    int sn = getSnFromBox(box);
+void Ferry::handleRsp(Event* event) {
+    int sn = getSnFromBox(event->box);
 
     if (m_mapRspCallbacks.find(sn) == m_mapRspCallbacks.end()) {
         // 没有找到
@@ -275,7 +281,7 @@ void Ferry::handleRsp(netkit::IBox* box) {
     }
 
     auto& container = m_mapRspCallbacks[sn];
-    container.callback(0, box);
+    container.callback(event);
 
     m_mapRspCallbacks.erase(sn);
 }

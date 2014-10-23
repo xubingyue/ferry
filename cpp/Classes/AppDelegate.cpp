@@ -6,7 +6,10 @@
 USING_NS_CC;
 
 AppDelegate::AppDelegate() {
-    ferry::Ferry::getInstance()->addEventCallback(std::bind(&AppDelegate::eventCallback, this, std::placeholders::_1), this, "event_callback");
+    ferry::Ferry::getInstance()->addEventCallback(
+            std::bind(&AppDelegate::eventCallback, this, std::placeholders::_1),
+            this, "event_callback"
+    );
 }
 
 AppDelegate::~AppDelegate() 
@@ -70,21 +73,16 @@ void AppDelegate::applicationWillEnterForeground() {
     // SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
 }
 
-void AppDelegate::eventCallback(ferry::Event* event) {
-    cocos2d::log("event.what: %d", event->what);
+void AppDelegate::eventCallback(ferry::Event *event) {
+    cocos2d::log("event->what: %d", event->what);
 
     switch (event->what) {
         case ferry::EVENT_CLOSE:
             ferry::Ferry::getInstance()->connect();
             break;
         case ferry::EVENT_OPEN:
-            auto func = [&](int code, netkit::IBox* box) {
-                if (code == 0) {
-                    cocos2d::log("rsp succ");
-                }
-                else {
-                    cocos2d::log("rsp fail, code: %d", code);
-                }
+            auto func = [&](ferry::Event* event) {
+                cocos2d::log("rsp, event->what: %d", event->what);
             };
 
             netkit::Box *box = new netkit::Box();

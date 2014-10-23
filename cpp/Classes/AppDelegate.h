@@ -34,7 +34,7 @@ public:
     */
     virtual void applicationWillEnterForeground();
 
-    void eventCallback(ferry::Event* e);
+    void eventCallback(ferry::Event* event);
 };
 
 #endif // _APP_DELEGATE_H_
