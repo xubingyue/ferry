@@ -101,7 +101,7 @@ public:
     void addEventCallback(event_callback_type callback, void* target, const std::string& name);
     void delEventCallback(const std::string& name, void* target);
     void delAllEventCallbacksForTarget(void* target);
-    void delAllEventCallback();
+    void delAllEventCallbacks();
 
 
     // IHandler begin

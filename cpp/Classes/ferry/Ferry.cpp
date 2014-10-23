@@ -68,7 +68,7 @@ void Ferry::delAllCallbacksForTarget(void* target) {
 }
 
 void Ferry::delAllCallbacks() {
-    delAllEventCallback();
+    delAllEventCallbacks();
     delAllRspCallbacks();
 }
 
@@ -126,7 +126,7 @@ void Ferry::delAllEventCallbacksForTarget(void *target) {
     m_mapEventCallbacks.erase(target);
 }
 
-void Ferry::delAllEventCallback() {
+void Ferry::delAllEventCallbacks() {
     m_mapEventCallbacks.clear();
 }
 
