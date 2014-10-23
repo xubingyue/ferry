@@ -134,7 +134,7 @@ void Ferry::delAllEventCallbacks() {
 void Ferry::onEvent(eventbus::BaseEvent *event) {
     Event* evt = (Event *) event;
 
-    if(evt->what == EVENT_ON_RECV) {
+    if(evt->what == EVENT_RECV) {
         handleRsp(evt->box);
     }
 
@@ -167,7 +167,7 @@ void Ferry::onOpen(ferry::Service *service) {
     cocos2d::log("[%s]-[%s][%d][%s]", LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
 
     Event *event = new Event();
-    event->what = EVENT_ON_OPEN;
+    event->what = EVENT_OPEN;
     m_eventBus.pushEvent(event);
 }
 
@@ -179,7 +179,7 @@ void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
     cocos2d::log("[%s]-[%s][%d][%s] box: %s", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, ibox->toString().c_str());
 
     Event *event = new Event();
-    event->what = EVENT_ON_RECV;
+    event->what = EVENT_RECV;
     event->box = (netkit::Box*)ibox;
     m_eventBus.pushEvent(event);
 }
@@ -188,7 +188,7 @@ void Ferry::onClose(ferry::Service *service) {
     cocos2d::log("[%s]-[%s][%d][%s]", LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
 
     Event *event = new Event();
-    event->what = EVENT_ON_CLOSE;
+    event->what = EVENT_CLOSE;
     m_eventBus.pushEvent(event);
 }
 
@@ -196,7 +196,7 @@ void Ferry::onError(ferry::Service *service, int code) {
     cocos2d::log("[%s]-[%s][%d][%s] code: %d", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, code);
 
     Event *event = new Event();
-    event->what = EVENT_ON_ERROR;
+    event->what = EVENT_ERROR;
     event->code = code;
     m_eventBus.pushEvent(event);
 }

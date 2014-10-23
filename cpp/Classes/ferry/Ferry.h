@@ -22,10 +22,10 @@
 namespace ferry {
 
 enum EVENT_TYPE {
-    EVENT_ON_OPEN=0,
-    EVENT_ON_RECV,
-    EVENT_ON_CLOSE,
-    EVENT_ON_ERROR,
+    EVENT_OPEN =0,
+    EVENT_RECV,
+    EVENT_CLOSE,
+    EVENT_ERROR,
 };
 
 class Event :public eventbus::BaseEvent{
