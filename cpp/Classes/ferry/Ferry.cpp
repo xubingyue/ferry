@@ -62,9 +62,9 @@ void Ferry::connect() {
     m_service.connect();
 }
 
-void Ferry::delAllCallbacksForTarget(void* target) {
-    delAllEventCallbacksForTarget(target);
-    delAllRspCallbacksForTarget(target);
+void Ferry::delCallbacksForTarget(void *target) {
+    delEventCallbacksForTarget(target);
+    delRspCallbacksForTarget(target);
 }
 
 void Ferry::delAllCallbacks() {
@@ -92,7 +92,7 @@ int Ferry::send(netkit::IBox *box, rsp_callback_type rsp_callback, float timeout
     return m_service.send(box);
 }
 
-void Ferry::delAllRspCallbacksForTarget(void* target) {
+void Ferry::delRspCallbacksForTarget(void *target) {
     for(auto it = m_mapRspCallbacks.begin(); it != m_mapRspCallbacks.end();) {
         auto& container = it->second;
         auto tempit = it;
@@ -122,7 +122,7 @@ void Ferry::delEventCallback(const std::string &name, void *target) {
     m_mapEventCallbacks[target].erase(name);
 }
 
-void Ferry::delAllEventCallbacksForTarget(void *target) {
+void Ferry::delEventCallbacksForTarget(void *target) {
     m_mapEventCallbacks.erase(target);
 }
 

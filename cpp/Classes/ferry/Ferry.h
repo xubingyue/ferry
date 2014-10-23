@@ -84,7 +84,7 @@ public:
     void connect();
 
     // 删除类对应的所有回调，务必在使用ferry的类的析构函数里调用
-    void delAllCallbacksForTarget(void* target);
+    void delCallbacksForTarget(void *target);
     // 删除所有回调
     void delAllCallbacks();
 
@@ -94,13 +94,13 @@ public:
     int send(netkit::IBox *box, rsp_callback_type rsp_callback, float timeout, void* target);
 
     // 删除send对应的回调
-    void delAllRspCallbacksForTarget(void* target);
+    void delRspCallbacksForTarget(void *target);
     void delAllRspCallbacks();
 
     // 注册事件回调
     void addEventCallback(event_callback_type callback, void* target, const std::string& name);
     void delEventCallback(const std::string& name, void* target);
-    void delAllEventCallbacksForTarget(void* target);
+    void delEventCallbacksForTarget(void *target);
     void delAllEventCallbacks();
 
 

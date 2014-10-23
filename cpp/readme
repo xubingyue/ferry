@@ -24,6 +24,6 @@ b. 基于回调
 全部基于回调，lua也可以方便使用。
 最重要的一点是，所有使用send、或者addEventCallback的类，析构函数里面务必调用:
 
-delAllCallbacksForTarget
+delCallbacksForTarget
 
 防止出现崩溃
