@@ -34,6 +34,7 @@ static int tolua_ferry_ScriptFerry_scriptAddEventCallback(lua_State *tolua_S)
     argc = lua_gettop(tolua_S) - 1;
     if (1 == argc) {
 #if COCOS2D_DEBUG >= 1
+        // 2 代表第一个参数
         if (!toluafix_isfunction(tolua_S,2,"LUA_FUNCTION",0,&tolua_err))
         {
             goto tolua_lerror;

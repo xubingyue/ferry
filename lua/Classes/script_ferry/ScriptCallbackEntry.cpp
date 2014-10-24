@@ -20,6 +20,7 @@ ScriptCallbackEntry::ScriptCallbackEntry(int handler):ScriptHandlerEntry(handler
 void ScriptCallbackEntry::call(ScriptEvent* event) {
     cocos2d::LuaStack* stack = cocos2d::LuaEngine::getInstance()->getLuaStack();
     stack->pushObject(event, "ferry.ScriptEvent");
+    // 1 代表1个参数
     int ret = stack->executeFunctionByHandler(_handler, 1);
     stack->clean();
 }
