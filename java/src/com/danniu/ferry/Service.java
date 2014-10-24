@@ -191,19 +191,6 @@ public class Service {
     private void sendMsgToServer() {
 
         while (true) {
-            if (!running) {
-                runningLock.lock();
-                while (!running) {
-                    try{
-                        runningCondition.await();
-                    }
-                    catch (Exception e) {
-
-                    }
-                }
-                runningLock.unlock();
-            }
-
             IBox box = null;
 
             try {
