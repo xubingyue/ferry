@@ -1,7 +1,7 @@
 ferry = ferry or {}
 
 ferry.EventType = {
-    open =0,
+    open = 0,
     send = 1,
     recv = 2,
     close = 3,
