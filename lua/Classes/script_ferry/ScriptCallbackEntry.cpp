@@ -4,7 +4,7 @@
 
 #include "ScriptCallbackEntry.h"
 #include "CCLuaEngine.h"
-#include "FerryScript.h"
+#include "ScriptFerry.h"
 
 namespace ferry {
 ScriptCallbackEntry *ScriptCallbackEntry::create(int handler) {

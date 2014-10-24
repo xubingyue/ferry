@@ -7,26 +7,26 @@
 #include "LuaBasicConversions.h"
 #include "CCLuaValue.h"
 #include "CCLuaEngine.h"
-#include "FerryScript.h"
+#include "ScriptFerry.h"
 
-static int tolua_ferry_FerryScript_scriptAddEventCallback(lua_State *tolua_S)
+static int tolua_ferry_ScriptFerry_scriptAddEventCallback(lua_State *tolua_S)
 {
     if (NULL == tolua_S)
         return 0;
 
     int argc = 0;
-    ferry::FerryScript* self = nullptr;
+    ferry::ScriptFerry * self = nullptr;
 
 #if COCOS2D_DEBUG >= 1
     tolua_Error tolua_err;
-    if (!tolua_isusertype(tolua_S,1,"ferry.FerryScript",0,&tolua_err)) goto tolua_lerror;
+    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptFerry",0,&tolua_err)) goto tolua_lerror;
 #endif
 
-    self = static_cast<ferry::FerryScript*>(tolua_tousertype(tolua_S,1,0));
+    self = static_cast<ferry::ScriptFerry *>(tolua_tousertype(tolua_S,1,0));
 
 #if COCOS2D_DEBUG >= 1
     if (nullptr == self) {
-        tolua_error(tolua_S,"invalid 'self' in function 'tolua_ferry_FerryScript_scriptAddEventCallback'\n", NULL);
+        tolua_error(tolua_S,"invalid 'self' in function 'tolua_ferry_ScriptFerry_scriptAddEventCallback'\n", NULL);
         return 0;
     }
 #endif
@@ -55,24 +55,24 @@ static int tolua_ferry_FerryScript_scriptAddEventCallback(lua_State *tolua_S)
 #endif
 }
 
-static int tolua_ferry_FerryScript_scriptSend(lua_State* tolua_S)
+static int tolua_ferry_ScriptFerry_scriptSend(lua_State* tolua_S)
 {
     if (NULL == tolua_S)
         return 0;
 
     int argc = 0;
-    ferry::FerryScript* self = nullptr;
+    ferry::ScriptFerry * self = nullptr;
 
 #if COCOS2D_DEBUG >= 1
     tolua_Error tolua_err;
-    if (!tolua_isusertype(tolua_S,1,"ferry.FerryScript",0,&tolua_err)) goto tolua_lerror;
+    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptFerry",0,&tolua_err)) goto tolua_lerror;
 #endif
 
-    self = static_cast<ferry::FerryScript*>(tolua_tousertype(tolua_S,1,0));
+    self = static_cast<ferry::ScriptFerry *>(tolua_tousertype(tolua_S,1,0));
 
 #if COCOS2D_DEBUG >= 1
     if (nullptr == self) {
-        tolua_error(tolua_S,"invalid 'self' in function 'tolua_ferry_FerryScript_scriptSend'\n", NULL);
+        tolua_error(tolua_S,"invalid 'self' in function 'tolua_ferry_ScriptFerry_scriptSend'\n", NULL);
         return 0;
     }
 #endif
@@ -122,17 +122,17 @@ static int tolua_ferry_FerryScript_scriptSend(lua_State* tolua_S)
 #endif
 }
 
-static void extendFerryScript(lua_State* tolua_S)
+static void extendScriptFerry(lua_State* tolua_S)
 {
-    lua_pushstring(tolua_S,"ferry.FerryScript");
+    lua_pushstring(tolua_S,"ferry.ScriptFerry");
     lua_rawget(tolua_S,LUA_REGISTRYINDEX);
     if (lua_istable(tolua_S,-1))
     {
         lua_pushstring(tolua_S,"addEventCallback");
-        lua_pushcfunction(tolua_S, tolua_ferry_FerryScript_scriptAddEventCallback);
+        lua_pushcfunction(tolua_S, tolua_ferry_ScriptFerry_scriptAddEventCallback);
         lua_rawset(tolua_S,-3);
         lua_pushstring(tolua_S,"send");
-        lua_pushcfunction(tolua_S, tolua_ferry_FerryScript_scriptSend);
+        lua_pushcfunction(tolua_S, tolua_ferry_ScriptFerry_scriptSend);
         lua_rawset(tolua_S,-3);
     }
     lua_pop(tolua_S, 1);
@@ -143,6 +143,6 @@ int register_all_ferry_manual(lua_State* tolua_S)
     if (NULL == tolua_S)
         return 0;
 
-    extendFerryScript(tolua_S);
+    extendScriptFerry(tolua_S);
     return 0;
 }
