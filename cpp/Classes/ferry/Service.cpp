@@ -119,8 +119,8 @@ namespace ferry {
     }
 
     void Service::closeConn() {
-        // 关闭，就要把所有消息先清空
-        _clearMsgQueues();
+        // 不要清空，直接走到报错回调逻辑里去
+        // _clearMsgQueues();
 
         if (m_client) {
             m_client->closeStream();
@@ -274,15 +274,8 @@ namespace ferry {
         int ret;
 
         while (1) {
-            if (!m_running) {
-                pthread_mutex_lock(&m_runningMutex);
-                // 锁定后再确认一下
-                if (!m_running) {
-                    // 只通知可用
-                    pthread_cond_wait(&m_runningCond, &m_runningMutex);
-                }
-                pthread_mutex_unlock(&m_runningMutex);
-            }
+            // send线程不检查running，这样可以保证要发送的box都会有对应的回调
+
             ret = m_msgQueueToServer->pop(box);
 
             if (ret == 0 && box) {
