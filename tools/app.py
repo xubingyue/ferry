@@ -14,7 +14,7 @@ app = THaven(Box)
 def index(request):
     print '\n', 'req', request.box
     request.box.ret = 100
-    request.box.body = 'woaini'
+    request.box.body = request.box.body[::-1]
 
     print 'rsp', request.box, '\n'
     request.write(request.box)
