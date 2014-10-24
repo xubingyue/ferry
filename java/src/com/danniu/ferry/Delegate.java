@@ -7,11 +7,10 @@ import com.danniu.netkit.IBox;
  */
 public interface Delegate {
     public void onOpen(Service service);
-    // 主要是打印log
     public void onSend(Service service, IBox ibox);
     public void onRecv(Service service, IBox ibox);
     public void onClose(Service service);
-    public void onError(Service service, int code);
+    public void onError(Service service, int code, IBox ibox);
 
     public IBox createBox();
 }

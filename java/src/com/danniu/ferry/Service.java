@@ -82,7 +82,8 @@ public class Service {
     }
 
     public void closeConn() {
-        clearMsgQueues();
+        // 和c++一样
+        // clearMsgQueues();
 
         if (client != null) {
             try{
@@ -109,7 +110,7 @@ public class Service {
     public void send(IBox ibox) {
         boolean succ = msgQueueToServer.offer(ibox);
         if (!succ) {
-            onError(ERROR_PUSH_MSG_TO_SEND_QUEUE);
+            onError(ERROR_PUSH_MSG_TO_SEND_QUEUE, ibox);
         }
     }
 
@@ -203,16 +204,23 @@ public class Service {
                 runningLock.unlock();
             }
 
+            IBox box = null;
+
             try {
-                IBox box = msgQueueToServer.take();
-                if (box != null && isConnected()) {
-                    onSendMsgToServer(box);
-                    client.write(box);
+                box = msgQueueToServer.take();
+                if (box != null){
+                    if (isConnected()) {
+                        client.write(box);
+                        onSendMsgToServer(box);
+                    }
+                    else {
+                        onError(ERROR_SEND_MSG_TO_SERVER, box);
+                    }
                 }
             }
             catch (Exception e) {
                 Log.e(LOG_TAG, "e: " + e);
-                onError(ERROR_SEND_MSG_TO_SERVER);
+                onError(ERROR_SEND_MSG_TO_SERVER, box);
             }
         }
     }
@@ -229,7 +237,7 @@ public class Service {
         }
         catch (Exception e) {
             Log.e(LOG_TAG, "e: " + e);
-            onError(ERROR_CONNECT_TO_SERVER);
+            onError(ERROR_CONNECT_TO_SERVER, null);
             return;
         }
         // 第二步创建stream对象
@@ -261,8 +269,8 @@ public class Service {
     private void onConnOpen() {
         delegate.onOpen(this);
     }
-    private void onError(int code) {
-        delegate.onError(this, code);
+    private void onError(int code, IBox ibox) {
+        delegate.onError(this, code, ibox);
     }
 
     private void onSendMsgToServer(IBox ibox) {

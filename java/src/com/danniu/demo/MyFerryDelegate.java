@@ -34,7 +34,7 @@ public class MyFerryDelegate implements Delegate {
     public void onClose(Service service) {
         Log.v(G.LOG_TAG, "onClose");
     }
-    public void onError(Service service, int code) {
+    public void onError(Service service, int code, IBox ibox) {
         Log.v(G.LOG_TAG, "onError code: " + code);
     }
 
