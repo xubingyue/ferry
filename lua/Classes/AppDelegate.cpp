@@ -2,7 +2,7 @@
 // 在文件中记得引入
 
 #include "lua_ferry_auto.hpp"
-#include "lua_ferry_manual.h"
+#include "lua_ferry_manual.hpp"
 
     // ...
 
