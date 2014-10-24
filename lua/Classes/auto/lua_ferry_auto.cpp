@@ -669,9 +669,8 @@ int lua_ferry_Service_send(lua_State* tolua_S)
         ok &= luaval_to_object<netkit::IBox>(tolua_S, 2, "netkit.IBox",&arg0);
         if(!ok)
             return 0;
-        int ret = cobj->send(arg0);
-        tolua_pushnumber(tolua_S,(lua_Number)ret);
-        return 1;
+        cobj->send(arg0);
+        return 0;
     }
     CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "send",argc, 1);
     return 0;
@@ -1358,9 +1357,8 @@ int lua_ferry_Ferry_send(lua_State* tolua_S)
             #pragma warning NO CONVERSION TO NATIVE FOR void*;
 
             if (!ok) { break; }
-            int ret = cobj->send(arg0, arg1, arg2, arg3);
-            tolua_pushnumber(tolua_S,(lua_Number)ret);
-            return 1;
+            cobj->send(arg0, arg1, arg2, arg3);
+            return 0;
         }
     }while(0);
     ok  = true;
@@ -1370,9 +1368,8 @@ int lua_ferry_Ferry_send(lua_State* tolua_S)
             ok &= luaval_to_object<netkit::IBox>(tolua_S, 2, "netkit.IBox",&arg0);
 
             if (!ok) { break; }
-            int ret = cobj->send(arg0);
-            tolua_pushnumber(tolua_S,(lua_Number)ret);
-            return 1;
+            cobj->send(arg0);
+            return 0;
         }
     }while(0);
     ok  = true;
@@ -1835,20 +1832,23 @@ int lua_ferry_Ferry_onError(lua_State* tolua_S)
 #endif
 
     argc = lua_gettop(tolua_S)-1;
-    if (argc == 2) 
+    if (argc == 3) 
     {
         ferry::Service* arg0;
         int arg1;
+        netkit::IBox* arg2;
 
         ok &= luaval_to_object<ferry::Service>(tolua_S, 2, "ferry.Service",&arg0);
 
         ok &= luaval_to_int32(tolua_S, 3,(int *)&arg1);
+
+        ok &= luaval_to_object<netkit::IBox>(tolua_S, 4, "netkit.IBox",&arg2);
         if(!ok)
             return 0;
-        cobj->onError(arg0, arg1);
+        cobj->onError(arg0, arg1, arg2);
         return 0;
     }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "onError",argc, 2);
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "onError",argc, 3);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
