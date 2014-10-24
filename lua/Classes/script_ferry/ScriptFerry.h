@@ -20,6 +20,8 @@ public:
         box = nullptr;
         code = 0;
     }
+    virtual ~ScriptEvent() {}
+
     CREATE_FUNC(ScriptEvent);
 
     bool init() {return true;}
