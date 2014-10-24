@@ -132,7 +132,8 @@ namespace ferry {
     void Service::send(netkit::IBox *box) {
         int ret = m_msgQueueToServer->push_nowait(box);
         if (ret) {
-            _onError(ERROR_PUSH_MSG_TO_SEND_QUEUE);
+            // 由delegate负责释放
+            _onError(ERROR_PUSH_MSG_TO_SEND_QUEUE, box);
         }
         // 不再返回值，为了防止调用方以为这里的ret=0就代表发送成功
         // 错误都会回调到 onError
@@ -165,7 +166,7 @@ namespace ferry {
         if (ret) {
             // 连接失败了
             // 没关系，下个循环还会继续重连
-            _onError(ERROR_CONNECT_TO_SERVER);
+            _onError(ERROR_CONNECT_TO_SERVER, nullptr);
         }
         else {
             // 分发连接成功的消息
@@ -285,17 +286,19 @@ namespace ferry {
             ret = m_msgQueueToServer->pop(box);
 
             if (ret == 0 && box) {
-                // 因为本身重连之后消息就要清空，所以未连接状态直接忽略box也没什么问题
+                // 由delegate负责释放box
                 if (isConnected()) {
-                    _onSendMsgToServer(box);
-
                     ret = m_client->write(box);
-                    if (ret) {
-                        _onError(ERROR_SEND_MSG_TO_SERVER);
+                    if (ret == 0) {
+                        _onSendMsgToServer(box);
+                    }
+                    else {
+                        _onError(ERROR_SEND_MSG_TO_SERVER, box);
                     }
                 }
-                delete box;
-                box = nullptr;
+                else {
+                    _onError(ERROR_SEND_MSG_TO_SERVER, box);
+                }
             }
         }
     }
@@ -319,8 +322,8 @@ namespace ferry {
         m_delegate->onRecv(this, box);
     }
 
-    void Service::_onError(int code) {
-        m_delegate->onError(this, code);
+    void Service::_onError(int code, netkit::IBox *ibox) {
+        m_delegate->onError(this, code, ibox);
     }
 
     void Service::_clearMsgQueues() {

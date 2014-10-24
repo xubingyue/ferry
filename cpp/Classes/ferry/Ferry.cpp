@@ -139,6 +139,10 @@ void Ferry::onOpen(ferry::Service *service) {
 
 void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
     cocos2d::log("[%s]-[%s][%d][%s] box: %s", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, ibox->toString().c_str());
+    Event *event = new Event();
+    event->what = EVENT_SEND;
+    event->box = (netkit::Box*)ibox;
+    pushEvent(event);
 }
 
 void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
@@ -158,12 +162,13 @@ void Ferry::onClose(ferry::Service *service) {
     pushEvent(event);
 }
 
-void Ferry::onError(ferry::Service *service, int code) {
+void Ferry::onError(ferry::Service *service, int code, netkit::IBox *ibox) {
     cocos2d::log("[%s]-[%s][%d][%s] code: %d", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, code);
 
     Event *event = new Event();
     event->what = EVENT_ERROR;
     event->code = code;
+    event->box = ibox;
     pushEvent(event);
 }
 
@@ -220,7 +225,7 @@ void Ferry::pushEvent(Event *event) {
 }
 
 void Ferry::onEvent(Event *event) {
-    if(event->what == EVENT_RECV) {
+    if(event->what == EVENT_RECV || event->what == EVENT_ERROR) {
         handleWithRspCallbacks(event);
     }
 
@@ -284,6 +289,10 @@ void Ferry::onCheckRspTimeout() {
 }
 
 void Ferry::handleWithRspCallbacks(Event *event) {
+    if (!event->box) {
+        // 如果是尝试连接失败之类的消息，就不用往下走了
+        return;
+    }
     int sn = getSnFromBox(event->box);
 
     if (m_mapRspCallbacks.find(sn) == m_mapRspCallbacks.end()) {

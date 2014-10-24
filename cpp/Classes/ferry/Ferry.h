@@ -23,7 +23,8 @@
 namespace ferry {
 
 enum EVENT_TYPE {
-    EVENT_OPEN =0,
+    EVENT_OPEN=0,
+    EVENT_SEND,
     EVENT_RECV,
     EVENT_CLOSE,
     EVENT_ERROR,
@@ -114,7 +115,7 @@ public:
 
     virtual void onClose(ferry::Service *service);
 
-    virtual void onError(ferry::Service *service, int code);
+    virtual void onError(ferry::Service *service, int code, netkit::IBox *ibox);
 
     virtual netkit::IBox *createBox();
     // Delegate end

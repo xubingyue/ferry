@@ -7,17 +7,20 @@
 
 namespace ferry {
 
+// 传入的box，delegate要负责清空
 class Delegate
 {
 public:
     virtual ~Delegate() {}
 
     virtual void onOpen(Service *service) = 0;
-    // 主要是打印log
+    // 发送成功调用，传入发送成功的box
     virtual void onSend(Service *service, netkit::IBox *ibox) = 0;
+    // 接收成功调用，传入接收成功的box
     virtual void onRecv(Service *service, netkit::IBox *ibox) = 0;
     virtual void onClose(Service *service) = 0;
-    virtual void onError(Service *service, int code) = 0;
+    // 出错调用，传入发送失败的box or null
+    virtual void onError(Service *service, int code, netkit::IBox *ibox) = 0;
 
     virtual netkit::IBox* createBox() = 0;
 };

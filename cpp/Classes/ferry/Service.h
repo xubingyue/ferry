@@ -95,7 +95,7 @@ private:
     void _onRecvMsgFromServer(netkit::IBox *box);
 
     // 当报错的时候
-    void _onError(int code);
+    void _onError(int code, netkit::IBox *ibox);
 
     void _clearMsgQueues();
 
