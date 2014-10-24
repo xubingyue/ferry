@@ -82,11 +82,12 @@ void ScriptFerry::scriptOnEvent(Event *event) {
     scriptEvent->box = event->box;
     scriptEvent->code = event->code;
 
-    if(scriptEvent->what == EVENT_RECV || scriptEvent->what == EVENT_ERROR) {
+    if (scriptEvent->box && getSnFromBox(scriptEvent->box) > 0) {
         scriptHandleWithRspCallbacks(scriptEvent);
     }
-
-    scriptHandleWithEventCallbacks(scriptEvent);
+    else {
+        scriptHandleWithEventCallbacks(scriptEvent);
+    }
 }
 
 void ScriptFerry::scriptOnCheckRspTimeout() {
@@ -114,10 +115,6 @@ void ScriptFerry::scriptOnCheckRspTimeout() {
 }
 
 void ScriptFerry::scriptHandleWithRspCallbacks(ScriptEvent *event) {
-    if (!event->box) {
-        return;
-    }
-
     int sn = getSnFromBox(event->box);
 
     if (m_scriptMapRspCallbacks.find(sn) == m_scriptMapRspCallbacks.end()) {
@@ -130,8 +127,9 @@ void ScriptFerry::scriptHandleWithRspCallbacks(ScriptEvent *event) {
         container.getScriptCallbackEntry()->call(event);
     }
 
-    m_scriptMapRspCallbacks.erase(sn);
-
+    if (event->what == EVENT_RECV || event->what == EVENT_ERROR) {
+        m_scriptMapRspCallbacks.erase(sn);
+    }
 }
 
 void ScriptFerry::scriptHandleWithEventCallbacks(ScriptEvent *event) {

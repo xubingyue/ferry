@@ -78,13 +78,13 @@ void Ferry::send(netkit::IBox *box) {
     m_service.send(box);
 }
 
-void Ferry::send(netkit::IBox *box, CallbackType rsp_callback, float timeout, void* target) {
+void Ferry::send(netkit::IBox *box, CallbackType callback, float timeout, void* target) {
     int sn = newBoxSn();
     setSnToBox(box, sn);
 
     RspCallbackContainer callbackContainer;
     callbackContainer.timeout = timeout;
-    callbackContainer.callback = rsp_callback;
+    callbackContainer.callback = callback;
     callbackContainer.target = target;
     callbackContainer.createTime = time(NULL);
 
@@ -227,12 +227,14 @@ void Ferry::pushEvent(Event *event) {
 }
 
 void Ferry::onEvent(Event *event) {
-    if(event->what == EVENT_RECV || event->what == EVENT_ERROR) {
+    if (event->box && getSnFromBox(event->box) > 0) {
+        // SEND, RECV, ERROR
         handleWithRspCallbacks(event);
     }
-
-    // 所有消息都让eventCallback接收，因为还是要支持跨界面的响应的
-    handleWithEventCallbacks(event);
+    else {
+        // eventCallback只接受sn=0的，至于跨界面通信，这个由应用自己走eventbus
+        handleWithEventCallbacks(event);
+    }
 }
 
 int Ferry::newBoxSn() {
@@ -292,10 +294,6 @@ void Ferry::onCheckRspTimeout() {
 }
 
 void Ferry::handleWithRspCallbacks(Event *event) {
-    if (!event->box) {
-        // 如果是尝试连接失败之类的消息，就不用往下走了
-        return;
-    }
     int sn = getSnFromBox(event->box);
 
     if (m_mapRspCallbacks.find(sn) == m_mapRspCallbacks.end()) {
@@ -306,7 +304,10 @@ void Ferry::handleWithRspCallbacks(Event *event) {
     auto& container = m_mapRspCallbacks[sn];
     container.callback(event);
 
-    m_mapRspCallbacks.erase(sn);
+    if (event->what == EVENT_RECV || event->what == EVENT_ERROR) {
+        // 如果是结果，那么就可以把函数删掉了
+        m_mapRspCallbacks.erase(sn);
+    }
 }
 
 void Ferry::handleWithEventCallbacks(Event *event) {

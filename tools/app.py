@@ -12,8 +12,11 @@ app = THaven(Box)
 
 @app.route(1)
 def index(request):
-    print request.box
+    print '\n', 'req', request.box
     request.box.ret = 100
+    request.box.body = 'woaini'
+
+    print 'rsp', request.box, '\n'
     request.write(request.box)
 
 app.run(host="0.0.0.0", port=7777, debug=True)

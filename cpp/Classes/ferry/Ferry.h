@@ -94,13 +94,16 @@ public:
     // 发送消息
     void send(netkit::IBox *box);
     // 带回调的发送，以及超时，超时为秒。target很有用，可以用来防止崩溃
-    void send(netkit::IBox *box, CallbackType rsp_callback, float timeout, void* target);
+    // callback 会收到 SEND, RECV, ERROR, TIMEOUT 事件
+    void send(netkit::IBox *box, CallbackType callback, float timeout, void* target);
 
     // 删除send对应的回调
     void delRspCallbacksForTarget(void *target);
     void delAllRspCallbacks();
 
     // 注册事件回调
+    // callback 会收到 OPEN, CLOSE, SEND, RECV, ERROR, TIMEOUT 事件
+    // 派给RspCallback的请求，不会再EventCallback中收到
     void addEventCallback(CallbackType callback, void* target, const std::string& name);
     void delEventCallback(const std::string& name, void* target);
     void delEventCallbacksForTarget(void *target);
