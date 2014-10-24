@@ -1,0 +1,9 @@
+conversions:
+  # ...
+  ns_map:
+  # ...
+# ADD-BEGIN by dantezhu in 2014-10-23 11:14:42
+    "ferry::": "ferry."
+    "netkit::": "netkit."
+# ADD-END
+  # ...
