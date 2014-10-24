@@ -72,12 +72,14 @@ void Ferry::delAllCallbacks() {
 }
 
 void Ferry::send(netkit::IBox *box) {
+    int sn = newBoxSn();
+    setSnToBox(box, sn);
+
     m_service.send(box);
 }
 
 void Ferry::send(netkit::IBox *box, CallbackType rsp_callback, float timeout, void* target) {
     int sn = newBoxSn();
-
     setSnToBox(box, sn);
 
     RspCallbackContainer callbackContainer;
@@ -229,6 +231,7 @@ void Ferry::onEvent(Event *event) {
         handleWithRspCallbacks(event);
     }
 
+    // 所有消息都让eventCallback接收，因为还是要支持跨界面的响应的
     handleWithEventCallbacks(event);
 }
 
