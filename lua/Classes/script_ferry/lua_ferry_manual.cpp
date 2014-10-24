@@ -108,8 +108,8 @@ static int tolua_ferry_ScriptFerry_scriptSend(lua_State* tolua_S)
         }
 #endif
         netkit::IBox* box = (netkit::IBox*)tolua_tousertype(tolua_S,2,0);
-        int tolua_ret = self->send(box);
-        tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+        self->send(box);
+        tolua_pushnumber(tolua_S,(lua_Number)0);
         return 1;
     }
 

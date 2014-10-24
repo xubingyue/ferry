@@ -129,12 +129,13 @@ namespace ferry {
         }
     }
 
-    int Service::send(netkit::IBox *box) {
+    void Service::send(netkit::IBox *box) {
         int ret = m_msgQueueToServer->push_nowait(box);
         if (ret) {
             _onError(ERROR_PUSH_MSG_TO_SEND_QUEUE);
         }
-        return ret;
+        // 不再返回值，为了防止调用方以为这里的ret=0就代表发送成功
+        // 错误都会回调到 onError
     }
 
     void Service::setMsgQueueToServerMaxSize(int maxsize) {

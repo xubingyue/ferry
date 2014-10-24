@@ -91,9 +91,9 @@ public:
     void delAllCallbacks();
 
     // 发送消息
-    int send(netkit::IBox *box);
+    void send(netkit::IBox *box);
     // 带回调的发送，以及超时，超时为秒。target很有用，可以用来防止崩溃
-    int send(netkit::IBox *box, CallbackType rsp_callback, float timeout, void* target);
+    void send(netkit::IBox *box, CallbackType rsp_callback, float timeout, void* target);
 
     // 删除send对应的回调
     void delRspCallbacksForTarget(void *target);

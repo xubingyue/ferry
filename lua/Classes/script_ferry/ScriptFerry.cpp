@@ -30,7 +30,11 @@ int ScriptFerry::scriptSend(netkit::IBox *box, int handler, float timeout) {
 
     m_scriptMapRspCallbacks[sn] = callbackContainer;
 
-    return m_service.send(box);
+    m_service.send(box);
+
+    // 返回entryid，用户可以反注册
+    // 当然，也可能那个时候已经超时
+    return callbackContainer.getScriptCallbackEntry()->getEntryId();
 }
 
 void ScriptFerry::scriptDelAllRspCallbacks() {
