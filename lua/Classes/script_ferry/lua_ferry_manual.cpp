@@ -2,7 +2,7 @@
 // Created by dantezhu on 14-10-23.
 //
 
-#include "lua_ferry_manual.h"
+#include "lua_ferry_manual.hpp"
 #include "tolua_fix.h"
 #include "LuaBasicConversions.h"
 #include "CCLuaValue.h"
