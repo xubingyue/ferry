@@ -83,14 +83,15 @@ void Ferry::send(netkit::IBox *box, CallbackType callback, float timeout, void* 
 
     RspCallbackContainer callbackContainer;
     callbackContainer.sn = sn;
-    callbackContainer.expireTime = time(NULL) + timeout;
+    callbackContainer.expireTime = time(NULL) + (int)timeout;
     callbackContainer.callback = callback;
     callbackContainer.target = target;
 
-    for (auto it = m_listRspCallbacks.begin(); it != m_listRspCallbacks.end(); it ++) {
-        if (it->expireTime > callbackContainer.expireTime) {
-            // 插入到这个it的前面
+    for (auto it = m_listRspCallbacks.begin();; it ++) {
+        if (it == m_listRspCallbacks.end() ||
+                it->expireTime > callbackContainer.expireTime) {
             m_listRspCallbacks.insert(it, callbackContainer);
+            break;
         }
     }
 
@@ -281,6 +282,7 @@ void Ferry::onCheckRspTimeout() {
     for(auto it = m_listRspCallbacks.begin(); it != m_listRspCallbacks.end();) {
         auto& container = *it;
         auto tempit = it;
+        // cocos2d::log("[%s], now: %lld, expire: %lld", __FUNCTION__, nowTime, container.expireTime);
         it++;
         if (nowTime >= container.expireTime)
         {
