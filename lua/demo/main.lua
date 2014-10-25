@@ -5,14 +5,14 @@ function main()
     ferry.ScriptFerry:getInstance():start()
     print("ferry.EventType.open", ferry.EventType.open)
 
-    ferry.ScriptFerry:getInstance():addEventCallback(
+    local eventEntryID = ferry.ScriptFerry:getInstance():addEventCallback(
         function(event)
             print('event', event:getWhat(), event:getCode(), event:getBox())
             if (event:getWhat() == ferry.EventType.open) then
                 local box = ferry.ScriptFerry:getInstance():createBox()
                 box:setCmd(1)
                 box:setBody("woaini")
-                ferry.ScriptFerry:getInstance():send(box,
+                local rspEntryID = ferry.ScriptFerry:getInstance():send(box,
                     function(event)
                         print('rsp', event:getWhat(), event:getCode(), event:getBox())
                         if (event:getBox()) then
@@ -20,7 +20,14 @@ function main()
                         end
                     end
                     , 5)
+
+                -- ferry.ScriptFerry:getInstance():delRspCallback(rspEntryID)
+
+            elseif (event:getWhat() == ferry.EventType.close) then
+                ferry.ScriptFerry:getInstance():connect()
             end
         end
         )
+
+    -- ferry.ScriptFerry:getInstance():delEventCallback(eventEntryID)
 end
