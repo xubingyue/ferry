@@ -1,21 +1,21 @@
-## 一. 使用方法
+### 一. 使用方法
 
-### I. 基于事件总线
+#### I. 基于事件总线
 
 使用Service + eventbus
 
-#### 缺点:
+##### 缺点:
     lua无法使用，因为lua重写的onEvent无法在c++中找到.
 
-#### 注意:
+##### 注意:
 1. Delegate拿到的数据并不一定在主线程，如果需要回调到主线程，请配合 [eventbus](https://github.com/dantezhu/eventbus) 使用
 2. Service内部默认是不会释放send/recv的box的，这个释放操作需要delegate负责。onSend/onRecv/onError中的box都需要释放
 
-### II. 基于回调
+#### II. 基于回调
 
 使用Ferry::getInstance()
 
-#### 回调类型
+##### 回调类型
     * 发送回调
 
         只接收 box.sn > 0 的响应
@@ -38,7 +38,7 @@
             EVENT_CLOSE
             EVENT_TIMEOUT
 
-#### 注意:
+##### 注意:
     * 所有使用send、或者addEventCallback的类，析构函数里面务必调用如下代码，防止崩溃
 
         delCallbacksForTarget
