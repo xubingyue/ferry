@@ -133,7 +133,7 @@ namespace ferry {
         int ret = m_msgQueueToServer->push_nowait(box);
         if (ret) {
             // 由delegate负责释放
-            _onError(ERROR_PUSH_MSG_TO_SEND_QUEUE, box);
+            _onError(ERROR_SEND, box);
         }
         // 不再返回值，为了防止调用方以为这里的ret=0就代表发送成功
         // 错误都会回调到 onError
@@ -166,7 +166,7 @@ namespace ferry {
         if (ret) {
             // 连接失败了
             // 没关系，下个循环还会继续重连
-            _onError(ERROR_CONNECT_TO_SERVER, nullptr);
+            _onError(ERROR_OPEN, nullptr);
         }
         else {
             // 分发连接成功的消息
@@ -286,11 +286,11 @@ namespace ferry {
                         _onSendMsgToServer(box);
                     }
                     else {
-                        _onError(ERROR_SEND_MSG_TO_SERVER, box);
+                        _onError(ERROR_SEND, box);
                     }
                 }
                 else {
-                    _onError(ERROR_SEND_MSG_TO_SERVER, box);
+                    _onError(ERROR_SEND, box);
                 }
             }
         }
@@ -323,7 +323,7 @@ namespace ferry {
         netkit::IBox* box = nullptr;
 
         while (m_msgQueueToServer && m_msgQueueToServer->pop_nowait(box) == 0) {
-            _onError(ERROR_SEND_MSG_TO_SERVER, box);
+            _onError(ERROR_SEND, box);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace ferry {
     const int MSG_QUEUE_TO_SERVER_MAX_SIZE = 100;
 
     enum EVENT_TYPE {
-        EVENT_OPEN=0,
+        EVENT_OPEN = 1,
         EVENT_SEND,
         EVENT_RECV,
         EVENT_CLOSE,
@@ -22,9 +22,8 @@ namespace ferry {
     };
 
     enum ERROR_CODE {
-        ERROR_PUSH_MSG_TO_SEND_QUEUE = 0,
-        ERROR_CONNECT_TO_SERVER,
-        ERROR_SEND_MSG_TO_SERVER,
+        ERROR_OPEN = 1,
+        ERROR_SEND,
     };
 
 }
