@@ -99,6 +99,7 @@ public:
     void delEventCallbacksForTarget(void *target);
     void delAllEventCallbacks();
 
+protected:
     // Delegate begin
     virtual void onOpen(ferry::Service *service);
 
@@ -113,13 +114,12 @@ public:
     virtual netkit::IBox *createBox();
     // Delegate end
 
-    virtual void setSnToBox(netkit::IBox* ibox, int sn);
-    virtual int getSnFromBox(netkit::IBox* ibox);
-
-protected:
     // 继承后可以修改
     virtual void onEvent(Event *event);
     virtual void onCheckRspTimeout();
+
+    virtual void setSnToBox(netkit::IBox* ibox, int sn);
+    virtual int getSnFromBox(netkit::IBox* ibox);
 
     void loopEvents();
     void pushEvent(Event *event);
