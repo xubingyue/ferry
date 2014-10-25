@@ -50,8 +50,8 @@ public:
 typedef std::function<void(Event*)> CallbackType;
 
 struct RspCallbackContainer {
-    time_t createTime;
-    float timeout;
+    int sn;
+    time_t expireTime;
     CallbackType callback;
     void* target;
 };
@@ -138,15 +138,14 @@ protected:
     pthread_mutex_t m_eventsMutex;
     std::list<Event*> m_events;
 
-    float m_timeoutCheckInterval;
-
     bool m_running;
 
 private:
     int m_boxSn;
 
     std::map<void*, std::map<std::string, CallbackType> > m_mapEventCallbacks;
-    std::map<int, RspCallbackContainer> m_mapRspCallbacks;
+    // 最先过期的排在最左边
+    std::list<RspCallbackContainer> m_listRspCallbacks;
 };
 
 }

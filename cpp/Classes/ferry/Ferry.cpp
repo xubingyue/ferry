@@ -18,7 +18,6 @@ Ferry::Ferry() {
 
     m_boxSn = 0;
     m_running = false;
-    m_timeoutCheckInterval = TIMEOUT_CHECK_INTERVAL;
 }
 
 Ferry::~Ferry() {
@@ -83,32 +82,36 @@ void Ferry::send(netkit::IBox *box, CallbackType callback, float timeout, void* 
     setSnToBox(box, sn);
 
     RspCallbackContainer callbackContainer;
-    callbackContainer.timeout = timeout;
+    callbackContainer.sn = sn;
+    callbackContainer.expireTime = time(NULL) + timeout;
     callbackContainer.callback = callback;
     callbackContainer.target = target;
-    callbackContainer.createTime = time(NULL);
 
-    m_mapRspCallbacks[sn] = callbackContainer;
+    for (auto it = m_listRspCallbacks.begin(); it != m_listRspCallbacks.end(); it ++) {
+        if (it->expireTime > callbackContainer.expireTime) {
+            // 插入到这个it的前面
+            m_listRspCallbacks.insert(it, callbackContainer);
+        }
+    }
 
     m_service.send(box);
 }
 
 void Ferry::delRspCallbacksForTarget(void *target) {
-    for(auto it = m_mapRspCallbacks.begin(); it != m_mapRspCallbacks.end();) {
-        auto& container = it->second;
+    for(auto it = m_listRspCallbacks.begin(); it != m_listRspCallbacks.end();) {
+        auto& container = *it;
         auto tempit = it;
         it++;
         if (container.target == target)
         {
             // 移除
-            m_mapRspCallbacks.erase(tempit);
+            m_listRspCallbacks.erase(tempit);
         }
-
     }
 }
 
 void Ferry::delAllRspCallbacks() {
-    m_mapRspCallbacks.clear();
+    m_listRspCallbacks.clear();
 }
 
 void Ferry::addEventCallback(CallbackType callback, void *target, const std::string &name) {
@@ -262,7 +265,7 @@ void Ferry::cocosScheduleRspTimeoutCheck() {
 
     // 先调用这个
     cocos2d::Director::getInstance()->getScheduler()->schedule(
-            func, this, m_timeoutCheckInterval, false, __FUNCTION__
+            func, this, 0, false, __FUNCTION__
     );
 }
 
@@ -275,18 +278,21 @@ void Ferry::onCheckRspTimeout() {
     event->what = EVENT_TIMEOUT;
 
     // 提前申请好，免得每次都要传
-    for(auto it = m_mapRspCallbacks.begin(); it != m_mapRspCallbacks.end();) {
-        auto& container = it->second;
-        float past = nowTime - container.createTime;
+    for(auto it = m_listRspCallbacks.begin(); it != m_listRspCallbacks.end();) {
+        auto& container = *it;
         auto tempit = it;
         it++;
-        if (past > container.timeout)
+        if (nowTime >= container.expireTime)
         {
             // 超时了
             container.callback(event);
 
             // 移除
-            m_mapRspCallbacks.erase(tempit);
+            m_listRspCallbacks.erase(tempit);
+        }
+        else {
+            // 找到第一个没超时的，那么后面就都没有超时了
+            break;
         }
     }
 
@@ -296,17 +302,19 @@ void Ferry::onCheckRspTimeout() {
 void Ferry::handleWithRspCallbacks(Event *event) {
     int sn = getSnFromBox(event->box);
 
-    if (m_mapRspCallbacks.find(sn) == m_mapRspCallbacks.end()) {
-        // 没有找到
-        return;
-    }
-
-    auto& container = m_mapRspCallbacks[sn];
-    container.callback(event);
-
-    if (event->what == EVENT_RECV || event->what == EVENT_ERROR) {
-        // 如果是结果，那么就可以把函数删掉了
-        m_mapRspCallbacks.erase(sn);
+    for(auto it = m_listRspCallbacks.begin(); it != m_listRspCallbacks.end();) {
+        auto& container = *it;
+        auto tempit = it;
+        it++;
+        if (container.sn == sn)
+        {
+            // 调用
+            container.callback(event);
+            // 移除
+            if (event->what == EVENT_RECV || event->what == EVENT_ERROR) {
+                m_listRspCallbacks.erase(tempit);
+            }
+        }
     }
 }
 

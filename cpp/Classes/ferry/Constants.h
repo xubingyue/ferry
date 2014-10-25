@@ -3,9 +3,6 @@
 
 namespace ferry {
 
-    // 超时检查间隔
-    const float TIMEOUT_CHECK_INTERVAL = 1.0;
-
     // 等待下次连接时间(秒)
     const int TRY_CONNECT_INTERVAL = 1;
 
