@@ -64,6 +64,10 @@ void Ferry::connect() {
     m_service.connect();
 }
 
+void Ferry::disconnect() {
+    m_service.disconnect();
+}
+
 void Ferry::delCallbacksForTarget(void *target) {
     delEventCallbacksForTarget(target);
     delRspCallbacksForTarget(target);

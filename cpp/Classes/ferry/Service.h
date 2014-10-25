@@ -31,8 +31,9 @@ public:
 
     // 连接到服务器，如果断线重连要调用这个
     void connect();
-    // 主动关闭连接，比如认为连接不正常时
-    void closeConn();
+
+    // 主动关闭连接，比如认为连接不正常或者要切换host时
+    void disconnect();
 
     // 是否连接成功
     bool isConnected();
@@ -58,6 +59,9 @@ private:
     void _setRunning(bool running);
     // 真实连接
     void _connectToServer();
+
+    // 真实关闭连接
+    void _closeConn();
 
     // 启动各种线程
     void _startThreads();

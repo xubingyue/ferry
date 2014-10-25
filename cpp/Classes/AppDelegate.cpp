@@ -81,6 +81,8 @@ void AppDelegate::eventCallback(ferry::Event *event) {
         case ferry::EVENT_OPEN:
             auto func = [&](ferry::Event* event) {
                 cocos2d::log("rsp, event->what: %d", event->what);
+
+                //ferry::Ferry::getInstance()->disconnect();
             };
 
             netkit::Box *box = new netkit::Box();

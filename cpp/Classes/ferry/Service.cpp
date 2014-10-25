@@ -103,7 +103,7 @@ namespace ferry {
         // 一定要放到最前面
         _setRunning(false);
         // 关闭连接
-        closeConn();
+        _closeConn();
     }
 
     bool Service::isConnected() {
@@ -118,7 +118,13 @@ namespace ferry {
         m_shouldConnect = true;
     }
 
-    void Service::closeConn() {
+    void Service::disconnect() {
+        if (m_client) {
+            m_client->shutdownStream(2);
+        }
+    }
+
+    void Service::_closeConn() {
         // 不要清空，直接走到报错回调逻辑里去
         // _clearMsgQueueToServer();
 
@@ -158,7 +164,7 @@ namespace ferry {
     }
 
     void Service::_connectToServer() {
-        closeConn();
+        _closeConn();
         // 没有超时
         m_client = new netkit::TcpClient(m_host, m_port, -1);
 
@@ -257,7 +263,7 @@ namespace ferry {
             ret = m_client->read(box);
             if (ret < 0) {
                 // 手工先关闭掉
-                closeConn();
+                _closeConn();
                 // 统一按照断掉连接处理
                 _onConnClose();
             }
