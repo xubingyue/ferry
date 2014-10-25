@@ -1,34 +1,48 @@
-### 一. 使用方法
+## 一. 使用方法
 
-#### I. 原始用法
-直接使用service，基于onEvent的事件总线方式
+### I. 基于事件总线
 
-缺点是，lua无法使用，因为lua重写的onEvent无法在c++中找到.
+使用Service + eventbus
 
-简单来说，在使用时，只要注意:
+#### 缺点:
+    lua无法使用，因为lua重写的onEvent无法在c++中找到.
 
-1. onEvent中的event，只能在这个函数中使用，函数结束即会被释放。其中的box也是如此。不要在匿名函数中使用.
-2. 调用send的box，必须使用new创建，send之后，就不再使用
-3. 调用pushEvent的event，使用new创建，且pushEvent之后就不再使用
-4. delegate的函数是可能在任何线程调用的，所以如果想要全部转化成主线程，请使用eventbus做转化
-5. eventbus是线程安全的
+#### 注意:
+1. Delegate拿到的数据并不一定在主线程，如果需要回调到主线程，请配合 [eventbus](https://github.com/dantezhu/eventbus) 使用
+2. Service内部默认是不会释放send/recv的box的，这个释放操作需要delegate负责。onSend/onRecv/onError中的box都需要释放
 
-#### II. 基于回调
+### II. 基于回调
 
-即使用Ferry::getInstance()
+使用Ferry::getInstance()
 
-全部基于回调，lua版只能用这种方式，因为c++调用lua无法使用虚函数。
+#### 回调类型
+    * 发送回调
 
-##### 务必注意:
+        只接收 box.sn > 0 的响应
+        能够接收的事件类型:
+            
+            EVENT_SEND
+            EVENT_RECV
+            EVENT_ERROR
+            EVENT_TIMEOUT
 
-所有使用send、或者addEventCallback的类，析构函数里面务必调用:
+    * 事件回调
 
-    delCallbacksForTarget
+        只接收 box.sn = 0 的响应
+        能够接收的事件类型:
 
-防止出现崩溃
+            EVENT_OPEN
+            EVENT_SEND
+            EVENT_RECV
+            EVENT_ERROR
+            EVENT_CLOSE
+            EVENT_TIMEOUT
+
+#### 注意:
+    * 所有使用send、或者addEventCallback的类，析构函数里面务必调用如下代码，防止崩溃
+
+        delCallbacksForTarget
 
 ### 二. 设计说明
 
-1. Box、BaseEvent，均没有使用cocos2d的内存管理，因为很大的原因是autorelease函数貌似不是线程安全。
-2. app调用send传给ferry的box，在ferry发送完之后会自动delete.
-3. service调用回调函数传入的box，在回调函数处理结束后会自动释放
+1. Box、Event，均没有使用cocos2d的内存管理，原因autorelease函数不是线程安全。
