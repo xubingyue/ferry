@@ -2,7 +2,8 @@
 #define  _APP_DELEGATE_H_
 
 #include "cocos2d.h"
-#include "Ferry.h"
+#include "ferry/Ferry.h"
+#include "netkit/Box.h"
 
 /**
 @brief    The cocos2d Application.
