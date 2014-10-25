@@ -17,9 +17,11 @@
 
 即使用Ferry::getInstance()
 
-全部基于回调，lua也可以方便使用。
+全部基于回调，lua版只能用这种方式，因为c++调用lua无法使用虚函数。
 
-最重要的一点是，所有使用send、或者addEventCallback的类，析构函数里面务必调用:
+##### 务必注意
+
+所有使用send、或者addEventCallback的类，析构函数里面务必调用:
 
     delCallbacksForTarget
 
