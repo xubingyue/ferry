@@ -37,6 +37,21 @@ int ScriptFerry::scriptSend(netkit::IBox *box, int handler, float timeout) {
     return callbackContainer.getScriptCallbackEntry()->getEntryId();
 }
 
+void ScriptFerry::scriptDelRspCallback(int entryID) {
+    for(auto it = m_scriptMapRspCallbacks.begin(); it != m_scriptMapRspCallbacks.end();) {
+        auto& container = it->second;
+        auto tempit = it;
+        it++;
+        if (container.getScriptCallbackEntry()->getEntryId() == entryID)
+        {
+            cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container.getScriptCallbackEntry()->getHandler());
+            // 移除
+            m_scriptMapRspCallbacks.erase(tempit);
+        }
+
+    }
+}
+
 void ScriptFerry::scriptDelAllRspCallbacks() {
     m_scriptMapRspCallbacks.clear();
 }

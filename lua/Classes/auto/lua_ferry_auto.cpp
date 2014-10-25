@@ -948,98 +948,6 @@ int lua_ferry_Ferry_createBox(lua_State* tolua_S)
 
     return 0;
 }
-int lua_ferry_Ferry_delCallbacksForTarget(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_delCallbacksForTarget'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 1) 
-    {
-        void* arg0;
-
-        #pragma warning NO CONVERSION TO NATIVE FOR void*;
-        if(!ok)
-            return 0;
-        cobj->delCallbacksForTarget(arg0);
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "delCallbacksForTarget",argc, 1);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_delCallbacksForTarget'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_delRspCallbacksForTarget(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_delRspCallbacksForTarget'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 1) 
-    {
-        void* arg0;
-
-        #pragma warning NO CONVERSION TO NATIVE FOR void*;
-        if(!ok)
-            return 0;
-        cobj->delRspCallbacksForTarget(arg0);
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "delRspCallbacksForTarget",argc, 1);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_delRspCallbacksForTarget'.",&tolua_err);
-#endif
-
-    return 0;
-}
 int lua_ferry_Ferry_connect(lua_State* tolua_S)
 {
     int argc = 0;
@@ -1079,92 +987,6 @@ int lua_ferry_Ferry_connect(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
     tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_connect'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_delAllEventCallbacks(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_delAllEventCallbacks'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 0) 
-    {
-        if(!ok)
-            return 0;
-        cobj->delAllEventCallbacks();
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "delAllEventCallbacks",argc, 0);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_delAllEventCallbacks'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_delAllCallbacks(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_delAllCallbacks'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 0) 
-    {
-        if(!ok)
-            return 0;
-        cobj->delAllCallbacks();
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "delAllCallbacks",argc, 0);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_delAllCallbacks'.",&tolua_err);
 #endif
 
     return 0;
@@ -1216,55 +1038,6 @@ int lua_ferry_Ferry_getSnFromBox(lua_State* tolua_S)
 
     return 0;
 }
-int lua_ferry_Ferry_delEventCallback(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_delEventCallback'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 2) 
-    {
-        std::string arg0;
-        void* arg1;
-
-        ok &= luaval_to_std_string(tolua_S, 2,&arg0);
-
-        #pragma warning NO CONVERSION TO NATIVE FOR void*;
-        if(!ok)
-            return 0;
-        cobj->delEventCallback(arg0, arg1);
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "delEventCallback",argc, 2);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_delEventCallback'.",&tolua_err);
-#endif
-
-    return 0;
-}
 int lua_ferry_Ferry_onRecv(lua_State* tolua_S)
 {
     int argc = 0;
@@ -1310,75 +1083,6 @@ int lua_ferry_Ferry_onRecv(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
     tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_onRecv'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_send(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-#if COCOS2D_DEBUG >= 1
-    if (!cobj)
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_send'", nullptr);
-        return 0;
-    }
-#endif
-    argc = lua_gettop(tolua_S)-1;
-    do{
-        if (argc == 4) {
-            netkit::IBox* arg0;
-            ok &= luaval_to_object<netkit::IBox>(tolua_S, 2, "netkit.IBox",&arg0);
-
-            if (!ok) { break; }
-            std::function<void (ferry::Event *)> arg1;
-            do {
-			// Lambda binding for lua is not supported.
-			assert(false);
-		} while(0)
-		;
-
-            if (!ok) { break; }
-            double arg2;
-            ok &= luaval_to_number(tolua_S, 4,&arg2);
-
-            if (!ok) { break; }
-            void* arg3;
-            #pragma warning NO CONVERSION TO NATIVE FOR void*;
-
-            if (!ok) { break; }
-            cobj->send(arg0, arg1, arg2, arg3);
-            return 0;
-        }
-    }while(0);
-    ok  = true;
-    do{
-        if (argc == 1) {
-            netkit::IBox* arg0;
-            ok &= luaval_to_object<netkit::IBox>(tolua_S, 2, "netkit.IBox",&arg0);
-
-            if (!ok) { break; }
-            cobj->send(arg0);
-            return 0;
-        }
-    }while(0);
-    ok  = true;
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "send",argc, 1);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_send'.",&tolua_err);
 #endif
 
     return 0;
@@ -1521,62 +1225,6 @@ int lua_ferry_Ferry_setSnToBox(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
     tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_setSnToBox'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_addEventCallback(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_addEventCallback'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 3) 
-    {
-        std::function<void (ferry::Event *)> arg0;
-        void* arg1;
-        std::string arg2;
-
-        do {
-			// Lambda binding for lua is not supported.
-			assert(false);
-		} while(0)
-		;
-
-        #pragma warning NO CONVERSION TO NATIVE FOR void*;
-
-        ok &= luaval_to_std_string(tolua_S, 4,&arg2);
-        if(!ok)
-            return 0;
-        cobj->addEventCallback(arg0, arg1, arg2);
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "addEventCallback",argc, 3);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_addEventCallback'.",&tolua_err);
 #endif
 
     return 0;
@@ -1763,49 +1411,6 @@ int lua_ferry_Ferry_onSend(lua_State* tolua_S)
 
     return 0;
 }
-int lua_ferry_Ferry_delAllRspCallbacks(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_delAllRspCallbacks'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 0) 
-    {
-        if(!ok)
-            return 0;
-        cobj->delAllRspCallbacks();
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "delAllRspCallbacks",argc, 0);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_delAllRspCallbacks'.",&tolua_err);
-#endif
-
-    return 0;
-}
 int lua_ferry_Ferry_onError(lua_State* tolua_S)
 {
     int argc = 0;
@@ -1854,52 +1459,6 @@ int lua_ferry_Ferry_onError(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
     tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_onError'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_delEventCallbacksForTarget(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_delEventCallbacksForTarget'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 1) 
-    {
-        void* arg0;
-
-        #pragma warning NO CONVERSION TO NATIVE FOR void*;
-        if(!ok)
-            return 0;
-        cobj->delEventCallbacksForTarget(arg0);
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "delEventCallbacksForTarget",argc, 1);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_delEventCallbacksForTarget'.",&tolua_err);
 #endif
 
     return 0;
@@ -1982,26 +1541,17 @@ int lua_register_ferry_Ferry(lua_State* tolua_S)
         tolua_function(tolua_S,"new",lua_ferry_Ferry_constructor);
         tolua_function(tolua_S,"onOpen",lua_ferry_Ferry_onOpen);
         tolua_function(tolua_S,"createBox",lua_ferry_Ferry_createBox);
-        tolua_function(tolua_S,"delCallbacksForTarget",lua_ferry_Ferry_delCallbacksForTarget);
-        tolua_function(tolua_S,"delRspCallbacksForTarget",lua_ferry_Ferry_delRspCallbacksForTarget);
         tolua_function(tolua_S,"connect",lua_ferry_Ferry_connect);
-        tolua_function(tolua_S,"delAllEventCallbacks",lua_ferry_Ferry_delAllEventCallbacks);
-        tolua_function(tolua_S,"delAllCallbacks",lua_ferry_Ferry_delAllCallbacks);
         tolua_function(tolua_S,"getSnFromBox",lua_ferry_Ferry_getSnFromBox);
-        tolua_function(tolua_S,"delEventCallback",lua_ferry_Ferry_delEventCallback);
         tolua_function(tolua_S,"onRecv",lua_ferry_Ferry_onRecv);
-        tolua_function(tolua_S,"send",lua_ferry_Ferry_send);
         tolua_function(tolua_S,"start",lua_ferry_Ferry_start);
         tolua_function(tolua_S,"init",lua_ferry_Ferry_init);
         tolua_function(tolua_S,"setSnToBox",lua_ferry_Ferry_setSnToBox);
-        tolua_function(tolua_S,"addEventCallback",lua_ferry_Ferry_addEventCallback);
         tolua_function(tolua_S,"onClose",lua_ferry_Ferry_onClose);
         tolua_function(tolua_S,"stop",lua_ferry_Ferry_stop);
         tolua_function(tolua_S,"getService",lua_ferry_Ferry_getService);
         tolua_function(tolua_S,"onSend",lua_ferry_Ferry_onSend);
-        tolua_function(tolua_S,"delAllRspCallbacks",lua_ferry_Ferry_delAllRspCallbacks);
         tolua_function(tolua_S,"onError",lua_ferry_Ferry_onError);
-        tolua_function(tolua_S,"delEventCallbacksForTarget",lua_ferry_Ferry_delEventCallbacksForTarget);
         tolua_function(tolua_S,"getInstance", lua_ferry_Ferry_getInstance);
     tolua_endmodule(tolua_S);
     std::string typeName = typeid(ferry::Ferry).name();
@@ -2276,6 +1826,92 @@ int lua_register_ferry_ScriptEvent(lua_State* tolua_S)
     return 1;
 }
 
+int lua_ferry_ScriptFerry_scriptDelAllEventCallbacks(lua_State* tolua_S)
+{
+    int argc = 0;
+    ferry::ScriptFerry* cobj = nullptr;
+    bool ok  = true;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+
+
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptFerry",0,&tolua_err)) goto tolua_lerror;
+#endif
+
+    cobj = (ferry::ScriptFerry*)tolua_tousertype(tolua_S,1,0);
+
+#if COCOS2D_DEBUG >= 1
+    if (!cobj) 
+    {
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_ScriptFerry_scriptDelAllEventCallbacks'", nullptr);
+        return 0;
+    }
+#endif
+
+    argc = lua_gettop(tolua_S)-1;
+    if (argc == 0) 
+    {
+        if(!ok)
+            return 0;
+        cobj->scriptDelAllEventCallbacks();
+        return 0;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "scriptDelAllEventCallbacks",argc, 0);
+    return 0;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_ScriptFerry_scriptDelAllEventCallbacks'.",&tolua_err);
+#endif
+
+    return 0;
+}
+int lua_ferry_ScriptFerry_scriptDelAllCallbacks(lua_State* tolua_S)
+{
+    int argc = 0;
+    ferry::ScriptFerry* cobj = nullptr;
+    bool ok  = true;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+
+
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptFerry",0,&tolua_err)) goto tolua_lerror;
+#endif
+
+    cobj = (ferry::ScriptFerry*)tolua_tousertype(tolua_S,1,0);
+
+#if COCOS2D_DEBUG >= 1
+    if (!cobj) 
+    {
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_ScriptFerry_scriptDelAllCallbacks'", nullptr);
+        return 0;
+    }
+#endif
+
+    argc = lua_gettop(tolua_S)-1;
+    if (argc == 0) 
+    {
+        if(!ok)
+            return 0;
+        cobj->scriptDelAllCallbacks();
+        return 0;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "scriptDelAllCallbacks",argc, 0);
+    return 0;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_ScriptFerry_scriptDelAllCallbacks'.",&tolua_err);
+#endif
+
+    return 0;
+}
 int lua_ferry_ScriptFerry_createBox(lua_State* tolua_S)
 {
     int argc = 0;
@@ -2316,53 +1952,6 @@ int lua_ferry_ScriptFerry_createBox(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
     tolua_error(tolua_S,"#ferror in function 'lua_ferry_ScriptFerry_createBox'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_ScriptFerry_scriptAddEventCallback(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::ScriptFerry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptFerry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::ScriptFerry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_ScriptFerry_scriptAddEventCallback'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 1) 
-    {
-        int arg0;
-
-        ok &= luaval_to_int32(tolua_S, 2,(int *)&arg0);
-        if(!ok)
-            return 0;
-        int ret = cobj->scriptAddEventCallback(arg0);
-        tolua_pushnumber(tolua_S,(lua_Number)ret);
-        return 1;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "scriptAddEventCallback",argc, 1);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_ScriptFerry_scriptAddEventCallback'.",&tolua_err);
 #endif
 
     return 0;
@@ -2413,7 +2002,7 @@ int lua_ferry_ScriptFerry_scriptDelEventCallback(lua_State* tolua_S)
 
     return 0;
 }
-int lua_ferry_ScriptFerry_scriptSend(lua_State* tolua_S)
+int lua_ferry_ScriptFerry_scriptDelAllRspCallbacks(lua_State* tolua_S)
 {
     int argc = 0;
     ferry::ScriptFerry* cobj = nullptr;
@@ -2433,35 +2022,71 @@ int lua_ferry_ScriptFerry_scriptSend(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     if (!cobj) 
     {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_ScriptFerry_scriptSend'", nullptr);
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_ScriptFerry_scriptDelAllRspCallbacks'", nullptr);
         return 0;
     }
 #endif
 
     argc = lua_gettop(tolua_S)-1;
-    if (argc == 3) 
+    if (argc == 0) 
     {
-        netkit::IBox* arg0;
-        int arg1;
-        double arg2;
-
-        ok &= luaval_to_object<netkit::IBox>(tolua_S, 2, "netkit.IBox",&arg0);
-
-        ok &= luaval_to_int32(tolua_S, 3,(int *)&arg1);
-
-        ok &= luaval_to_number(tolua_S, 4,&arg2);
         if(!ok)
             return 0;
-        int ret = cobj->scriptSend(arg0, arg1, arg2);
-        tolua_pushnumber(tolua_S,(lua_Number)ret);
-        return 1;
+        cobj->scriptDelAllRspCallbacks();
+        return 0;
     }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "scriptSend",argc, 3);
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "scriptDelAllRspCallbacks",argc, 0);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_ScriptFerry_scriptSend'.",&tolua_err);
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_ScriptFerry_scriptDelAllRspCallbacks'.",&tolua_err);
+#endif
+
+    return 0;
+}
+int lua_ferry_ScriptFerry_scriptDelRspCallback(lua_State* tolua_S)
+{
+    int argc = 0;
+    ferry::ScriptFerry* cobj = nullptr;
+    bool ok  = true;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+
+
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptFerry",0,&tolua_err)) goto tolua_lerror;
+#endif
+
+    cobj = (ferry::ScriptFerry*)tolua_tousertype(tolua_S,1,0);
+
+#if COCOS2D_DEBUG >= 1
+    if (!cobj) 
+    {
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_ScriptFerry_scriptDelRspCallback'", nullptr);
+        return 0;
+    }
+#endif
+
+    argc = lua_gettop(tolua_S)-1;
+    if (argc == 1) 
+    {
+        int arg0;
+
+        ok &= luaval_to_int32(tolua_S, 2,(int *)&arg0);
+        if(!ok)
+            return 0;
+        cobj->scriptDelRspCallback(arg0);
+        return 0;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "scriptDelRspCallback",argc, 1);
+    return 0;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_ScriptFerry_scriptDelRspCallback'.",&tolua_err);
 #endif
 
     return 0;
@@ -2509,10 +2134,12 @@ int lua_register_ferry_ScriptFerry(lua_State* tolua_S)
     tolua_cclass(tolua_S,"ScriptFerry","ferry.ScriptFerry","ferry.Ferry",nullptr);
 
     tolua_beginmodule(tolua_S,"ScriptFerry");
+        tolua_function(tolua_S,"delAllEventCallbacks",lua_ferry_ScriptFerry_scriptDelAllEventCallbacks);
+        tolua_function(tolua_S,"delAllCallbacks",lua_ferry_ScriptFerry_scriptDelAllCallbacks);
         tolua_function(tolua_S,"createBox",lua_ferry_ScriptFerry_createBox);
-        tolua_function(tolua_S,"scriptAddEventCallback",lua_ferry_ScriptFerry_scriptAddEventCallback);
-        tolua_function(tolua_S,"scriptDelEventCallback",lua_ferry_ScriptFerry_scriptDelEventCallback);
-        tolua_function(tolua_S,"scriptSend",lua_ferry_ScriptFerry_scriptSend);
+        tolua_function(tolua_S,"delEventCallback",lua_ferry_ScriptFerry_scriptDelEventCallback);
+        tolua_function(tolua_S,"delAllRspCallbacks",lua_ferry_ScriptFerry_scriptDelAllRspCallbacks);
+        tolua_function(tolua_S,"delRspCallback",lua_ferry_ScriptFerry_scriptDelRspCallback);
         tolua_function(tolua_S,"getInstance", lua_ferry_ScriptFerry_getInstance);
     tolua_endmodule(tolua_S);
     std::string typeName = typeid(ferry::ScriptFerry).name();

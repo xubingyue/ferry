@@ -111,6 +111,7 @@ public:
     void scriptDelAllCallbacks();
 
     int scriptSend(netkit::IBox *box, int handler, float timeout);
+    void scriptDelRspCallback(int entryID);
     void scriptDelAllRspCallbacks();
 
     int scriptAddEventCallback(int handler);
