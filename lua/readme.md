@@ -38,3 +38,26 @@
 3. 事件定义
     
     由于tolua无法导出枚举，所以手工写了时间定义在FerryConstants.lua 中
+
+### 三. tolua编译说明
+1. 将tolua目录下的ferry.ini 和 genbindings_ferry.py 放到
+
+        project/frameworks/cocos2d-x/tools/tolua
+
+2. 将conversions.xml中的ns_map修改同步到
+
+        project/frameworks/cocos2d-x/tools/bindings-generator/targets/lua/conversions.xml
+
+3. 将ferry 和 netkit 复制到 Classes目录
+
+4. 添加 project的 User Header Search Path
+
+        "$(SRCROOT)/../Classes"
+    
+5. 添加cocos2d_lua_bindings中的User Header Search Path
+
+        $(SRCROOT)/../../../../../runtime-src/Classes/
+
+6. 到tolua目录，执行
+
+        python genbindings_ferry.py
