@@ -34,3 +34,7 @@
         delEventCallback(entryID)
 
     来实现删除
+
+3. 事件定义
+    
+    由于tolua无法导出枚举，所以手工写了时间定义在FerryConstants.lua 中
