@@ -1,4 +1,4 @@
-### 安装说明
+### 一. 安装说明
 1. 新建cocos2dx-lua工程
 2. 复制如下目录至新工程的Classes目录
 
@@ -20,7 +20,7 @@
         ferry
             lua/demo/main.lua
 
-### 使用说明
+### 二. 使用说明
 1. 语法演示 
 
         ferry.ScriptFerry:getInstance():start()
