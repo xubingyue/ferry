@@ -7,7 +7,7 @@
 #define __FerryScript_2014_10_23_H_
 
 #include "cocos2d.h"
-#include "Ferry.h"
+#include "ferry/Ferry.h"
 #include "ScriptCallbackEntry.h"
 
 

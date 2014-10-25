@@ -56,5 +56,8 @@
 
 2. mac
     * 为了正确找到头文件，需要在header目录添加:
+        * appcode
 
-            "$(SRCROOT)/../cocos2d"
+            在 User Header Search Path 中添加
+
+            "$(SRCROOT)/../Classes"

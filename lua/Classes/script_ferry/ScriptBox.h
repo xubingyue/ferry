@@ -6,7 +6,7 @@
 #ifndef __ScriptBox_2014_10_24_H_
 #define __ScriptBox_2014_10_24_H_
 
-#include "Box.h"
+#include "netkit/Box.h"
 
 namespace ferry {
 
