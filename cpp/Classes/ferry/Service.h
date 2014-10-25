@@ -87,7 +87,7 @@ private:
     // 当报错的时候
     void _onError(int code, netkit::IBox *ibox);
 
-    void _clearMsgQueues();
+    void _clearMsgQueueToServer();
 
 
 private:

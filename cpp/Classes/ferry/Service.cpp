@@ -54,7 +54,7 @@ namespace ferry {
         pthread_mutex_destroy(&m_runningMutex);
         pthread_cond_destroy(&m_runningCond);
 
-        _clearMsgQueues();
+        _clearMsgQueueToServer();
 
         if (m_client) {
             delete m_client;
@@ -120,7 +120,7 @@ namespace ferry {
 
     void Service::closeConn() {
         // 不要清空，直接走到报错回调逻辑里去
-        // _clearMsgQueues();
+        // _clearMsgQueueToServer();
 
         if (m_client) {
             m_client->closeStream();
@@ -319,7 +319,7 @@ namespace ferry {
         m_delegate->onError(this, code, ibox);
     }
 
-    void Service::_clearMsgQueues() {
+    void Service::_clearMsgQueueToServer() {
         netkit::IBox* box = nullptr;
 
         while (m_msgQueueToServer && m_msgQueueToServer->pop_nowait(box) == 0) {
