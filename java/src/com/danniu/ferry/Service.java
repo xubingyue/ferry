@@ -262,7 +262,7 @@ public class Service {
     }
 
     // 想在析构的时候调用，但是好像调用不到。。
-    private void clearMsgQueue() {
+    private void clearMsgQueueToServer() {
         while (true) {
             IBox box = msgQueueToServer.poll();
             if (box == null) {
