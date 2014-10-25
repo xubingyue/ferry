@@ -18,6 +18,11 @@ function main()
                         if (event:getBox()) then
                             print("box", event:getBox():getCmd(), event:getBox():getRet(), event:getBox():getBody())
                         end
+                        --[[
+                        if event:getWhat() == ferry.EventType.recv then
+                            ferry.ScriptFerry:getInstance():disconnect()
+                        end
+                        ]]
                     end
                     , 0.5)
 
