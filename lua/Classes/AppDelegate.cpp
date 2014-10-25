@@ -1,8 +1,8 @@
 /*
 // 在文件中记得引入
 
-#include "lua_ferry_auto.hpp"
-#include "lua_ferry_manual.hpp"
+#include "script_ferry/lua_ferry_auto.hpp"
+#include "script_ferry/lua_ferry_manual.hpp"
 
     // ...
 
