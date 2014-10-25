@@ -47,7 +47,6 @@ class ScriptRspCallbackContainer {
 public:
     void reset() {
         sn = 0;
-        expireTime = 0;
         m_scriptCallbackEntry = 0;
     }
 
@@ -85,7 +84,7 @@ public:
     }
 
     int sn;
-    time_t expireTime;
+    struct timeval expireTime;
 
     ScriptCallbackEntry* getScriptCallbackEntry () const{
         return m_scriptCallbackEntry;

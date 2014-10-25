@@ -81,9 +81,6 @@ void Ferry::send(netkit::IBox *box, CallbackType callback, float timeout, void* 
     int sn = newBoxSn();
     setSnToBox(box, sn);
 
-    RspCallbackContainer callbackContainer;
-    callbackContainer.sn = sn;
-
     struct timeval tvNow, tvTimeout;
 
     // 当前时间
@@ -92,6 +89,9 @@ void Ferry::send(netkit::IBox *box, CallbackType callback, float timeout, void* 
     // 超时
     tvTimeout.tv_sec = (int)(timeout);
     tvTimeout.tv_usec = (int)((timeout - tvTimeout.tv_sec) * 1000000);
+
+    RspCallbackContainer callbackContainer;
+    callbackContainer.sn = sn;
 
     timeradd(&tvNow, &tvTimeout, &callbackContainer.expireTime);
     callbackContainer.callback = callback;

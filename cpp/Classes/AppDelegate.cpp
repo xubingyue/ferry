@@ -89,7 +89,7 @@ void AppDelegate::eventCallback(ferry::Event *event) {
             box->cmd = 1;
             box->setBody("aini", 4);
 
-            ferry::Ferry::getInstance()->send(box, func, 3, this);
+            ferry::Ferry::getInstance()->send(box, func, 0.5, this);
             break;
     }
 }

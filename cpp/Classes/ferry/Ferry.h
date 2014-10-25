@@ -11,7 +11,6 @@
 #include <set>
 #include <list>
 #include <functional>
-#include <time.h>
 #include <pthread.h>
 
 // 如果cocos2d.h不放在最前，win下会编译报错

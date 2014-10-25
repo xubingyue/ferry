@@ -22,16 +22,26 @@ int ScriptFerry::scriptSend(netkit::IBox *box, int handler, float timeout) {
 
     setSnToBox(box, sn);
 
+    struct timeval tvNow, tvTimeout;
+
+    // 当前时间
+    gettimeofday(&tvNow, NULL);
+
+    // 超时
+    tvTimeout.tv_sec = (int)(timeout);
+    tvTimeout.tv_usec = (int)((timeout - tvTimeout.tv_sec) * 1000000);
+
     ScriptRspCallbackContainer callbackContainer;
     callbackContainer.sn = sn;
+
+    timeradd(&tvNow, &tvTimeout, &callbackContainer.expireTime);
     // timeout 不强制转int会有问题
-    callbackContainer.expireTime = time(NULL) + (int)timeout;
     // 会自动retain
     callbackContainer.setScriptCallbackEntry(ScriptCallbackEntry::create(handler));
 
     for (auto it = m_scriptListRspCallbacks.begin();; it ++) {
         if (it == m_scriptListRspCallbacks.end() ||
-                it->expireTime > callbackContainer.expireTime) {
+                timercmp(&it->expireTime, &callbackContainer.expireTime, >) ) {
             m_scriptListRspCallbacks.insert(it, callbackContainer);
             break;
         }
@@ -124,7 +134,8 @@ void ScriptFerry::scriptOnEvent(Event *event) {
 }
 
 void ScriptFerry::scriptOnCheckRspTimeout() {
-    time_t nowTime = time(NULL);
+    struct timeval tvNow;
+    gettimeofday(&tvNow, NULL);
 
     // 再进入下一帧之前，不会释放
     ScriptEvent *scriptEvent = ScriptEvent::create();
@@ -135,7 +146,7 @@ void ScriptFerry::scriptOnCheckRspTimeout() {
         auto& container = *it;
         auto tempit = it;
         it++;
-        if (nowTime >= container.expireTime)
+        if (timercmp(&tvNow, &container.expireTime, >))
         {
             // 超时了
             container.getScriptCallbackEntry()->call(scriptEvent);

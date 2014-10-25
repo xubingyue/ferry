@@ -19,7 +19,7 @@ function main()
                             print("box", event:getBox():getCmd(), event:getBox():getRet(), event:getBox():getBody())
                         end
                     end
-                    , 5)
+                    , 0.5)
 
                 -- ferry.ScriptFerry:getInstance():delRspCallback(rspEntryID)
 
