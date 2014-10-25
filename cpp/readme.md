@@ -47,9 +47,14 @@
 
 1. Box、Event，均没有使用cocos2d的内存管理，原因autorelease函数不是线程安全。
 
-### 三. 平台兼容
+### 三. IDE 配置
 
 1. windows
     * pthread 下载: ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.zip
 
-        在vs中配置对应的include和lib，如果报dll找不到，将dll放到Debug.win32目录即可
+            在vs中配置对应的include和lib，如果报dll找不到，将dll放到Debug.win32目录即可
+
+2. mac
+    * 为了正确找到头文件，需要在header目录添加:
+
+            "$(SRCROOT)/../cocos2d"
