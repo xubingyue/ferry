@@ -42,6 +42,10 @@ void ScriptFerry::scriptDelAllRspCallbacks() {
 }
 
 void ScriptFerry::scriptDelAllEventCallbacks() {
+    for(auto it=m_scriptMapEventCallbacks.begin(); it != m_scriptMapEventCallbacks.end(); it++) {
+        cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(it->second->getHandler());
+    }
+
     m_scriptMapEventCallbacks.clear();
 }
 
@@ -55,6 +59,13 @@ int ScriptFerry::scriptAddEventCallback(int handler) {
     return entryID;
 }
 void ScriptFerry::scriptDelEventCallback(int entryID) {
+    if (m_scriptMapEventCallbacks.find(entryID) == m_scriptMapEventCallbacks.end()) {
+        return;
+    }
+
+    auto entry = m_scriptMapEventCallbacks.at(entryID);
+    cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(entry->getHandler());
+
     m_scriptMapEventCallbacks.erase(entryID);
 }
 
@@ -108,6 +119,8 @@ void ScriptFerry::scriptOnCheckRspTimeout() {
             // 超时了
             container.getScriptCallbackEntry()->call(scriptEvent);
 
+            cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container.getScriptCallbackEntry()->getHandler());
+
             // 移除
             m_scriptMapRspCallbacks.erase(tempit);
         }
@@ -128,6 +141,7 @@ void ScriptFerry::scriptHandleWithRspCallbacks(ScriptEvent *event) {
     }
 
     if (event->what == EVENT_RECV || event->what == EVENT_ERROR) {
+        cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container.getScriptCallbackEntry()->getHandler());
         m_scriptMapRspCallbacks.erase(sn);
     }
 }
