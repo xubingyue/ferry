@@ -83,6 +83,7 @@ void Ferry::send(netkit::IBox *box, CallbackType callback, float timeout, void* 
 
     RspCallbackContainer callbackContainer;
     callbackContainer.sn = sn;
+    // timeout 不强制转int会有问题
     callbackContainer.expireTime = time(NULL) + (int)timeout;
     callbackContainer.callback = callback;
     callbackContainer.target = target;
