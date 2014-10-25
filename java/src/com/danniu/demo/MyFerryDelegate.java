@@ -14,6 +14,7 @@ public class MyFerryDelegate implements Delegate {
         Log.v(G.LOG_TAG, "onOpen");
         Box box = new Box();
         box.cmd = 1;
+        box.body = new String("I love you").getBytes();
 
         G.service.send(box);
     }

@@ -19,15 +19,8 @@ public class Service {
 
     public final static String LOG_TAG = "ferry";
 
-    public final static int MSG_QUEUE_TO_SERVER_MAX_SIZE = 100;
-    public final static int TRY_CONNECT_INTERVAL = 1;
 
-    public final static int ERROR_PUSH_MSG_TO_SEND_QUEUE = 0;
-    public final static int ERROR_CONNECT_TO_SERVER = 1;
-    public final static int ERROR_SEND_MSG_TO_SERVER = 2;
-
-
-    private ArrayBlockingQueue<IBox> msgQueueToServer = new ArrayBlockingQueue<IBox>(MSG_QUEUE_TO_SERVER_MAX_SIZE);
+    private ArrayBlockingQueue<IBox> msgQueueToServer = new ArrayBlockingQueue<IBox>(Constants.MSG_QUEUE_TO_SERVER_MAX_SIZE);
 
     private Delegate delegate;
     private String host;
@@ -38,7 +31,7 @@ public class Service {
     private boolean shouldConnect = false;
 
     private Stream client;
-    private int tryConnectInterval = TRY_CONNECT_INTERVAL;
+    private int tryConnectInterval = Constants.TRY_CONNECT_INTERVAL;
 
     private Lock runningLock = new ReentrantLock();
     private Condition runningCondition = runningLock.newCondition();
@@ -110,7 +103,7 @@ public class Service {
     public void send(IBox ibox) {
         boolean succ = msgQueueToServer.offer(ibox);
         if (!succ) {
-            onError(ERROR_PUSH_MSG_TO_SEND_QUEUE, ibox);
+            onError(Constants.ERROR_SEND, ibox);
         }
     }
 
@@ -201,13 +194,13 @@ public class Service {
                         onSendMsgToServer(box);
                     }
                     else {
-                        onError(ERROR_SEND_MSG_TO_SERVER, box);
+                        onError(Constants.ERROR_SEND, box);
                     }
                 }
             }
             catch (Exception e) {
                 Log.e(LOG_TAG, "e: " + e);
-                onError(ERROR_SEND_MSG_TO_SERVER, box);
+                onError(Constants.ERROR_SEND, box);
             }
         }
     }
@@ -224,7 +217,7 @@ public class Service {
         }
         catch (Exception e) {
             Log.e(LOG_TAG, "e: " + e);
-            onError(ERROR_CONNECT_TO_SERVER, null);
+            onError(Constants.ERROR_OPEN, null);
             return;
         }
         // 第二步创建stream对象
