@@ -10,19 +10,9 @@
 #include "BlockQueue.h"
 #include "TcpClient.h"
 #include "IBox.h"
+#include "Constants.h"
 
 namespace ferry {
-
-enum ERROR_CODE {
-    ERROR_PUSH_MSG_TO_SEND_QUEUE = 0,
-    ERROR_CONNECT_TO_SERVER,
-    ERROR_SEND_MSG_TO_SERVER,
-};
-
-// 等待下次连接时间(秒)
-const int TRY_CONNECT_INTERVAL = 1;
-const int MSG_QUEUE_TO_SERVER_MAX_SIZE = 100;
-
 
 class Delegate;
 

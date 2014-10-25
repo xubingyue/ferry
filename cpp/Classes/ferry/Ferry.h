@@ -19,17 +19,9 @@
 #include "Delegate.h"
 #include "Service.h"
 #include "IBox.h"
+#include "Constants.h"
 
 namespace ferry {
-
-enum EVENT_TYPE {
-    EVENT_OPEN=0,
-    EVENT_SEND,
-    EVENT_RECV,
-    EVENT_CLOSE,
-    EVENT_ERROR,
-    EVENT_TIMEOUT,
-};
 
 class Event {
 public:
@@ -54,9 +46,6 @@ public:
 
     bool _done;
 };
-
-// 超时检查间隔
-const float TIMEOUT_CHECK_INTERVAL = 1.0;
 
 // 事件注册的回调
 typedef std::function<void(Event*)> CallbackType;
