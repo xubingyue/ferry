@@ -19,6 +19,7 @@
 #include "Delegate.h"
 #include "Service.h"
 #include "Constants.h"
+#include "Utils.h"
 
 namespace ferry {
 
@@ -51,7 +52,7 @@ typedef std::function<void(Event*)> CallbackType;
 
 struct RspCallbackContainer {
     int sn;
-    time_t expireTime;
+    struct timeval expireTime;
     CallbackType callback;
     void* target;
 };

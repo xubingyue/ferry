@@ -83,14 +83,23 @@ void Ferry::send(netkit::IBox *box, CallbackType callback, float timeout, void* 
 
     RspCallbackContainer callbackContainer;
     callbackContainer.sn = sn;
-    // timeout 不强制转int会有问题
-    callbackContainer.expireTime = time(NULL) + (int)timeout;
+
+    struct timeval tvNow, tvTimeout;
+
+    // 当前时间
+    gettimeofday(&tvNow, NULL);
+
+    // 超时
+    tvTimeout.tv_sec = (int)(timeout);
+    tvTimeout.tv_usec = (int)((timeout - tvTimeout.tv_sec) * 1000000);
+
+    timeradd(&tvNow, &tvTimeout, &callbackContainer.expireTime);
     callbackContainer.callback = callback;
     callbackContainer.target = target;
 
     for (auto it = m_listRspCallbacks.begin();; it ++) {
         if (it == m_listRspCallbacks.end() ||
-                it->expireTime > callbackContainer.expireTime) {
+                timercmp(&it->expireTime, &callbackContainer.expireTime, >) ) {
             m_listRspCallbacks.insert(it, callbackContainer);
             break;
         }
@@ -273,7 +282,8 @@ void Ferry::cocosScheduleRspTimeoutCheck() {
 
 void Ferry::onCheckRspTimeout() {
 
-    time_t nowTime = time(NULL);
+    struct timeval tvNow;
+    gettimeofday(&tvNow, NULL);
 
     // 再进入下一帧之前，不会释放
     Event *event = new Event();
@@ -285,7 +295,7 @@ void Ferry::onCheckRspTimeout() {
         auto tempit = it;
         // cocos2d::log("[%s], now: %lld, expire: %lld", __FUNCTION__, nowTime, container.expireTime);
         it++;
-        if (nowTime >= container.expireTime)
+        if (timercmp(&tvNow, &container.expireTime, >))
         {
             // 超时了
             container.callback(event);
