@@ -8,8 +8,7 @@
 具体使用说明请进入对应语言的子目录
 
 ### 二. 依赖项目
-* netkit 
-[netkit](https://github.com/dantezhu/netkit)
+* [netkit](https://github.com/dantezhu/netkit)
 
 ### 三. 服务器端
 
