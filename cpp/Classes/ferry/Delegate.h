@@ -2,7 +2,7 @@
 #define __DELEGATE_H_20141014200158__
 
 
-#include "IBox.h"
+#include "netkit/IBox.h"
 #include "Service.h"
 
 namespace ferry {

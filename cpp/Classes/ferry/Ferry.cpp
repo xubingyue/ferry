@@ -3,7 +3,7 @@
 //
 
 #include "Ferry.h"
-#include "Box.h"
+#include "netkit/Box.h"
 
 #define LOG_TAG "ferry"
 

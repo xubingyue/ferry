@@ -8,8 +8,8 @@
 #include <iostream>
 #include <pthread.h>
 #include "BlockQueue.h"
-#include "TcpClient.h"
-#include "IBox.h"
+#include "netkit/TcpClient.h"
+#include "netkit/IBox.h"
 #include "Constants.h"
 
 namespace ferry {

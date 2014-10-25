@@ -1,7 +1,7 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
-#include "Ferry.h"
-#include "Box.h"
+#include "ferry/Ferry.h"
+#include "netkit/Box.h"
 
 USING_NS_CC;
 
