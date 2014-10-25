@@ -18,7 +18,6 @@
 #include "cocos2d.h"
 #include "Delegate.h"
 #include "Service.h"
-#include "IBox.h"
 #include "Constants.h"
 
 namespace ferry {
