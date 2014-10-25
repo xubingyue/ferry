@@ -277,7 +277,7 @@ int lua_register_ferry_IBox(lua_State* tolua_S)
     return 1;
 }
 
-int lua_ferry_Service_isRunning(lua_State* tolua_S)
+int lua_ferry_Service_disconnect(lua_State* tolua_S)
 {
     int argc = 0;
     ferry::Service* cobj = nullptr;
@@ -297,7 +297,7 @@ int lua_ferry_Service_isRunning(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     if (!cobj) 
     {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Service_isRunning'", nullptr);
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Service_disconnect'", nullptr);
         return 0;
     }
 #endif
@@ -307,16 +307,15 @@ int lua_ferry_Service_isRunning(lua_State* tolua_S)
     {
         if(!ok)
             return 0;
-        bool ret = cobj->isRunning();
-        tolua_pushboolean(tolua_S,(bool)ret);
-        return 1;
+        cobj->disconnect();
+        return 0;
     }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "isRunning",argc, 0);
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "disconnect",argc, 0);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Service_isRunning'.",&tolua_err);
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Service_disconnect'.",&tolua_err);
 #endif
 
     return 0;
@@ -363,6 +362,52 @@ int lua_ferry_Service_setTryConnectInterval(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
     tolua_error(tolua_S,"#ferror in function 'lua_ferry_Service_setTryConnectInterval'.",&tolua_err);
+#endif
+
+    return 0;
+}
+int lua_ferry_Service_send(lua_State* tolua_S)
+{
+    int argc = 0;
+    ferry::Service* cobj = nullptr;
+    bool ok  = true;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+
+
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertype(tolua_S,1,"ferry.Service",0,&tolua_err)) goto tolua_lerror;
+#endif
+
+    cobj = (ferry::Service*)tolua_tousertype(tolua_S,1,0);
+
+#if COCOS2D_DEBUG >= 1
+    if (!cobj) 
+    {
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Service_send'", nullptr);
+        return 0;
+    }
+#endif
+
+    argc = lua_gettop(tolua_S)-1;
+    if (argc == 1) 
+    {
+        netkit::IBox* arg0;
+
+        ok &= luaval_to_object<netkit::IBox>(tolua_S, 2, "netkit.IBox",&arg0);
+        if(!ok)
+            return 0;
+        cobj->send(arg0);
+        return 0;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "send",argc, 1);
+    return 0;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Service_send'.",&tolua_err);
 #endif
 
     return 0;
@@ -593,7 +638,7 @@ int lua_ferry_Service_connect(lua_State* tolua_S)
 
     return 0;
 }
-int lua_ferry_Service_closeConn(lua_State* tolua_S)
+int lua_ferry_Service_isRunning(lua_State* tolua_S)
 {
     int argc = 0;
     ferry::Service* cobj = nullptr;
@@ -613,7 +658,7 @@ int lua_ferry_Service_closeConn(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     if (!cobj) 
     {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Service_closeConn'", nullptr);
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Service_isRunning'", nullptr);
         return 0;
     }
 #endif
@@ -623,61 +668,16 @@ int lua_ferry_Service_closeConn(lua_State* tolua_S)
     {
         if(!ok)
             return 0;
-        cobj->closeConn();
-        return 0;
+        bool ret = cobj->isRunning();
+        tolua_pushboolean(tolua_S,(bool)ret);
+        return 1;
     }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "closeConn",argc, 0);
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "isRunning",argc, 0);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Service_closeConn'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Service_send(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Service* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Service",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Service*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Service_send'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 1) 
-    {
-        netkit::IBox* arg0;
-
-        ok &= luaval_to_object<netkit::IBox>(tolua_S, 2, "netkit.IBox",&arg0);
-        if(!ok)
-            return 0;
-        cobj->send(arg0);
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "send",argc, 1);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Service_send'.",&tolua_err);
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Service_isRunning'.",&tolua_err);
 #endif
 
     return 0;
@@ -839,15 +839,15 @@ int lua_register_ferry_Service(lua_State* tolua_S)
 
     tolua_beginmodule(tolua_S,"Service");
         tolua_function(tolua_S,"new",lua_ferry_Service_constructor);
-        tolua_function(tolua_S,"isRunning",lua_ferry_Service_isRunning);
+        tolua_function(tolua_S,"disconnect",lua_ferry_Service_disconnect);
         tolua_function(tolua_S,"setTryConnectInterval",lua_ferry_Service_setTryConnectInterval);
+        tolua_function(tolua_S,"send",lua_ferry_Service_send);
         tolua_function(tolua_S,"stop",lua_ferry_Service_stop);
         tolua_function(tolua_S,"isConnected",lua_ferry_Service_isConnected);
         tolua_function(tolua_S,"start",lua_ferry_Service_start);
         tolua_function(tolua_S,"init",lua_ferry_Service_init);
         tolua_function(tolua_S,"connect",lua_ferry_Service_connect);
-        tolua_function(tolua_S,"closeConn",lua_ferry_Service_closeConn);
-        tolua_function(tolua_S,"send",lua_ferry_Service_send);
+        tolua_function(tolua_S,"isRunning",lua_ferry_Service_isRunning);
         tolua_function(tolua_S,"setMsgQueueToServerMaxSize",lua_ferry_Service_setMsgQueueToServerMaxSize);
         tolua_function(tolua_S,"_sendMsgToServerThreadWorker", lua_ferry_Service__sendMsgToServerThreadWorker);
         tolua_function(tolua_S,"_recvMsgFromServerThreadWorker", lua_ferry_Service__recvMsgFromServerThreadWorker);
@@ -858,7 +858,7 @@ int lua_register_ferry_Service(lua_State* tolua_S)
     return 1;
 }
 
-int lua_ferry_Ferry_onOpen(lua_State* tolua_S)
+int lua_ferry_Ferry_disconnect(lua_State* tolua_S)
 {
     int argc = 0;
     ferry::Ferry* cobj = nullptr;
@@ -878,53 +878,7 @@ int lua_ferry_Ferry_onOpen(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     if (!cobj) 
     {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_onOpen'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 1) 
-    {
-        ferry::Service* arg0;
-
-        ok &= luaval_to_object<ferry::Service>(tolua_S, 2, "ferry.Service",&arg0);
-        if(!ok)
-            return 0;
-        cobj->onOpen(arg0);
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "onOpen",argc, 1);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_onOpen'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_createBox(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_createBox'", nullptr);
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_disconnect'", nullptr);
         return 0;
     }
 #endif
@@ -934,21 +888,20 @@ int lua_ferry_Ferry_createBox(lua_State* tolua_S)
     {
         if(!ok)
             return 0;
-        netkit::IBox* ret = cobj->createBox();
-        object_to_luaval<netkit::IBox>(tolua_S, "netkit.IBox",(netkit::IBox*)ret);
-        return 1;
+        cobj->disconnect();
+        return 0;
     }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "createBox",argc, 0);
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "disconnect",argc, 0);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_createBox'.",&tolua_err);
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_disconnect'.",&tolua_err);
 #endif
 
     return 0;
 }
-int lua_ferry_Ferry_connect(lua_State* tolua_S)
+int lua_ferry_Ferry_stop(lua_State* tolua_S)
 {
     int argc = 0;
     ferry::Ferry* cobj = nullptr;
@@ -968,7 +921,7 @@ int lua_ferry_Ferry_connect(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     if (!cobj) 
     {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_connect'", nullptr);
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_stop'", nullptr);
         return 0;
     }
 #endif
@@ -978,20 +931,20 @@ int lua_ferry_Ferry_connect(lua_State* tolua_S)
     {
         if(!ok)
             return 0;
-        cobj->connect();
+        cobj->stop();
         return 0;
     }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "connect",argc, 0);
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "stop",argc, 0);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_connect'.",&tolua_err);
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_stop'.",&tolua_err);
 #endif
 
     return 0;
 }
-int lua_ferry_Ferry_getSnFromBox(lua_State* tolua_S)
+int lua_ferry_Ferry_getService(lua_State* tolua_S)
 {
     int argc = 0;
     ferry::Ferry* cobj = nullptr;
@@ -1011,78 +964,26 @@ int lua_ferry_Ferry_getSnFromBox(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     if (!cobj) 
     {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_getSnFromBox'", nullptr);
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_getService'", nullptr);
         return 0;
     }
 #endif
 
     argc = lua_gettop(tolua_S)-1;
-    if (argc == 1) 
+    if (argc == 0) 
     {
-        netkit::IBox* arg0;
-
-        ok &= luaval_to_object<netkit::IBox>(tolua_S, 2, "netkit.IBox",&arg0);
         if(!ok)
             return 0;
-        int ret = cobj->getSnFromBox(arg0);
-        tolua_pushnumber(tolua_S,(lua_Number)ret);
+        ferry::Service* ret = cobj->getService();
+        object_to_luaval<ferry::Service>(tolua_S, "ferry.Service",(ferry::Service*)ret);
         return 1;
     }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "getSnFromBox",argc, 1);
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "getService",argc, 0);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_getSnFromBox'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_onRecv(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_onRecv'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 2) 
-    {
-        ferry::Service* arg0;
-        netkit::IBox* arg1;
-
-        ok &= luaval_to_object<ferry::Service>(tolua_S, 2, "ferry.Service",&arg0);
-
-        ok &= luaval_to_object<netkit::IBox>(tolua_S, 3, "netkit.IBox",&arg1);
-        if(!ok)
-            return 0;
-        cobj->onRecv(arg0, arg1);
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "onRecv",argc, 2);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_onRecv'.",&tolua_err);
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_getService'.",&tolua_err);
 #endif
 
     return 0;
@@ -1180,7 +1081,7 @@ int lua_ferry_Ferry_init(lua_State* tolua_S)
 
     return 0;
 }
-int lua_ferry_Ferry_setSnToBox(lua_State* tolua_S)
+int lua_ferry_Ferry_connect(lua_State* tolua_S)
 {
     int argc = 0;
     ferry::Ferry* cobj = nullptr;
@@ -1200,102 +1101,7 @@ int lua_ferry_Ferry_setSnToBox(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     if (!cobj) 
     {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_setSnToBox'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 2) 
-    {
-        netkit::IBox* arg0;
-        int arg1;
-
-        ok &= luaval_to_object<netkit::IBox>(tolua_S, 2, "netkit.IBox",&arg0);
-
-        ok &= luaval_to_int32(tolua_S, 3,(int *)&arg1);
-        if(!ok)
-            return 0;
-        cobj->setSnToBox(arg0, arg1);
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "setSnToBox",argc, 2);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_setSnToBox'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_onClose(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_onClose'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 1) 
-    {
-        ferry::Service* arg0;
-
-        ok &= luaval_to_object<ferry::Service>(tolua_S, 2, "ferry.Service",&arg0);
-        if(!ok)
-            return 0;
-        cobj->onClose(arg0);
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "onClose",argc, 1);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_onClose'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_stop(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_stop'", nullptr);
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_connect'", nullptr);
         return 0;
     }
 #endif
@@ -1305,160 +1111,15 @@ int lua_ferry_Ferry_stop(lua_State* tolua_S)
     {
         if(!ok)
             return 0;
-        cobj->stop();
+        cobj->connect();
         return 0;
     }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "stop",argc, 0);
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "connect",argc, 0);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_stop'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_getService(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_getService'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 0) 
-    {
-        if(!ok)
-            return 0;
-        ferry::Service* ret = cobj->getService();
-        object_to_luaval<ferry::Service>(tolua_S, "ferry.Service",(ferry::Service*)ret);
-        return 1;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "getService",argc, 0);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_getService'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_onSend(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_onSend'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 2) 
-    {
-        ferry::Service* arg0;
-        netkit::IBox* arg1;
-
-        ok &= luaval_to_object<ferry::Service>(tolua_S, 2, "ferry.Service",&arg0);
-
-        ok &= luaval_to_object<netkit::IBox>(tolua_S, 3, "netkit.IBox",&arg1);
-        if(!ok)
-            return 0;
-        cobj->onSend(arg0, arg1);
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "onSend",argc, 2);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_onSend'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Ferry_onError(lua_State* tolua_S)
-{
-    int argc = 0;
-    ferry::Ferry* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"ferry.Ferry",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (ferry::Ferry*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_onError'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 3) 
-    {
-        ferry::Service* arg0;
-        int arg1;
-        netkit::IBox* arg2;
-
-        ok &= luaval_to_object<ferry::Service>(tolua_S, 2, "ferry.Service",&arg0);
-
-        ok &= luaval_to_int32(tolua_S, 3,(int *)&arg1);
-
-        ok &= luaval_to_object<netkit::IBox>(tolua_S, 4, "netkit.IBox",&arg2);
-        if(!ok)
-            return 0;
-        cobj->onError(arg0, arg1, arg2);
-        return 0;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "onError",argc, 3);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_onError'.",&tolua_err);
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_connect'.",&tolua_err);
 #endif
 
     return 0;
@@ -1539,19 +1200,12 @@ int lua_register_ferry_Ferry(lua_State* tolua_S)
 
     tolua_beginmodule(tolua_S,"Ferry");
         tolua_function(tolua_S,"new",lua_ferry_Ferry_constructor);
-        tolua_function(tolua_S,"onOpen",lua_ferry_Ferry_onOpen);
-        tolua_function(tolua_S,"createBox",lua_ferry_Ferry_createBox);
-        tolua_function(tolua_S,"connect",lua_ferry_Ferry_connect);
-        tolua_function(tolua_S,"getSnFromBox",lua_ferry_Ferry_getSnFromBox);
-        tolua_function(tolua_S,"onRecv",lua_ferry_Ferry_onRecv);
-        tolua_function(tolua_S,"start",lua_ferry_Ferry_start);
-        tolua_function(tolua_S,"init",lua_ferry_Ferry_init);
-        tolua_function(tolua_S,"setSnToBox",lua_ferry_Ferry_setSnToBox);
-        tolua_function(tolua_S,"onClose",lua_ferry_Ferry_onClose);
+        tolua_function(tolua_S,"disconnect",lua_ferry_Ferry_disconnect);
         tolua_function(tolua_S,"stop",lua_ferry_Ferry_stop);
         tolua_function(tolua_S,"getService",lua_ferry_Ferry_getService);
-        tolua_function(tolua_S,"onSend",lua_ferry_Ferry_onSend);
-        tolua_function(tolua_S,"onError",lua_ferry_Ferry_onError);
+        tolua_function(tolua_S,"start",lua_ferry_Ferry_start);
+        tolua_function(tolua_S,"init",lua_ferry_Ferry_init);
+        tolua_function(tolua_S,"connect",lua_ferry_Ferry_connect);
         tolua_function(tolua_S,"getInstance", lua_ferry_Ferry_getInstance);
     tolua_endmodule(tolua_S);
     std::string typeName = typeid(ferry::Ferry).name();
