@@ -8,8 +8,11 @@
 namespace ferry {
 
 ScriptFerry *ScriptFerry::getInstance() {
-    static ScriptFerry instance;
-    return &instance;
+    static ScriptFerry *instance;
+    if (!instance) {
+        instance = new ScriptFerry();
+    }
+    return instance;
 }
 
 void ScriptFerry::scriptDelAllCallbacks() {

@@ -9,8 +9,12 @@
 
 namespace ferry {
 Ferry *Ferry::getInstance() {
-    static Ferry instance;
-    return &instance;
+    // 用指针可以保证进程结束时，释放晚一些，不会报错
+    static Ferry *instance;
+    if (!instance) {
+        instance = new Ferry();
+    }
+    return instance;
 }
 
 Ferry::Ferry() {
