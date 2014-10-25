@@ -56,10 +56,8 @@ public:
     }
 
     ScriptRspCallbackContainer(const ScriptRspCallbackContainer & container) {
-        createTime = container.createTime;
-        timeout = container.timeout;
-        callback = container.callback;
-        target = container.target;
+        sn = container.sn;
+        expireTime = container.expireTime;
 
         // 这样会自动retain
         setScriptCallbackEntry(container.getScriptCallbackEntry());
@@ -68,21 +66,16 @@ public:
     ScriptRspCallbackContainer& operator = (const ScriptRspCallbackContainer& container) {
         // 有用到了赋值运算
         // map 中用的居然是赋值运算符
-        createTime = container.createTime;
-        timeout = container.timeout;
-        callback = container.callback;
-        target = container.target;
+        sn = container.sn;
+        expireTime = container.expireTime;
 
         // 这样会自动retain
         setScriptCallbackEntry(container.getScriptCallbackEntry());
         return *this;
     }
 
-    time_t createTime;
-    float timeout;
-    CallbackType callback;
-    void* target;
-
+    int sn;
+    time_t expireTime;
 
     ScriptCallbackEntry* getScriptCallbackEntry () const{
         return m_scriptCallbackEntry;
@@ -131,7 +124,7 @@ protected:
     void scriptHandleWithEventCallbacks(ScriptEvent *event);
 
 protected:
-    std::map<int, ScriptRspCallbackContainer> m_scriptMapRspCallbacks;
+    std::list<ScriptRspCallbackContainer> m_scriptListRspCallbacks;
 
     cocos2d::Map<int, ScriptCallbackEntry*> m_scriptMapEventCallbacks;
 };

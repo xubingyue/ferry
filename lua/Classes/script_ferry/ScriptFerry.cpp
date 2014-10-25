@@ -23,12 +23,19 @@ int ScriptFerry::scriptSend(netkit::IBox *box, int handler, float timeout) {
     setSnToBox(box, sn);
 
     ScriptRspCallbackContainer callbackContainer;
-    callbackContainer.timeout = timeout;
-    callbackContainer.createTime = time(NULL);
+    callbackContainer.sn = sn;
+    // timeout 不强制转int会有问题
+    callbackContainer.expireTime = time(NULL) + (int)timeout;
     // 会自动retain
     callbackContainer.setScriptCallbackEntry(ScriptCallbackEntry::create(handler));
 
-    m_scriptMapRspCallbacks[sn] = callbackContainer;
+    for (auto it = m_scriptListRspCallbacks.begin();; it ++) {
+        if (it == m_scriptListRspCallbacks.end() ||
+                it->expireTime > callbackContainer.expireTime) {
+            m_scriptListRspCallbacks.insert(it, callbackContainer);
+            break;
+        }
+    }
 
     m_service.send(box);
 
@@ -38,22 +45,22 @@ int ScriptFerry::scriptSend(netkit::IBox *box, int handler, float timeout) {
 }
 
 void ScriptFerry::scriptDelRspCallback(int entryID) {
-    for(auto it = m_scriptMapRspCallbacks.begin(); it != m_scriptMapRspCallbacks.end();) {
-        auto& container = it->second;
+    for(auto it = m_scriptListRspCallbacks.begin(); it != m_scriptListRspCallbacks.end();) {
+        auto& container = *it;
         auto tempit = it;
         it++;
         if (container.getScriptCallbackEntry()->getEntryId() == entryID)
         {
             cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container.getScriptCallbackEntry()->getHandler());
             // 移除
-            m_scriptMapRspCallbacks.erase(tempit);
+            m_scriptListRspCallbacks.erase(tempit);
         }
 
     }
 }
 
 void ScriptFerry::scriptDelAllRspCallbacks() {
-    m_scriptMapRspCallbacks.clear();
+    m_scriptListRspCallbacks.clear();
 }
 
 void ScriptFerry::scriptDelAllEventCallbacks() {
@@ -124,12 +131,11 @@ void ScriptFerry::scriptOnCheckRspTimeout() {
     scriptEvent->what = EVENT_TIMEOUT;
 
     // 提前申请好，免得每次都要传
-    for(auto it = m_scriptMapRspCallbacks.begin(); it != m_scriptMapRspCallbacks.end();) {
-        auto& container = it->second;
-        float past = nowTime - container.createTime;
+    for(auto it = m_scriptListRspCallbacks.begin(); it != m_scriptListRspCallbacks.end();) {
+        auto& container = *it;
         auto tempit = it;
         it++;
-        if (past > container.timeout)
+        if (nowTime >= container.expireTime)
         {
             // 超时了
             container.getScriptCallbackEntry()->call(scriptEvent);
@@ -137,7 +143,10 @@ void ScriptFerry::scriptOnCheckRspTimeout() {
             cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container.getScriptCallbackEntry()->getHandler());
 
             // 移除
-            m_scriptMapRspCallbacks.erase(tempit);
+            m_scriptListRspCallbacks.erase(tempit);
+        }
+        else {
+            break;
         }
     }
 }
@@ -145,19 +154,20 @@ void ScriptFerry::scriptOnCheckRspTimeout() {
 void ScriptFerry::scriptHandleWithRspCallbacks(ScriptEvent *event) {
     int sn = getSnFromBox(event->box);
 
-    if (m_scriptMapRspCallbacks.find(sn) == m_scriptMapRspCallbacks.end()) {
-        // 没有找到
-        return;
-    }
-
-    auto& container = m_scriptMapRspCallbacks[sn];
-    if (container.getScriptCallbackEntry()) {
-        container.getScriptCallbackEntry()->call(event);
-    }
-
-    if (event->what == EVENT_RECV || event->what == EVENT_ERROR) {
-        cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container.getScriptCallbackEntry()->getHandler());
-        m_scriptMapRspCallbacks.erase(sn);
+    for(auto it = m_scriptListRspCallbacks.begin(); it != m_scriptListRspCallbacks.end();) {
+        auto& container = *it;
+        auto tempit = it;
+        it++;
+        if (container.sn == sn)
+        {
+            // 调用
+            container.getScriptCallbackEntry()->call(event);
+            // 移除
+            if (event->what == EVENT_RECV || event->what == EVENT_ERROR) {
+                cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container.getScriptCallbackEntry()->getHandler());
+                m_scriptListRspCallbacks.erase(tempit);
+            }
+        }
     }
 }
 
