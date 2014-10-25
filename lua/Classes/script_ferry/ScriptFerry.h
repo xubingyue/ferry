@@ -45,8 +45,14 @@ public:
 
 class ScriptRspCallbackContainer {
 public:
+    void reset() {
+        sn = 0;
+        expireTime = 0;
+        m_scriptCallbackEntry = 0;
+    }
+
     ScriptRspCallbackContainer() {
-        m_scriptCallbackEntry = nullptr;
+        reset();
     }
 
     ~ScriptRspCallbackContainer() {
@@ -56,6 +62,9 @@ public:
     }
 
     ScriptRspCallbackContainer(const ScriptRspCallbackContainer & container) {
+        // list insert 用的是copy构造函数
+        reset();
+
         sn = container.sn;
         expireTime = container.expireTime;
 
@@ -64,8 +73,9 @@ public:
     }
 
     ScriptRspCallbackContainer& operator = (const ScriptRspCallbackContainer& container) {
-        // 有用到了赋值运算
-        // map 中用的居然是赋值运算符
+        // 这里不能调用reset，因为这个时候对象的数据已经是真实的
+
+        // map 中用的是赋值运算符
         sn = container.sn;
         expireTime = container.expireTime;
 
