@@ -323,8 +323,7 @@ namespace ferry {
         netkit::IBox* box = nullptr;
 
         while (m_msgQueueToServer && m_msgQueueToServer->pop_nowait(box) == 0) {
-            delete box;
-            box = nullptr;
+            _onError(ERROR_SEND_MSG_TO_SERVER, box);
         }
     }
 }
