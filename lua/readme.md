@@ -11,7 +11,9 @@
             lua/Classes/script_ferry
             lua/Classes/auto
 
-3. 修改 AppDelegate.cpp，参考 ferry/lua/Classes/AppDelegate.cpp
+3. 修改 AppDelegate.cpp，参考 
+
+        ferry/lua/Classes/AppDelegate.cpp
 
 4. 复制相关的lua文件至心工程的src目录
 
