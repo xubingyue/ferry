@@ -61,3 +61,10 @@
 6. 到tolua目录，执行
 
         python genbindings_ferry.py
+
+7. 拷贝生成的hpp和cpp文件到script_ferry中
+    
+        frameworks/cocos2d-x/cocos/scripting/lua-bindings/auto/lua_ferry_auto.hpp
+        frameworks/cocos2d-x/cocos/scripting/lua-bindings/auto/lua_ferry_auto.cpp
+
+8. 搞定
