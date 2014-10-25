@@ -260,4 +260,17 @@ public class Service {
     private void onRecvMsgFromServer(IBox ibox) {
         delegate.onRecv(this, ibox);
     }
+
+    // 想在析构的时候调用，但是好像调用不到。。
+    private void clearMsgQueue() {
+        while (true) {
+            IBox box = msgQueueToServer.poll();
+            if (box == null) {
+                break;
+            }
+            else {
+                onError(Constants.ERROR_SEND, box);
+            }
+        }
+    }
 }
