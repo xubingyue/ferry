@@ -6,6 +6,8 @@
 #include <string.h>
 #include <errno.h>
 #include <iostream>
+#include <signal.h>
+#include "cocos2d.h"
 
 #if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
 
@@ -24,23 +26,25 @@
 
 
 namespace ferry {
+    void sigTermHandler(int signum) {
+        /*早期版本，每次信号处理完之后，随即将信号动作复置为默认值*/
+        signal(signum, (void (*)(int))sigTermHandler);
+        if (signum == SIGTERM) {
+            cocos2d::log("sigal: %d, thread: %d\n", signum, pthread_self());
+            pthread_exit(NULL);
+        }
+    }
 
     Service::Service() {
         m_running = false;
-        m_stopAfterConnClosed = false;
 
         m_tryConnectInterval = TRY_CONNECT_INTERVAL;
-
-        pthread_mutex_init(&m_runningMutex, NULL);
-        pthread_cond_init(&m_runningCond, NULL);
 
         m_port = 0;
         m_msgQueueToServer = new BlockQueue<netkit::IBox *>(MSG_QUEUE_TO_SERVER_MAX_SIZE);
         m_client = nullptr;
 
         m_shouldConnect = false;
-
-        m_threadsRunning = false;
 
 #if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
     netkit::Stream::startupSocket();
@@ -51,9 +55,6 @@ namespace ferry {
     Service::~Service() {
         // 线程会有问题，最好的方式是不析构
         stop();
-
-        pthread_mutex_destroy(&m_runningMutex);
-        pthread_cond_destroy(&m_runningCond);
 
         _clearMsgQueueToServer();
 
@@ -85,26 +86,29 @@ namespace ferry {
             // 已经调用过一次，是不能再调用的
             return;
         }
-        _setRunning(true);
+        m_running = true;
 
         // 标记要连接服务器
         connect();
-        // 启动线程，只要启动一次即可
-        if (!m_threadsRunning) {
-            _startThreads();
-            m_threadsRunning = true;
-        }
+
+        _startThreads();
     }
 
     void Service::stop() {
         if (!m_running) {
             return;
         }
+        m_running = false;
 
-        // 一定要放到最前面
-        m_stopAfterConnClosed = true;
-        // 关闭连接，将会触发onClose
-        disconnect();
+        if (pthread_kill(m_recvThread, 0) == 0) {
+            pthread_kill(m_recvThread, SIGTERM);
+        }
+
+        if (pthread_kill(m_sendThread, 0) == 0) {
+            pthread_kill(m_sendThread, SIGTERM);
+        }
+
+        _closeConn();
     }
 
     bool Service::isConnected() {
@@ -154,16 +158,6 @@ namespace ferry {
         m_tryConnectInterval = interval;
     }
 
-    void Service::_setRunning(bool running) {
-        pthread_mutex_lock(&m_runningMutex);
-        m_running = running;
-        if (m_running) {
-            // 只通知可用
-            pthread_cond_broadcast(&m_runningCond);
-        }
-        pthread_mutex_unlock(&m_runningMutex);
-    }
-
     void Service::_connectToServer() {
         _closeConn();
         // 没有超时
@@ -182,6 +176,8 @@ namespace ferry {
     }
 
     void* Service::_recvMsgFromServerThreadWorker(void *args) {
+        signal(SIGTERM,(void (*)(int))sigTermHandler);
+
         Service* netService = (Service*)args;
         netService->_recvMsgFromServer();
 
@@ -189,6 +185,8 @@ namespace ferry {
     }
 
     void* Service::_sendMsgToServerThreadWorker(void *args) {
+        signal(SIGTERM,(void (*)(int))sigTermHandler);
+
         Service* netService = (Service*)args;
         netService->_sendMsgToServer();
 
@@ -206,8 +204,7 @@ namespace ferry {
         pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
 
         int ret;
-        pthread_t threadId;
-        ret= pthread_create(&threadId, &attr, &Service::_recvMsgFromServerThreadWorker, (void *) this);
+        ret= pthread_create(&m_recvThread, &attr, &Service::_recvMsgFromServerThreadWorker, (void *) this);
         if(ret!=0){
             //ERROR_LOG("Thread creation failed:%d",ret);
             pthread_attr_destroy (&attr);
@@ -222,8 +219,7 @@ namespace ferry {
         pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
 
         int ret;
-        pthread_t threadId;
-        ret= pthread_create(&threadId, &attr, &Service::_sendMsgToServerThreadWorker, (void *) this);
+        ret= pthread_create(&m_sendThread, &attr, &Service::_sendMsgToServerThreadWorker, (void *) this);
         if(ret!=0){
             //ERROR_LOG("Thread creation failed:%d",ret);
             pthread_attr_destroy (&attr);
@@ -235,17 +231,7 @@ namespace ferry {
     void Service::_recvMsgFromServer() {
         int ret;
 
-        while (1) {
-            if (!m_running) {
-                pthread_mutex_lock(&m_runningMutex);
-                // 锁定后再确认一下
-                if (!m_running) {
-                    // 只通知可用
-                    pthread_cond_wait(&m_runningCond, &m_runningMutex);
-                }
-                pthread_mutex_unlock(&m_runningMutex);
-            }
-
+        while (m_running) {
             if (!isConnected()) {
                 if (m_shouldConnect) {
                     // 连接服务器
@@ -280,7 +266,7 @@ namespace ferry {
 
         int ret;
 
-        while (1) {
+        while (m_running) {
             // send线程不检查running，这样可以保证要发送的box都会有对应的回调
 
             ret = m_msgQueueToServer->pop(box);
@@ -310,12 +296,6 @@ namespace ferry {
     void Service::_onConnClose() {
         // 设置为不重连，等触发connectToServer再改状态
         m_shouldConnect = false;
-        if (m_stopAfterConnClosed) {
-            // 如果需要在关闭链接后停止
-            m_stopAfterConnClosed = false;
-            _setRunning(false);
-        }
-
         m_delegate->onClose(this);
     }
 

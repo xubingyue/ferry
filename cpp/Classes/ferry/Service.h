@@ -99,14 +99,8 @@ private:
     // 是否运行中
     bool m_running;
 
-    // 当调用stop时，处理这个
-    bool m_stopAfterConnClosed;
-
     // 连接失败后的重连间隔
     int m_tryConnectInterval;
-
-    pthread_mutex_t m_runningMutex;
-    pthread_cond_t m_runningCond;
 
     Delegate *m_delegate;
     std::string m_host;
@@ -122,8 +116,8 @@ private:
     // 网络
     netkit::TcpClient *m_client;
 
-    // 线程是否已经启动
-    bool m_threadsRunning;
+    pthread_t m_recvThread;
+    pthread_t m_sendThread;
 };
 
 }

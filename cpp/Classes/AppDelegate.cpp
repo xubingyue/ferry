@@ -82,12 +82,13 @@ void AppDelegate::eventCallback(ferry::Event *event) {
             auto func = [&](ferry::Event* event) {
                 cocos2d::log("rsp, event->what: %d", event->what);
 
-                //ferry::Ferry::getInstance()->disconnect();
+                // ferry::Ferry::getInstance()->disconnect();
+                // ferry::Ferry::getInstance()->stop();
             };
 
             netkit::Box *box = new netkit::Box();
             box->cmd = 1;
-            box->setBody("aini", 4);
+            box->setBody("aini");
 
             ferry::Ferry::getInstance()->send(box, func, 0.5, this);
             break;
