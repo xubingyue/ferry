@@ -27,6 +27,7 @@ namespace ferry {
 
     Service::Service() {
         m_running = false;
+        m_stopAfterConnClosed = false;
 
         m_tryConnectInterval = TRY_CONNECT_INTERVAL;
 
@@ -101,9 +102,9 @@ namespace ferry {
         }
 
         // 一定要放到最前面
-        _setRunning(false);
-        // 关闭连接
-        _closeConn();
+        m_stopAfterConnClosed = true;
+        // 关闭连接，将会触发onClose
+        disconnect();
     }
 
     bool Service::isConnected() {
@@ -309,6 +310,11 @@ namespace ferry {
     void Service::_onConnClose() {
         // 设置为不重连，等触发connectToServer再改状态
         m_shouldConnect = false;
+        if (m_stopAfterConnClosed) {
+            // 如果需要在关闭链接后停止
+            m_stopAfterConnClosed = false;
+            _setRunning(false);
+        }
 
         m_delegate->onClose(this);
     }

@@ -33,6 +33,7 @@ public:
     void connect();
 
     // 主动关闭连接，比如认为连接不正常或者要切换host时
+    // 可以确保触发onClose
     void disconnect();
 
     // 是否连接成功
@@ -97,6 +98,9 @@ private:
 private:
     // 是否运行中
     bool m_running;
+
+    // 当调用stop时，处理这个
+    bool m_stopAfterConnClosed;
 
     // 连接失败后的重连间隔
     int m_tryConnectInterval;
