@@ -30,7 +30,7 @@ namespace ferry {
         /*早期版本，每次信号处理完之后，随即将信号动作复置为默认值*/
         signal(signum, (void (*)(int))sigTermHandler);
         if (signum == SIGTERM) {
-            cocos2d::log("sigal: %d, thread: %d\n", signum, pthread_self());
+            cocos2d::log("sigal: %d, thread: %u\n", signum, pthread_self());
             pthread_exit(NULL);
         }
     }
