@@ -61,9 +61,10 @@ public class Service {
             return;
         }
         running = false;
-        // TODO stop
 
+        stopThreads();
         closeConn();
+        clearMsgQueueToServer();
     }
 
     public void connect() {
@@ -71,8 +72,6 @@ public class Service {
     }
 
     public void closeConn() {
-        // 和c++一样
-        // clearMsgQueues();
 
         if (client != null) {
             try{
@@ -123,6 +122,16 @@ public class Service {
             }
         });
         sendThread.start();
+    }
+
+    private void stopThreads() {
+        if (sendThread != null && sendThread.isAlive()) {
+            sendThread.stop();
+        }
+
+        if (recvThread != null && recvThread.isAlive()) {
+            recvThread.stop();
+        }
     }
 
     private void recvMsgFromServer() {
@@ -209,10 +218,6 @@ public class Service {
         client = new Stream(socket);
 
         onConnOpen();
-    }
-
-    private void clearMsgQueues() {
-        msgQueueToServer.clear();
     }
 
     private void onConnClose() {
