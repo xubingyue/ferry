@@ -56,8 +56,6 @@ namespace ferry {
         // 线程会有问题，最好的方式是不析构
         stop();
 
-        _clearMsgQueueToServer();
-
         if (m_client) {
             delete m_client;
             m_client = nullptr;
@@ -109,6 +107,8 @@ namespace ferry {
         }
 
         _closeConn();
+
+        _clearMsgQueueToServer();
     }
 
     bool Service::isConnected() {

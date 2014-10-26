@@ -26,15 +26,11 @@ public class Service {
     private String host;
     private int port;
     private boolean running = false;
-    private boolean threadsRunning = false;
 
     private boolean shouldConnect = false;
 
     private Stream client;
     private int tryConnectInterval = Constants.TRY_CONNECT_INTERVAL;
-
-    private Lock runningLock = new ReentrantLock();
-    private Condition runningCondition = runningLock.newCondition();
 
     public Service() {
     }
@@ -51,21 +47,18 @@ public class Service {
             return;
         }
 
-        setRunning(true);
+        running = true;
 
         connect();
-        if (!threadsRunning) {
-            startThreads();
-            threadsRunning = true;
-        }
+        startThreads();
     }
 
     public void stop() {
         if (!running) {
             return;
         }
-
-        setRunning(false);
+        running = false;
+        // TODO stop
 
         closeConn();
     }
@@ -128,20 +121,7 @@ public class Service {
     }
 
     private void recvMsgFromServer() {
-        while (true) {
-            if (!running) {
-                runningLock.lock();
-                while (!running) {
-                    try{
-                        runningCondition.await();
-                    }
-                    catch (Exception e) {
-
-                    }
-                }
-                runningLock.unlock();
-            }
-
+        while (running) {
             if (!isConnected()) {
                 if (shouldConnect) {
                     connectToServer();
@@ -183,7 +163,7 @@ public class Service {
 
     private void sendMsgToServer() {
 
-        while (true) {
+        while (running) {
             IBox box = null;
 
             try {
@@ -230,19 +210,8 @@ public class Service {
         msgQueueToServer.clear();
     }
 
-    private void setRunning(boolean running) {
-        runningLock.lock();
-        this.running = running;
-
-        if (this.running) {
-            // 有两个线程
-            runningCondition.signalAll();
-        }
-
-        runningLock.unlock();
-    }
-
     private void onConnClose() {
+        shouldConnect = false;
         delegate.onClose(this);
     }
 
