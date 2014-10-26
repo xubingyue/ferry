@@ -32,6 +32,9 @@ public class Service {
     private Stream client;
     private int tryConnectInterval = Constants.TRY_CONNECT_INTERVAL;
 
+    private Thread recvThread = null;
+    private Thread sendThread = null;
+
     public Service() {
     }
 
@@ -105,19 +108,21 @@ public class Service {
     }
 
     private void startThreads() {
-        new Thread(new Runnable() {
+        recvThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 recvMsgFromServer();
             }
-        }).start();
+        });
+        recvThread.start();
 
-        new Thread(new Runnable() {
+        sendThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 sendMsgToServer();
             }
-        }).start();
+        });
+        sendThread.start();
     }
 
     private void recvMsgFromServer() {
