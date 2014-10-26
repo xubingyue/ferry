@@ -71,6 +71,22 @@ public class Service {
         shouldConnect = true;
     }
 
+    public void disconnect() {
+        if (client != null) {
+            try{
+                client.shutdownInput();
+            }
+            catch (Exception e) {
+            }
+
+            try{
+                client.shutdownOutput();
+            }
+            catch (Exception e) {
+            }
+        }
+    }
+
     public void closeConn() {
 
         if (client != null) {
