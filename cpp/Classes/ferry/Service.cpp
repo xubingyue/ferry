@@ -167,8 +167,8 @@ namespace ferry {
     void* Service::_recvMsgFromServerThreadWorker(void *args) {
         signal(SIGTERM,(void (*)(int))sigTermHandler);
 
-        Service* netService = (Service*)args;
-        netService->_recvMsgFromServer();
+        Service* service = (Service*)args;
+        service->_recvMsgFromServer();
 
         return nullptr;
     }
@@ -176,8 +176,8 @@ namespace ferry {
     void* Service::_sendMsgToServerThreadWorker(void *args) {
         signal(SIGTERM,(void (*)(int))sigTermHandler);
 
-        Service* netService = (Service*)args;
-        netService->_sendMsgToServer();
+        Service* service = (Service*)args;
+        service->_sendMsgToServer();
 
         return nullptr;
     }
