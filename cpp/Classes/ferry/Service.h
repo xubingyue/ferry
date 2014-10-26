@@ -56,16 +56,16 @@ public:
     static void* _sendMsgToServerThreadWorker(void *args);
 
 private:
-    // 设置running
-    void _setRunning(bool running);
     // 真实连接
     void _connectToServer();
 
     // 真实关闭连接
     void _closeConn();
 
-    // 启动各种线程
+    // 启动线程
     void _startThreads();
+    // 关闭线程
+    void _stopThreads();
 
     // 启动接收线程
     void _startRecvMsgFromServerThread();

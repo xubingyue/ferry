@@ -88,7 +88,6 @@ namespace ferry {
 
         // 标记要连接服务器
         connect();
-
         _startThreads();
     }
 
@@ -98,16 +97,8 @@ namespace ferry {
         }
         m_running = false;
 
-        if (pthread_kill(m_recvThread, 0) == 0) {
-            pthread_kill(m_recvThread, SIGTERM);
-        }
-
-        if (pthread_kill(m_sendThread, 0) == 0) {
-            pthread_kill(m_sendThread, SIGTERM);
-        }
-
+        _stopThreads();
         _closeConn();
-
         _clearMsgQueueToServer();
     }
 
@@ -126,17 +117,6 @@ namespace ferry {
     void Service::disconnect() {
         if (m_client) {
             m_client->shutdownStream(2);
-        }
-    }
-
-    void Service::_closeConn() {
-        // 不要清空，直接走到报错回调逻辑里去
-        // _clearMsgQueueToServer();
-
-        if (m_client) {
-            m_client->closeStream();
-            delete m_client;
-            m_client = nullptr;
         }
     }
 
@@ -175,6 +155,17 @@ namespace ferry {
         }
     }
 
+    void Service::_closeConn() {
+        // 不要清空，直接走到报错回调逻辑里去
+        // _clearMsgQueueToServer();
+
+        if (m_client) {
+            m_client->closeStream();
+            delete m_client;
+            m_client = nullptr;
+        }
+    }
+
     void* Service::_recvMsgFromServerThreadWorker(void *args) {
         signal(SIGTERM,(void (*)(int))sigTermHandler);
 
@@ -196,6 +187,16 @@ namespace ferry {
     void Service::_startThreads() {
         _startRecvMsgFromServerThread();
         _startSendMsgToServerThread();
+    }
+
+    void Service::_stopThreads() {
+        if (pthread_kill(m_recvThread, 0) == 0) {
+            pthread_kill(m_recvThread, SIGTERM);
+        }
+
+        if (pthread_kill(m_sendThread, 0) == 0) {
+            pthread_kill(m_sendThread, SIGTERM);
+        }
     }
 
     void Service::_startRecvMsgFromServerThread() {
