@@ -7,7 +7,6 @@
 #include <errno.h>
 #include <iostream>
 #include <signal.h>
-#include "cocos2d.h"
 
 #if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
 
@@ -30,7 +29,6 @@ namespace ferry {
         /*早期版本，每次信号处理完之后，随即将信号动作复置为默认值*/
         signal(signum, (void (*)(int))sigTermHandler);
         if (signum == SIGTERM) {
-            cocos2d::log("sigal: %d, thread: %u\n", signum, pthread_self());
             pthread_exit(NULL);
         }
     }
