@@ -7,7 +7,6 @@
         ferry
             cpp/Classes/ferry 
             lua/Classes/script_ferry
-            lua/Classes/auto
 3. 修改 AppDelegate.cpp，参考 
 
         ferry/lua/Classes/AppDelegate.cpp
