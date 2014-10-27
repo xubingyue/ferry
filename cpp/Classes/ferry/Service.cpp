@@ -26,7 +26,7 @@
 
 namespace ferry {
     void sigTermHandler(int signum) {
-        /*早期版本，每次信号处理完之后，随即将信号动作复置为默认值*/
+        // 早期版本，每次信号处理完之后，随即将信号动作复置为默认值
         signal(signum, (void (*)(int))sigTermHandler);
         if (signum == SIGTERM) {
             pthread_exit(NULL);
