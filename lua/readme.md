@@ -2,22 +2,20 @@
 1. 新建cocos2dx-lua工程
 2. 复制如下目录至新工程的Classes目录
 
-        netkit
-            cpp/netkit 
-        ferry
-            cpp/Classes/ferry 
-            lua/Classes/script_ferry
+        netkit/cpp/netkit 
+        ferry/cpp/Classes/ferry 
+        ferry/lua/Classes/script_ferry
 3. 修改 AppDelegate.cpp，参考 
 
         ferry/lua/Classes/AppDelegate.cpp
 4. 复制相关的lua文件至心工程的src目录
 
-        ferry
-            lua/script/*
+        ferry/lua/script/*
 5. 修改main.lua，参考
 
-        ferry
-            lua/demo/main.lua
+        ferry/lua/demo/main.lua
+
+6. windows下需要自己配置pthread，并在运行时将相关dll放到运行目录下
 
 ### 二. 使用说明
 1. 语法演示 
@@ -27,7 +25,7 @@
 
     与cpp版的删除回调不同
 
-    lua的send和addEventCallback都会返回一个entryID，调用放可以调用 
+    lua的send和addEventCallback都会返回一个entryID，调用方可以调用 
     
         delRspCallback(entryID)
         delEventCallback(entryID)
@@ -38,7 +36,7 @@
     
     由于tolua无法导出枚举，所以手工写了时间定义在FerryConstants.lua 中
 
-### 三. tolua编译说明
+### 三. tolua++编译说明
 1. 将tolua目录下的ferry.ini 和 genbindings_ferry.py 放到
 
         project/frameworks/cocos2d-x/tools/tolua
