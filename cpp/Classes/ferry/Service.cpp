@@ -101,7 +101,7 @@ namespace ferry {
     }
 
     bool Service::isConnected() {
-        return m_client == nullptr ? false : !m_client->isClosed();
+        return m_client && !m_client->isClosed();
     }
 
     bool Service::isRunning() {
