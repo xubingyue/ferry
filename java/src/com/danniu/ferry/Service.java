@@ -104,7 +104,7 @@ public class Service {
     }
 
     public boolean isConnected() {
-        return client == null ? false : !client.isClosed();
+        return client != null && !client.isClosed();
     }
 
     public boolean isRunning() {
