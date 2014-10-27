@@ -1,4 +1,4 @@
-function main()
+function test()
     require "FerryConstants"
 
     ferry.ScriptFerry:getInstance():init("127.0.0.1", 7777)
