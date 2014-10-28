@@ -56,6 +56,12 @@ struct RspCallbackContainer {
     void* target;
 };
 
+struct EventCallbackContainer {
+    CallbackType callback;
+    void* target;
+    std::string name;
+};
+
 class Ferry : public ferry::Delegate {
 public:
     static Ferry *getInstance();
@@ -145,9 +151,9 @@ protected:
 private:
     int m_boxSn;
 
-    std::map<void*, std::map<std::string, CallbackType> > m_mapEventCallbacks;
+    std::list<EventCallbackContainer*> m_eventCallbacks;
     // 最先过期的排在最左边
-    std::list<RspCallbackContainer> m_listRspCallbacks;
+    std::list<RspCallbackContainer*> m_rspCallbacks;
 };
 
 }

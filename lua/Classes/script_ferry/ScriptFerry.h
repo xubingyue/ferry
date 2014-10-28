@@ -45,64 +45,28 @@ public:
 
 class ScriptRspCallbackContainer {
 public:
-    void reset() {
-        sn = 0;
-        m_scriptCallbackEntry = 0;
-    }
-
-    ScriptRspCallbackContainer() {
-        reset();
-    }
-
-    ~ScriptRspCallbackContainer() {
-        if (m_scriptCallbackEntry) {
-            m_scriptCallbackEntry->release();
-        }
-    }
-
-    ScriptRspCallbackContainer(const ScriptRspCallbackContainer & container) {
-        // list insert 用的是copy构造函数
-        reset();
-
-        sn = container.sn;
-        expireTime = container.expireTime;
-
-        // 这样会自动retain
-        setScriptCallbackEntry(container.getScriptCallbackEntry());
-    }
-
-    ScriptRspCallbackContainer& operator = (const ScriptRspCallbackContainer& container) {
-        // 这里不能调用reset，因为这个时候对象的数据已经是真实的
-
-        // map 中用的是赋值运算符
-        sn = container.sn;
-        expireTime = container.expireTime;
-
-        // 这样会自动retain
-        setScriptCallbackEntry(container.getScriptCallbackEntry());
-        return *this;
-    }
-
     int sn;
     struct timeval expireTime;
+    void *target;
+    ScriptCallbackEntry *scriptCallbackEntry;
 
-    ScriptCallbackEntry* getScriptCallbackEntry () const{
-        return m_scriptCallbackEntry;
-    }
-
-    void setScriptCallbackEntry(ScriptCallbackEntry *scriptCallbackEntry) {
-        // 先retain、再release，防止是同一个对象
+    ~ScriptRspCallbackContainer() {
         if (scriptCallbackEntry) {
-            scriptCallbackEntry->retain();
+            scriptCallbackEntry->release();
         }
-        if (m_scriptCallbackEntry) {
-            m_scriptCallbackEntry->release();
-        }
-
-        m_scriptCallbackEntry = scriptCallbackEntry;
     }
-private:
-    ScriptCallbackEntry *m_scriptCallbackEntry;
+};
+
+class ScriptEventCallbackContainer {
+public:
+    void *target;
+    ScriptCallbackEntry *scriptCallbackEntry;
+
+    ~ScriptEventCallbackContainer() {
+        if (scriptCallbackEntry) {
+            scriptCallbackEntry->release();
+        }
+    }
 };
 
 
@@ -110,14 +74,18 @@ class ScriptFerry : public Ferry {
 public:
     static ScriptFerry * getInstance();
 
+    virtual ~ScriptFerry();
+
     void scriptDelAllCallbacks();
 
-    int scriptSend(netkit::IBox *box, int handler, float timeout);
+    int scriptSend(netkit::IBox *box, int handler, float timeout, void* target);
     void scriptDelRspCallback(int entryID);
+    void scriptDelRspCallbacksForTarget(void *target);
     void scriptDelAllRspCallbacks();
 
-    int scriptAddEventCallback(int handler);
+    int scriptAddEventCallback(int handler, void* target);
     void scriptDelEventCallback(int entryID);
+    void scriptDelEventCallbacksForTarget(void *target);
     void scriptDelAllEventCallbacks();
 
     virtual netkit::IBox *createBox();
@@ -133,9 +101,8 @@ protected:
     void scriptHandleWithEventCallbacks(ScriptEvent *event);
 
 protected:
-    std::list<ScriptRspCallbackContainer> m_scriptListRspCallbacks;
-
-    cocos2d::Map<int, ScriptCallbackEntry*> m_scriptMapEventCallbacks;
+    std::list<ScriptEventCallbackContainer*> m_scriptEventCallbacks;
+    std::list<ScriptRspCallbackContainer*> m_scriptRspCallbacks;
 };
 
 

@@ -27,6 +27,8 @@ Ferry::Ferry() {
 Ferry::~Ferry() {
     stop();
     pthread_mutex_destroy(&m_eventsMutex);
+
+    delAllCallbacks();
 }
 
 ferry::Service*Ferry::getService() {
@@ -98,17 +100,17 @@ void Ferry::send(netkit::IBox *box, CallbackType callback, float timeout, void* 
     tvTimeout.tv_sec = (int)(timeout);
     tvTimeout.tv_usec = (int)((timeout - tvTimeout.tv_sec) * 1000000);
 
-    RspCallbackContainer callbackContainer;
-    callbackContainer.sn = sn;
+    RspCallbackContainer *container = new RspCallbackContainer();
+    container->sn = sn;
 
-    timeradd(&tvNow, &tvTimeout, &callbackContainer.expireTime);
-    callbackContainer.callback = callback;
-    callbackContainer.target = target;
+    timeradd(&tvNow, &tvTimeout, &container->expireTime);
+    container->callback = callback;
+    container->target = target;
 
-    for (auto it = m_listRspCallbacks.begin();; it ++) {
-        if (it == m_listRspCallbacks.end() ||
-                timercmp(&it->expireTime, &callbackContainer.expireTime, >) ) {
-            m_listRspCallbacks.insert(it, callbackContainer);
+    for (auto it = m_rspCallbacks.begin();; it ++) {
+        if (it == m_rspCallbacks.end() ||
+                timercmp(&(*it)->expireTime, &container->expireTime, >) ) {
+            m_rspCallbacks.insert(it, container);
             break;
         }
     }
@@ -117,40 +119,71 @@ void Ferry::send(netkit::IBox *box, CallbackType callback, float timeout, void* 
 }
 
 void Ferry::delRspCallbacksForTarget(void *target) {
-    for(auto it = m_listRspCallbacks.begin(); it != m_listRspCallbacks.end();) {
+    for(auto it = m_rspCallbacks.begin(); it != m_rspCallbacks.end();) {
         auto& container = *it;
         auto tempit = it;
         it++;
-        if (container.target == target)
+        if (container->target == target)
         {
+            // 先delete
+            delete container;
             // 移除
-            m_listRspCallbacks.erase(tempit);
+            m_rspCallbacks.erase(tempit);
         }
     }
 }
 
 void Ferry::delAllRspCallbacks() {
-    m_listRspCallbacks.clear();
+    for (auto& container: m_rspCallbacks) {
+        delete container;
+    }
+
+    m_rspCallbacks.clear();
 }
 
 void Ferry::addEventCallback(CallbackType callback, void *target, const std::string &name) {
-    m_mapEventCallbacks[target][name]= callback;
+    EventCallbackContainer *container = new EventCallbackContainer();
+    container->callback = callback;
+    container->target = target;
+    container->name = name;
+
+    m_eventCallbacks.push_back(container);
 }
 
 void Ferry::delEventCallback(const std::string &name, void *target) {
-    if(m_mapEventCallbacks.find(target) == m_mapEventCallbacks.end()){
-        return;
+    for(auto it = m_eventCallbacks.begin(); it != m_eventCallbacks.end();) {
+        auto& container = *it;
+        auto tempit = it;
+        it++;
+        if (container->name == name && container->target == target)
+        {
+            delete container;
+            // 移除
+            m_eventCallbacks.erase(tempit);
+        }
     }
-
-    m_mapEventCallbacks[target].erase(name);
 }
 
 void Ferry::delEventCallbacksForTarget(void *target) {
-    m_mapEventCallbacks.erase(target);
+    for(auto it = m_eventCallbacks.begin(); it != m_eventCallbacks.end();) {
+        auto& container = *it;
+        auto tempit = it;
+        it++;
+        if (container->target == target)
+        {
+            delete container;
+            // 移除
+            m_eventCallbacks.erase(tempit);
+        }
+    }
 }
 
 void Ferry::delAllEventCallbacks() {
-    m_mapEventCallbacks.clear();
+    for(auto& container: m_eventCallbacks) {
+        delete container;
+    }
+
+    m_eventCallbacks.clear();
 }
 
 void Ferry::onOpen(ferry::Service *service) {
@@ -298,18 +331,20 @@ void Ferry::onCheckRspTimeout() {
     event->what = EVENT_TIMEOUT;
 
     // 提前申请好，免得每次都要传
-    for(auto it = m_listRspCallbacks.begin(); it != m_listRspCallbacks.end();) {
+    // 因为纯删除，且挡住主线程，不会导致结构被破坏
+    for(auto it = m_rspCallbacks.begin(); it != m_rspCallbacks.end();) {
         auto& container = *it;
         auto tempit = it;
         // cocos2d::log("[%s], now: %lld, expire: %lld", __FUNCTION__, nowTime, container.expireTime);
         it++;
-        if (timercmp(&tvNow, &container.expireTime, >))
+        if (timercmp(&tvNow, &container->expireTime, >))
         {
             // 超时了
-            container.callback(event);
+            container->callback(event);
 
+            delete container;
             // 移除
-            m_listRspCallbacks.erase(tempit);
+            m_rspCallbacks.erase(tempit);
         }
         else {
             // 找到第一个没超时的，那么后面就都没有超时了
@@ -321,47 +356,41 @@ void Ferry::onCheckRspTimeout() {
 }
 
 void Ferry::handleWithRspCallbacks(Event *event) {
+    auto rspCallbacks = m_rspCallbacks;
+
     int sn = getSnFromBox(event->box);
 
-    for(auto it = m_listRspCallbacks.begin(); it != m_listRspCallbacks.end();) {
+    for(auto it = rspCallbacks.begin(); it != rspCallbacks.end(); ++it) {
         auto& container = *it;
-        auto tempit = it;
-        it++;
-        if (container.sn == sn)
+
+        if (std::find(m_rspCallbacks.begin(), m_rspCallbacks.end(), container) == m_rspCallbacks.end()) {
+            continue;
+        }
+
+        if (container->sn == sn)
         {
             // 调用
-            container.callback(event);
+            container->callback(event);
             // 移除
             if (event->what == EVENT_RECV || event->what == EVENT_ERROR) {
-                m_listRspCallbacks.erase(tempit);
+                delete container;
+                m_rspCallbacks.remove(container);
             }
         }
     }
 }
 
 void Ferry::handleWithEventCallbacks(Event *event) {
-    auto mapEventCallbacks = m_mapEventCallbacks;
+    auto eventCallbacks = m_eventCallbacks;
 
-    for(auto it = mapEventCallbacks.begin(); it != mapEventCallbacks.end(); ++it) {
-        auto target = it->first;
-        if (m_mapEventCallbacks.find(target) == m_mapEventCallbacks.end()) {
-            // 不用这个了
+    for(auto it = eventCallbacks.begin(); it != eventCallbacks.end(); ++it) {
+        auto& container = *it;
+        if (std::find(m_eventCallbacks.begin(), m_eventCallbacks.end(), container) == m_eventCallbacks.end()) {
+            // 已经中途被释放了
             continue;
         }
 
-        // 这里注意是引用
-        auto&real_callbacks = it->second;
-        auto callbacks = real_callbacks;
-
-        for(auto subit = callbacks.begin(); subit != callbacks.end(); ++subit) {
-            auto name = subit->first;
-
-            if (real_callbacks.find(name) == real_callbacks.end()) {
-                continue;
-            }
-
-            subit->second(event);
-        }
+        container->callback(event);
     }
 }
 
