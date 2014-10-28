@@ -51,7 +51,7 @@ function GameScene:start_ferry()
         end, self)
 
     -- ferry.ScriptFerry:getInstance():delEventCallback(eventEntryID)
-    ferry.ScriptFerry:getInstance():delEventCallbacksForTarget(self)
+    -- ferry.ScriptFerry:getInstance():delEventCallbacksForTarget(self)
 
     ferry.ScriptFerry:getInstance():start()
 end

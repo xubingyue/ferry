@@ -1705,9 +1705,9 @@ int lua_ferry_ScriptFerry_scriptDelRspCallbacksForTarget(lua_State* tolua_S)
     argc = lua_gettop(tolua_S)-1;
     if (argc == 1) 
     {
-        void* arg0;
+        cocos2d::Ref* arg0;
 
-        #pragma warning NO CONVERSION TO NATIVE FOR void*;
+        ok &= luaval_to_object<cocos2d::Ref>(tolua_S, 2, "cc.Ref",&arg0);
         if(!ok)
             return 0;
         cobj->scriptDelRspCallbacksForTarget(arg0);
@@ -1751,9 +1751,9 @@ int lua_ferry_ScriptFerry_scriptDelEventCallbacksForTarget(lua_State* tolua_S)
     argc = lua_gettop(tolua_S)-1;
     if (argc == 1) 
     {
-        void* arg0;
+        cocos2d::Ref* arg0;
 
-        #pragma warning NO CONVERSION TO NATIVE FOR void*;
+        ok &= luaval_to_object<cocos2d::Ref>(tolua_S, 2, "cc.Ref",&arg0);
         if(!ok)
             return 0;
         cobj->scriptDelEventCallbacksForTarget(arg0);

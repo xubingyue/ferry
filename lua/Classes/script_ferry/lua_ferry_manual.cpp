@@ -32,18 +32,31 @@ static int tolua_ferry_ScriptFerry_scriptAddEventCallback(lua_State *tolua_S)
 #endif
 
     argc = lua_gettop(tolua_S) - 1;
-    if (2 == argc) {
+    if (1 == argc) {
+#if COCOS2D_DEBUG >= 1
+        // 2 代表第一个参数
+        if (!toluafix_isfunction(tolua_S,2,"LUA_FUNCTION",0,&tolua_err))
+        {
+            goto tolua_lerror;
+        }
+#endif
+        LUA_FUNCTION handler =  toluafix_ref_function(tolua_S,2,0);
+        int tolua_ret = self->scriptAddEventCallback(handler);
+        tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+        return 1;
+    }
+    else if (2 == argc) {
 #if COCOS2D_DEBUG >= 1
         // 2 代表第一个参数
         if (!toluafix_isfunction(tolua_S,2,"LUA_FUNCTION",0,&tolua_err) ||
-                tolua_isnoobj(tolua_S,3, &tolua_err)
+                !tolua_isusertype(tolua_S,3, "cc.Ref", 0, &tolua_err)
                 )
         {
             goto tolua_lerror;
         }
 #endif
         LUA_FUNCTION handler =  toluafix_ref_function(tolua_S,2,0);
-        void* target = tolua_tousertype(tolua_S,3,0);
+        cocos2d::Ref* target = (cocos2d::Ref*)tolua_tousertype(tolua_S,3,0);
         int tolua_ret = self->scriptAddEventCallback(handler, target);
         tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
         return 1;
@@ -82,27 +95,8 @@ static int tolua_ferry_ScriptFerry_scriptSend(lua_State* tolua_S)
 #endif
 
     argc = lua_gettop(tolua_S) - 1;
-    if (4 == argc) {
-#if COCOS2D_DEBUG >= 1
-        if (
-                !tolua_isusertype(tolua_S,2, "netkit.IBox", 0, &tolua_err) ||
-                !toluafix_isfunction(tolua_S,3,"LUA_FUNCTION",0,&tolua_err) ||
-                !tolua_isnumber(tolua_S,4,0,&tolua_err) ||
-                tolua_isnoobj(tolua_S,5, &tolua_err)
-                )
-        {
-            goto tolua_lerror;
-        }
-#endif
-        netkit::IBox* box = (netkit::IBox*)tolua_tousertype(tolua_S,2,0);
-        LUA_FUNCTION handler =  toluafix_ref_function(tolua_S,3,0);
-        float timeout = (float)  tolua_tonumber(tolua_S,4,0);
-        void* target = tolua_tousertype(tolua_S,5,0);
-        int tolua_ret = self->scriptSend(box, handler, timeout, target);
-        tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
-        return 1;
-    }
-    else if (1 == argc) {
+
+    if (1 == argc) {
 #if COCOS2D_DEBUG >= 1
         // 只有一个参数也是可以的
         if (
@@ -115,6 +109,44 @@ static int tolua_ferry_ScriptFerry_scriptSend(lua_State* tolua_S)
         netkit::IBox* box = (netkit::IBox*)tolua_tousertype(tolua_S,2,0);
         self->send(box);
         tolua_pushnumber(tolua_S,(lua_Number)0);
+        return 1;
+    }
+    else if (3 == argc) {
+#if COCOS2D_DEBUG >= 1
+        if (
+                !tolua_isusertype(tolua_S,2, "netkit.IBox", 0, &tolua_err) ||
+                        !toluafix_isfunction(tolua_S,3,"LUA_FUNCTION",0,&tolua_err) ||
+                        !tolua_isnumber(tolua_S,4,0,&tolua_err)
+                )
+        {
+            goto tolua_lerror;
+        }
+#endif
+        netkit::IBox* box = (netkit::IBox*)tolua_tousertype(tolua_S,2,0);
+        LUA_FUNCTION handler =  toluafix_ref_function(tolua_S,3,0);
+        float timeout = (float)  tolua_tonumber(tolua_S,4,0);
+        int tolua_ret = self->scriptSend(box, handler, timeout);
+        tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+        return 1;
+    }
+    else if (4 == argc) {
+#if COCOS2D_DEBUG >= 1
+        if (
+                !tolua_isusertype(tolua_S,2, "netkit.IBox", 0, &tolua_err) ||
+                !toluafix_isfunction(tolua_S,3,"LUA_FUNCTION",0,&tolua_err) ||
+                !tolua_isnumber(tolua_S,4,0,&tolua_err) ||
+                !tolua_isusertype(tolua_S,5, "cc.Ref", 0, &tolua_err)
+                )
+        {
+            goto tolua_lerror;
+        }
+#endif
+        netkit::IBox* box = (netkit::IBox*)tolua_tousertype(tolua_S,2,0);
+        LUA_FUNCTION handler =  toluafix_ref_function(tolua_S,3,0);
+        float timeout = (float)  tolua_tonumber(tolua_S,4,0);
+        cocos2d::Ref* target = (cocos2d::Ref*)tolua_tousertype(tolua_S,5,0);
+        int tolua_ret = self->scriptSend(box, handler, timeout, target);
+        tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
         return 1;
     }
 
