@@ -1745,6 +1745,98 @@ int lua_ferry_ScriptFerry_scriptDelRspCallback(lua_State* tolua_S)
 
     return 0;
 }
+int lua_ferry_ScriptFerry_scriptDelRspCallbacksForTarget(lua_State* tolua_S)
+{
+    int argc = 0;
+    ferry::ScriptFerry* cobj = nullptr;
+    bool ok  = true;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+
+
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptFerry",0,&tolua_err)) goto tolua_lerror;
+#endif
+
+    cobj = (ferry::ScriptFerry*)tolua_tousertype(tolua_S,1,0);
+
+#if COCOS2D_DEBUG >= 1
+    if (!cobj) 
+    {
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_ScriptFerry_scriptDelRspCallbacksForTarget'", nullptr);
+        return 0;
+    }
+#endif
+
+    argc = lua_gettop(tolua_S)-1;
+    if (argc == 1) 
+    {
+        void* arg0;
+
+        #pragma warning NO CONVERSION TO NATIVE FOR void*;
+        if(!ok)
+            return 0;
+        cobj->scriptDelRspCallbacksForTarget(arg0);
+        return 0;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "scriptDelRspCallbacksForTarget",argc, 1);
+    return 0;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_ScriptFerry_scriptDelRspCallbacksForTarget'.",&tolua_err);
+#endif
+
+    return 0;
+}
+int lua_ferry_ScriptFerry_scriptDelEventCallbacksForTarget(lua_State* tolua_S)
+{
+    int argc = 0;
+    ferry::ScriptFerry* cobj = nullptr;
+    bool ok  = true;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+
+
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptFerry",0,&tolua_err)) goto tolua_lerror;
+#endif
+
+    cobj = (ferry::ScriptFerry*)tolua_tousertype(tolua_S,1,0);
+
+#if COCOS2D_DEBUG >= 1
+    if (!cobj) 
+    {
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_ScriptFerry_scriptDelEventCallbacksForTarget'", nullptr);
+        return 0;
+    }
+#endif
+
+    argc = lua_gettop(tolua_S)-1;
+    if (argc == 1) 
+    {
+        void* arg0;
+
+        #pragma warning NO CONVERSION TO NATIVE FOR void*;
+        if(!ok)
+            return 0;
+        cobj->scriptDelEventCallbacksForTarget(arg0);
+        return 0;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "scriptDelEventCallbacksForTarget",argc, 1);
+    return 0;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_ScriptFerry_scriptDelEventCallbacksForTarget'.",&tolua_err);
+#endif
+
+    return 0;
+}
 int lua_ferry_ScriptFerry_getInstance(lua_State* tolua_S)
 {
     int argc = 0;
@@ -1794,6 +1886,8 @@ int lua_register_ferry_ScriptFerry(lua_State* tolua_S)
         tolua_function(tolua_S,"delEventCallback",lua_ferry_ScriptFerry_scriptDelEventCallback);
         tolua_function(tolua_S,"delAllRspCallbacks",lua_ferry_ScriptFerry_scriptDelAllRspCallbacks);
         tolua_function(tolua_S,"delRspCallback",lua_ferry_ScriptFerry_scriptDelRspCallback);
+        tolua_function(tolua_S,"delRspCallbacksForTarget",lua_ferry_ScriptFerry_scriptDelRspCallbacksForTarget);
+        tolua_function(tolua_S,"delEventCallbacksForTarget",lua_ferry_ScriptFerry_scriptDelEventCallbacksForTarget);
         tolua_function(tolua_S,"getInstance", lua_ferry_ScriptFerry_getInstance);
     tolua_endmodule(tolua_S);
     std::string typeName = typeid(ferry::ScriptFerry).name();
