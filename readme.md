@@ -36,6 +36,6 @@
     不过出现的概率很低，只有在判断client != null 而 client又被置为null时会出现
 
 ### 五. 示例项目
-1. cocos2dx + ferry + protobuf(lub)
+1. cocos2dx + ferry + protobuf(lua)
 
     [cocos_lua_net_demo](https://github.com/dantezhu/cocos_lua_net_demo)
