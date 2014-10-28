@@ -728,72 +728,6 @@ int lua_ferry_Service_setMsgQueueToServerMaxSize(lua_State* tolua_S)
 
     return 0;
 }
-int lua_ferry_Service__sendMsgToServerThreadWorker(lua_State* tolua_S)
-{
-    int argc = 0;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertable(tolua_S,1,"ferry.Service",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    argc = lua_gettop(tolua_S) - 1;
-
-    if (argc == 1)
-    {
-        void* arg0;
-        #pragma warning NO CONVERSION TO NATIVE FOR void*;
-        if(!ok)
-            return 0;
-        void* ret = ferry::Service::_sendMsgToServerThreadWorker(arg0);
-        #pragma warning NO CONVERSION FROM NATIVE FOR void*;
-        return 1;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d\n ", "_sendMsgToServerThreadWorker",argc, 1);
-    return 0;
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Service__sendMsgToServerThreadWorker'.",&tolua_err);
-#endif
-    return 0;
-}
-int lua_ferry_Service__recvMsgFromServerThreadWorker(lua_State* tolua_S)
-{
-    int argc = 0;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertable(tolua_S,1,"ferry.Service",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    argc = lua_gettop(tolua_S) - 1;
-
-    if (argc == 1)
-    {
-        void* arg0;
-        #pragma warning NO CONVERSION TO NATIVE FOR void*;
-        if(!ok)
-            return 0;
-        void* ret = ferry::Service::_recvMsgFromServerThreadWorker(arg0);
-        #pragma warning NO CONVERSION FROM NATIVE FOR void*;
-        return 1;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d\n ", "_recvMsgFromServerThreadWorker",argc, 1);
-    return 0;
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Service__recvMsgFromServerThreadWorker'.",&tolua_err);
-#endif
-    return 0;
-}
 int lua_ferry_Service_constructor(lua_State* tolua_S)
 {
     int argc = 0;
@@ -849,8 +783,6 @@ int lua_register_ferry_Service(lua_State* tolua_S)
         tolua_function(tolua_S,"connect",lua_ferry_Service_connect);
         tolua_function(tolua_S,"isRunning",lua_ferry_Service_isRunning);
         tolua_function(tolua_S,"setMsgQueueToServerMaxSize",lua_ferry_Service_setMsgQueueToServerMaxSize);
-        tolua_function(tolua_S,"_sendMsgToServerThreadWorker", lua_ferry_Service__sendMsgToServerThreadWorker);
-        tolua_function(tolua_S,"_recvMsgFromServerThreadWorker", lua_ferry_Service__recvMsgFromServerThreadWorker);
     tolua_endmodule(tolua_S);
     std::string typeName = typeid(ferry::Service).name();
     g_luaType[typeName] = "ferry.Service";

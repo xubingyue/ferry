@@ -51,11 +51,11 @@ public:
     // 设置连接失败后的重连间隔
     void setTryConnectInterval(int interval);
 
+private:
     // 为了启动线程使用的，外面不要使用
     static void* _recvMsgFromServerThreadWorker(void *args);
     static void* _sendMsgToServerThreadWorker(void *args);
 
-private:
     // 真实连接
     void _connectToServer();
 
