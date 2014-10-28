@@ -36,7 +36,8 @@ static int tolua_ferry_ScriptFerry_scriptAddEventCallback(lua_State *tolua_S)
 #if COCOS2D_DEBUG >= 1
         // 2 代表第一个参数
         if (!toluafix_isfunction(tolua_S,2,"LUA_FUNCTION",0,&tolua_err) ||
-                !tolua_isusertype(tolua_S,3, "void", 0, &tolua_err))
+                tolua_isnoobj(tolua_S,3, &tolua_err)
+                )
         {
             goto tolua_lerror;
         }
@@ -87,7 +88,7 @@ static int tolua_ferry_ScriptFerry_scriptSend(lua_State* tolua_S)
                 !tolua_isusertype(tolua_S,2, "netkit.IBox", 0, &tolua_err) ||
                 !toluafix_isfunction(tolua_S,3,"LUA_FUNCTION",0,&tolua_err) ||
                 !tolua_isnumber(tolua_S,4,0,&tolua_err) ||
-                !tolua_isusertype(tolua_S,5, "void", 0, &tolua_err)
+                tolua_isnoobj(tolua_S,5, &tolua_err)
                 )
         {
             goto tolua_lerror;
