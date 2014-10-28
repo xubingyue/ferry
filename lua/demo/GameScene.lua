@@ -12,7 +12,39 @@ function GameScene.create()
 end
 
 function GameScene:ctor()
+    self:registerScriptHandler(
+        function (event_type)
+            print(self.__cname, "event_type:", event_type, type(event_type))
+
+            if (event_type == "enter") then
+                if self.onEnter then
+                    self:onEnter()
+                end
+            elseif (event_type == "enterTransitionFinish") then
+                if self.onEnterTransitionFinish then
+                    self:onEnterTransitionFinish()
+                end
+            elseif (event_type == "exitTransitionStart") then
+                if self.onExitTransitionStart then
+                    self:onExitTransitionStart()
+                end
+            elseif (event_type == "exit") then
+                if self.onExit then
+                    self:onExit()
+                end
+            elseif (event_type == "cleanup") then
+                if self.onCleanup then
+                    self:onCleanup()
+                end
+            end
+        end
+    )
+
     self:start_ferry()
+end
+
+function GameScene:onCleanup()
+    ferry.ScriptFerry:getInstance():delCallbacksForTarget(self)
 end
 
 function GameScene:start_ferry()

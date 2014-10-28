@@ -76,15 +76,14 @@ public:
 
     virtual ~ScriptFerry();
 
+    void scriptDelCallbacksForTarget(cocos2d::Ref* target);
     void scriptDelAllCallbacks();
 
-    int scriptSend(netkit::IBox *box, int handler, float timeout);
     int scriptSend(netkit::IBox *box, int handler, float timeout, cocos2d::Ref *target);
     void scriptDelRspCallback(int entryID);
     void scriptDelRspCallbacksForTarget(cocos2d::Ref *target);
     void scriptDelAllRspCallbacks();
 
-    int scriptAddEventCallback(int handler);
     int scriptAddEventCallback(int handler, cocos2d::Ref *target);
     void scriptDelEventCallback(int entryID);
     void scriptDelEventCallbacksForTarget(cocos2d::Ref *target);

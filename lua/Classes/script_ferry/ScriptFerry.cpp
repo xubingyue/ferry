@@ -19,13 +19,14 @@ ScriptFerry::~ScriptFerry() {
     scriptDelAllCallbacks();
 }
 
+void ScriptFerry::scriptDelCallbacksForTarget(cocos2d::Ref* target) {
+    scriptDelRspCallbacksForTarget(target);
+    scriptDelEventCallbacksForTarget(target);
+}
+
 void ScriptFerry::scriptDelAllCallbacks() {
     scriptDelAllRspCallbacks();
     scriptDelAllEventCallbacks();
-}
-
-int ScriptFerry::scriptSend(netkit::IBox *box, int handler, float timeout) {
-    return scriptSend(box, handler, timeout, nullptr);
 }
 
 int ScriptFerry::scriptSend(netkit::IBox *box, int handler, float timeout, cocos2d::Ref *target) {
@@ -105,10 +106,6 @@ void ScriptFerry::scriptDelAllRspCallbacks() {
     }
 
     m_scriptRspCallbacks.clear();
-}
-
-int ScriptFerry::scriptAddEventCallback(int handler) {
-    return scriptAddEventCallback(handler, nullptr);
 }
 
 int ScriptFerry::scriptAddEventCallback(int handler, cocos2d::Ref *target) {

@@ -1631,6 +1631,52 @@ int lua_ferry_ScriptFerry_scriptDelAllRspCallbacks(lua_State* tolua_S)
 
     return 0;
 }
+int lua_ferry_ScriptFerry_scriptDelCallbacksForTarget(lua_State* tolua_S)
+{
+    int argc = 0;
+    ferry::ScriptFerry* cobj = nullptr;
+    bool ok  = true;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+
+
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptFerry",0,&tolua_err)) goto tolua_lerror;
+#endif
+
+    cobj = (ferry::ScriptFerry*)tolua_tousertype(tolua_S,1,0);
+
+#if COCOS2D_DEBUG >= 1
+    if (!cobj) 
+    {
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_ScriptFerry_scriptDelCallbacksForTarget'", nullptr);
+        return 0;
+    }
+#endif
+
+    argc = lua_gettop(tolua_S)-1;
+    if (argc == 1) 
+    {
+        cocos2d::Ref* arg0;
+
+        ok &= luaval_to_object<cocos2d::Ref>(tolua_S, 2, "cc.Ref",&arg0);
+        if(!ok)
+            return 0;
+        cobj->scriptDelCallbacksForTarget(arg0);
+        return 0;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "scriptDelCallbacksForTarget",argc, 1);
+    return 0;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_ScriptFerry_scriptDelCallbacksForTarget'.",&tolua_err);
+#endif
+
+    return 0;
+}
 int lua_ferry_ScriptFerry_scriptDelRspCallback(lua_State* tolua_S)
 {
     int argc = 0;
@@ -1817,6 +1863,7 @@ int lua_register_ferry_ScriptFerry(lua_State* tolua_S)
         tolua_function(tolua_S,"createBox",lua_ferry_ScriptFerry_createBox);
         tolua_function(tolua_S,"delEventCallback",lua_ferry_ScriptFerry_scriptDelEventCallback);
         tolua_function(tolua_S,"delAllRspCallbacks",lua_ferry_ScriptFerry_scriptDelAllRspCallbacks);
+        tolua_function(tolua_S,"delCallbacksForTarget",lua_ferry_ScriptFerry_scriptDelCallbacksForTarget);
         tolua_function(tolua_S,"delRspCallback",lua_ferry_ScriptFerry_scriptDelRspCallback);
         tolua_function(tolua_S,"delRspCallbacksForTarget",lua_ferry_ScriptFerry_scriptDelRspCallbacksForTarget);
         tolua_function(tolua_S,"delEventCallbacksForTarget",lua_ferry_ScriptFerry_scriptDelEventCallbacksForTarget);
