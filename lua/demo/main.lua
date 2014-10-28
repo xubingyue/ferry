@@ -2,8 +2,6 @@ local function test()
     require "FerryConstants"
 
     ferry.ScriptFerry:getInstance():init("127.0.0.1", 7777)
-    ferry.ScriptFerry:getInstance():start()
-    print("ferry.EventType.open", ferry.EventType.open)
 
     local eventEntryID = ferry.ScriptFerry:getInstance():addEventCallback(
         function(event)
@@ -35,4 +33,7 @@ local function test()
         )
 
     -- ferry.ScriptFerry:getInstance():delEventCallback(eventEntryID)
+    
+    -- start 放在事件注册后
+    ferry.ScriptFerry:getInstance():start()
 end
