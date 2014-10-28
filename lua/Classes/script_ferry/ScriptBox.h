@@ -43,10 +43,6 @@ public:
     void setSn(int _sn) {
         sn = _sn;
     }
-
-    void setBody(std::string str) {
-        netkit::Box::setBody(str.c_str(), str.size());
-    }
 };
 
 }
