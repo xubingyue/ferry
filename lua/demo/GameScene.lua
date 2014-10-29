@@ -12,6 +12,15 @@ function GameScene.create()
 end
 
 function GameScene:ctor()
+    local layer = cc.LayerColor:create(cc.c4b(0,0,255,255))
+    self:addChild(layer)
+
+    self:regHandlers()
+
+    self:startFerry()
+end
+
+function GameScene:regHandlers()
     self:registerScriptHandler(
         function (event_type)
             print(self.__cname, "event_type:", event_type, type(event_type))
@@ -40,14 +49,13 @@ function GameScene:ctor()
         end
     )
 
-    self:start_ferry()
 end
 
 function GameScene:onCleanup()
     ferry.ScriptFerry:getInstance():delCallbacksForTarget(self)
 end
 
-function GameScene:start_ferry()
+function GameScene:startFerry()
     ferry.ScriptFerry:getInstance():init("127.0.0.1", 7777)
 
     local scene = cc.Scene:create()
