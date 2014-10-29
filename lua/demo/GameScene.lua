@@ -76,6 +76,7 @@ function GameScene:start_ferry()
                     , 0.5, self)
 
                 -- ferry.ScriptFerry:getInstance():delRspCallback(rspEntryID)
+                -- ferry.ScriptFerry:getInstance():delRspCallbacksForTarget(self)
 
             elseif (event:getWhat() == ferry.EventType.close) then
                 ferry.ScriptFerry:getInstance():connect()
@@ -84,6 +85,8 @@ function GameScene:start_ferry()
 
     -- ferry.ScriptFerry:getInstance():delEventCallback(eventEntryID)
     -- ferry.ScriptFerry:getInstance():delEventCallbacksForTarget(self)
+    
+    -- ferry.ScriptFerry:getInstance():delCallbacksForTarget(self)
 
     ferry.ScriptFerry:getInstance():start()
 end
