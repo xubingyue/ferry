@@ -70,14 +70,14 @@ int ScriptFerry::scriptSend(netkit::IBox *box, int handler, float timeout, cocos
 void ScriptFerry::scriptDelRspCallback(int entryID) {
     for(auto it = m_scriptRspCallbacks.begin(); it != m_scriptRspCallbacks.end();) {
         auto& container = *it;
-        auto tempit = it;
-        it++;
-        if (container->scriptCallbackEntry->getEntryId() == entryID)
-        {
+        if (container->scriptCallbackEntry->getEntryId() == entryID) {
             cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container->scriptCallbackEntry->getHandler());
             // 移除
             delete container;
-            m_scriptRspCallbacks.erase(tempit);
+            it = m_scriptRspCallbacks.erase(it);
+        }
+        else {
+            ++it;
         }
 
     }
@@ -86,14 +86,14 @@ void ScriptFerry::scriptDelRspCallback(int entryID) {
 void ScriptFerry::scriptDelRspCallbacksForTarget(cocos2d::Ref *target) {
     for(auto it = m_scriptRspCallbacks.begin(); it != m_scriptRspCallbacks.end();) {
         auto& container = *it;
-        auto tempit = it;
-        it++;
-        if (container->target == target)
-        {
+        if (container->target == target) {
             cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container->scriptCallbackEntry->getHandler());
             // 移除
             delete container;
-            m_scriptRspCallbacks.erase(tempit);
+            it = m_scriptRspCallbacks.erase(it);
+        }
+        else {
+            ++it;
         }
 
     }
@@ -124,15 +124,15 @@ int ScriptFerry::scriptAddEventCallback(int handler, cocos2d::Ref *target) {
 void ScriptFerry::scriptDelEventCallback(int entryID) {
     for(auto it = m_scriptEventCallbacks.begin(); it != m_scriptEventCallbacks.end();) {
         auto& container = *it;
-        auto tempit = it;
-        it++;
-        if (container->scriptCallbackEntry->getEntryId() == entryID)
-        {
+        if (container->scriptCallbackEntry->getEntryId() == entryID) {
             cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container->scriptCallbackEntry->getHandler());
 
             delete container;
             // 移除
-            m_scriptEventCallbacks.erase(tempit);
+            it = m_scriptEventCallbacks.erase(it);
+        }
+        else {
+            ++it;
         }
     }
 
@@ -141,15 +141,15 @@ void ScriptFerry::scriptDelEventCallback(int entryID) {
 void ScriptFerry::scriptDelEventCallbacksForTarget(cocos2d::Ref *target) {
     for(auto it = m_scriptEventCallbacks.begin(); it != m_scriptEventCallbacks.end();) {
         auto& container = *it;
-        auto tempit = it;
-        it++;
-        if (container->target == target)
-        {
+        if (container->target == target) {
             cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container->scriptCallbackEntry->getHandler());
 
             delete container;
             // 移除
-            m_scriptEventCallbacks.erase(tempit);
+            it = m_scriptEventCallbacks.erase(it);
+        }
+        else {
+            ++it;
         }
     }
 }
@@ -207,10 +207,7 @@ void ScriptFerry::scriptOnCheckRspTimeout() {
     // 提前申请好，免得每次都要传
     for(auto it = m_scriptRspCallbacks.begin(); it != m_scriptRspCallbacks.end();) {
         auto& container = *it;
-        auto tempit = it;
-        it++;
-        if (timercmp(&tvNow, &container->expireTime, >))
-        {
+        if (timercmp(&tvNow, &container->expireTime, >)) {
             // 超时了
             container->scriptCallbackEntry->call(scriptEvent);
 
@@ -219,9 +216,10 @@ void ScriptFerry::scriptOnCheckRspTimeout() {
             delete container;
 
             // 移除
-            m_scriptRspCallbacks.erase(tempit);
+            it = m_scriptRspCallbacks.erase(it);
         }
         else {
+            ++it;
             break;
         }
     }

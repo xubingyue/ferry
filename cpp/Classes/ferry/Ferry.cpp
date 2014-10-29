@@ -121,14 +121,14 @@ void Ferry::send(netkit::IBox *box, CallbackType callback, float timeout, void* 
 void Ferry::delRspCallbacksForTarget(void *target) {
     for(auto it = m_rspCallbacks.begin(); it != m_rspCallbacks.end();) {
         auto& container = *it;
-        auto tempit = it;
-        it++;
-        if (container->target == target)
-        {
+        if (container->target == target) {
             // 先delete
             delete container;
             // 移除
-            m_rspCallbacks.erase(tempit);
+            it = m_rspCallbacks.erase(it);
+        }
+        else {
+            ++it;
         }
     }
 }
@@ -153,13 +153,13 @@ void Ferry::addEventCallback(CallbackType callback, void *target, const std::str
 void Ferry::delEventCallback(const std::string &name, void *target) {
     for(auto it = m_eventCallbacks.begin(); it != m_eventCallbacks.end();) {
         auto& container = *it;
-        auto tempit = it;
-        it++;
-        if (container->name == name && container->target == target)
-        {
+        if (container->name == name && container->target == target) {
             delete container;
             // 移除
-            m_eventCallbacks.erase(tempit);
+            it = m_eventCallbacks.erase(it);
+        }
+        else {
+            ++it;
         }
     }
 }
@@ -167,13 +167,13 @@ void Ferry::delEventCallback(const std::string &name, void *target) {
 void Ferry::delEventCallbacksForTarget(void *target) {
     for(auto it = m_eventCallbacks.begin(); it != m_eventCallbacks.end();) {
         auto& container = *it;
-        auto tempit = it;
-        it++;
-        if (container->target == target)
-        {
+        if (container->target == target) {
             delete container;
             // 移除
-            m_eventCallbacks.erase(tempit);
+            it = m_eventCallbacks.erase(it);
+        }
+        else {
+            ++it;
         }
     }
 }
@@ -255,18 +255,15 @@ void Ferry::loopEvents() {
     }
 
     pthread_mutex_lock(&m_eventsMutex);
-    for(auto it = m_events.begin(); it != m_events.end();)
-    {
+    for(auto it = m_events.begin(); it != m_events.end();) {
         auto& event = (*it);
-        if (event->_done)
-        {
+        if (event->_done) {
             // event在用完了之后就要删掉
             // event是引用的话，就一定要先delete再erase，否则event引用的位置就没了
             delete event;
             it = m_events.erase(it);
         }
-        else
-        {
+        else {
             ++it;
         }
     }
@@ -334,19 +331,16 @@ void Ferry::onCheckRspTimeout() {
     // 因为纯删除，且挡住主线程，不会导致结构被破坏
     for(auto it = m_rspCallbacks.begin(); it != m_rspCallbacks.end();) {
         auto& container = *it;
-        auto tempit = it;
-        // cocos2d::log("[%s], now: %lld, expire: %lld", __FUNCTION__, nowTime, container.expireTime);
-        it++;
-        if (timercmp(&tvNow, &container->expireTime, >))
-        {
+        if (timercmp(&tvNow, &container->expireTime, >)) {
             // 超时了
             container->callback(event);
 
             delete container;
             // 移除
-            m_rspCallbacks.erase(tempit);
+            it = m_rspCallbacks.erase(it);
         }
         else {
+            ++it;
             // 找到第一个没超时的，那么后面就都没有超时了
             break;
         }
