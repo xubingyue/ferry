@@ -8,6 +8,7 @@
 #include "CCLuaValue.h"
 #include "CCLuaEngine.h"
 #include "ScriptFerry.h"
+#include "ScriptBox.h"
 
 static int tolua_ferry_ScriptFerry_scriptAddEventCallback(lua_State *tolua_S)
 {
@@ -129,6 +130,119 @@ static int tolua_ferry_ScriptFerry_scriptSend(lua_State* tolua_S)
 #endif
 }
 
+static int tolua_ferry_ScriptBox_getBody(lua_State *tolua_S)
+{
+    if (NULL == tolua_S)
+        return 0;
+
+    int argc = 0;
+    ferry::ScriptBox * self = nullptr;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptBox",0,&tolua_err)) goto tolua_lerror;
+#endif
+
+    self = static_cast<ferry::ScriptBox *>(tolua_tousertype(tolua_S,1,0));
+
+#if COCOS2D_DEBUG >= 1
+    if (nullptr == self) {
+        tolua_error(tolua_S,"invalid 'self' in function 'tolua_ferry_ScriptBox_getBody'\n", NULL);
+        return 0;
+    }
+#endif
+
+    argc = lua_gettop(tolua_S) - 1;
+    if (0 == argc) {
+        std::string strBody = self->getStringBody();
+        // 二进制
+        lua_pushlstring(tolua_S, strBody.c_str(), strBody.size());
+        return 1;
+    }
+
+    CCLOG("'getBody' has wrong number of arguments: %d, was expecting %d\n", argc, 1);
+    return 0;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'getBody'.",&tolua_err);
+    return 0;
+#endif
+}
+
+static int tolua_ferry_ScriptBox_setBody(lua_State* tolua_S)
+{
+    if (NULL == tolua_S)
+        return 0;
+
+    int argc = 0;
+    ferry::ScriptBox * self = nullptr;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptBox",0,&tolua_err)) goto tolua_lerror;
+#endif
+
+    self = static_cast<ferry::ScriptBox *>(tolua_tousertype(tolua_S,1,0));
+
+#if COCOS2D_DEBUG >= 1
+    if (nullptr == self) {
+        tolua_error(tolua_S,"invalid 'self' in function 'tolua_ferry_ScriptBox_setBody'\n", NULL);
+        return 0;
+    }
+#endif
+
+    argc = lua_gettop(tolua_S) - 1;
+
+    if (1 == argc) {
+#if COCOS2D_DEBUG >= 1
+        // 只有一个参数也是可以的
+        if (
+                !tolua_isstring(tolua_S,2, 0, &tolua_err)
+                )
+        {
+            goto tolua_lerror;
+        }
+#endif
+        const char* pBody = tolua_tostring(tolua_S, 2, 0);
+        if (pBody) {
+            self->setBody(pBody, strlen(pBody));
+        }
+
+        // 没有返回值
+        return 0;
+    }
+    else if (2 == argc) {
+#if COCOS2D_DEBUG >= 1
+        if (
+                !tolua_isstring(tolua_S,2, 0, &tolua_err) ||
+                !tolua_isnumber(tolua_S,3,0,&tolua_err)
+                )
+        {
+            goto tolua_lerror;
+        }
+#endif
+        // 最后一个参数是size指针
+        const char* pBody = tolua_tostring(tolua_S, 2, 0);
+        int len = (int) tolua_tonumber(tolua_S,3,0);
+
+        if (pBody) {
+            self->setBody(pBody, len);
+        }
+
+        return 0;
+    }
+
+    CCLOG("'setBody' has wrong number of arguments: %d, was expecting %d\n", argc, 3);
+    return 0;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'setBody'.",&tolua_err);
+    return 0;
+#endif
+}
+
 static void extendScriptFerry(lua_State* tolua_S)
 {
     lua_pushstring(tolua_S,"ferry.ScriptFerry");
@@ -145,11 +259,29 @@ static void extendScriptFerry(lua_State* tolua_S)
     lua_pop(tolua_S, 1);
 }
 
+static void extendScriptBox(lua_State* tolua_S)
+{
+    lua_pushstring(tolua_S,"ferry.ScriptBox");
+    lua_rawget(tolua_S,LUA_REGISTRYINDEX);
+    if (lua_istable(tolua_S,-1))
+    {
+        lua_pushstring(tolua_S,"getBody");
+        lua_pushcfunction(tolua_S, tolua_ferry_ScriptBox_getBody);
+        lua_rawset(tolua_S,-3);
+        lua_pushstring(tolua_S,"setBody");
+        lua_pushcfunction(tolua_S, tolua_ferry_ScriptBox_setBody);
+        lua_rawset(tolua_S,-3);
+    }
+    lua_pop(tolua_S, 1);
+}
+
 int register_all_ferry_manual(lua_State* tolua_S)
 {
     if (NULL == tolua_S)
         return 0;
 
     extendScriptFerry(tolua_S);
+    extendScriptBox(tolua_S);
+
     return 0;
 }

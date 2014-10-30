@@ -1875,63 +1875,6 @@ int lua_register_ferry_ScriptFerry(lua_State* tolua_S)
     return 1;
 }
 
-int lua_ferry_Box_setBody(lua_State* tolua_S)
-{
-    int argc = 0;
-    netkit::Box* cobj = nullptr;
-    bool ok  = true;
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"netkit.Box",0,&tolua_err)) goto tolua_lerror;
-#endif
-    cobj = (netkit::Box*)tolua_tousertype(tolua_S,1,0);
-#if COCOS2D_DEBUG >= 1
-    if (!cobj)
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Box_setBody'", nullptr);
-        return 0;
-    }
-#endif
-    argc = lua_gettop(tolua_S)-1;
-    do{
-        if (argc == 1) {
-            std::string arg0;
-            ok &= luaval_to_std_string(tolua_S, 2,&arg0);
-
-            if (!ok) { break; }
-            cobj->setBody(arg0);
-            return 0;
-        }
-    }while(0);
-    ok  = true;
-    do{
-        if (argc == 2) {
-            const char* arg0;
-            std::string arg0_tmp; ok &= luaval_to_std_string(tolua_S, 2, &arg0_tmp); arg0 = arg0_tmp.c_str();
-
-            if (!ok) { break; }
-            int arg1;
-            ok &= luaval_to_int32(tolua_S, 3,(int *)&arg1);
-
-            if (!ok) { break; }
-            cobj->setBody(arg0, arg1);
-            return 0;
-        }
-    }while(0);
-    ok  = true;
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "setBody",argc, 2);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Box_setBody'.",&tolua_err);
-#endif
-
-    return 0;
-}
 int lua_ferry_Box_bodyLen(lua_State* tolua_S)
 {
     int argc = 0;
@@ -2060,50 +2003,6 @@ int lua_ferry_Box_headerLen(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
     tolua_error(tolua_S,"#ferror in function 'lua_ferry_Box_headerLen'.",&tolua_err);
-#endif
-
-    return 0;
-}
-int lua_ferry_Box_getStringBody(lua_State* tolua_S)
-{
-    int argc = 0;
-    netkit::Box* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"netkit.Box",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (netkit::Box*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Box_getStringBody'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 0) 
-    {
-        if(!ok)
-            return 0;
-        const std::string& ret = cobj->getStringBody();
-        tolua_pushcppstring(tolua_S,ret);
-        return 1;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "getStringBody",argc, 0);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Box_getStringBody'.",&tolua_err);
 #endif
 
     return 0;
@@ -2355,50 +2254,6 @@ int lua_ferry_Box_check(lua_State* tolua_S)
 
     return 0;
 }
-int lua_ferry_Box_getBody(lua_State* tolua_S)
-{
-    int argc = 0;
-    netkit::Box* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"netkit.Box",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (netkit::Box*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Box_getBody'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 0) 
-    {
-        if(!ok)
-            return 0;
-        const char* ret = cobj->getBody();
-        tolua_pushstring(tolua_S,(const char*)ret);
-        return 1;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "getBody",argc, 0);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Box_getBody'.",&tolua_err);
-#endif
-
-    return 0;
-}
 int lua_ferry_Box_constructor(lua_State* tolua_S)
 {
     int argc = 0;
@@ -2444,17 +2299,14 @@ int lua_register_ferry_Box(lua_State* tolua_S)
 
     tolua_beginmodule(tolua_S,"Box");
         tolua_function(tolua_S,"new",lua_ferry_Box_constructor);
-        tolua_function(tolua_S,"setBody",lua_ferry_Box_setBody);
         tolua_function(tolua_S,"bodyLen",lua_ferry_Box_bodyLen);
         tolua_function(tolua_S,"packetLen",lua_ferry_Box_packetLen);
         tolua_function(tolua_S,"headerLen",lua_ferry_Box_headerLen);
-        tolua_function(tolua_S,"getStringBody",lua_ferry_Box_getStringBody);
         tolua_function(tolua_S,"toString",lua_ferry_Box_toString);
         tolua_function(tolua_S,"unpackDone",lua_ferry_Box_unpackDone);
         tolua_function(tolua_S,"pack",lua_ferry_Box_pack);
         tolua_function(tolua_S,"unpack",lua_ferry_Box_unpack);
         tolua_function(tolua_S,"check",lua_ferry_Box_check);
-        tolua_function(tolua_S,"getBody",lua_ferry_Box_getBody);
     tolua_endmodule(tolua_S);
     std::string typeName = typeid(netkit::Box).name();
     g_luaType[typeName] = "netkit.Box";
