@@ -200,29 +200,41 @@ void ScriptFerry::scriptOnCheckRspTimeout() {
     struct timeval tvNow;
     gettimeofday(&tvNow, NULL);
 
+    std::list<ScriptRspCallbackContainer*> todoCallbacks;
+
+    // 提前申请好，免得每次都要传
+    for(auto& container: m_scriptRspCallbacks) {
+        if (timercmp(&tvNow, &container->expireTime, >)) {
+            todoCallbacks.push_back(container);
+        }
+        else {
+            break;
+        }
+    }
+
+    if (todoCallbacks.empty()) {
+        return;
+    }
+
     // 再进入下一帧之前，不会释放
     ScriptEvent *scriptEvent = ScriptEvent::create();
     scriptEvent->what = EVENT_TIMEOUT;
 
-    // 提前申请好，免得每次都要传
-    for(auto it = m_scriptRspCallbacks.begin(); it != m_scriptRspCallbacks.end();) {
-        auto& container = *it;
-        if (timercmp(&tvNow, &container->expireTime, >)) {
-            // 超时了
-            container->scriptCallbackEntry->call(scriptEvent);
-
-            cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container->scriptCallbackEntry->getHandler());
-
-            delete container;
-
-            // 移除
-            it = m_scriptRspCallbacks.erase(it);
+    for(auto& container: todoCallbacks) {
+        // 没找到
+        if (std::find(m_scriptRspCallbacks.begin(), m_scriptRspCallbacks.end(), container) == m_scriptRspCallbacks.end()) {
+            continue;
         }
-        else {
-            ++it;
-            break;
-        }
+
+        container->scriptCallbackEntry->call(scriptEvent);
+
+        cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container->scriptCallbackEntry->getHandler());
+
+        delete container;
+
+        m_scriptRspCallbacks.remove(container);
     }
+
 }
 
 void ScriptFerry::scriptHandleWithRspCallbacks(ScriptEvent *event) {

@@ -323,27 +323,41 @@ void Ferry::onCheckRspTimeout() {
     struct timeval tvNow;
     gettimeofday(&tvNow, NULL);
 
+    std::list<RspCallbackContainer*> todoCallbacks;
+
+    // 提前申请好，免得每次都要传
+    // 因为纯删除，且挡住主线程，不会导致结构被破坏
+    for(auto& container: m_rspCallbacks) {
+        if (timercmp(&tvNow, &container->expireTime, >)) {
+            todoCallbacks.push_back(container);
+            // 移除
+        }
+        else {
+            // 找到第一个没超时的，那么后面就都没有超时了
+            break;
+        }
+    }
+
+    if (todoCallbacks.empty()) {
+        // 无需处理
+        return;
+    }
+
     // 再进入下一帧之前，不会释放
     Event *event = new Event();
     event->what = EVENT_TIMEOUT;
 
-    // 提前申请好，免得每次都要传
-    // 因为纯删除，且挡住主线程，不会导致结构被破坏
-    for(auto it = m_rspCallbacks.begin(); it != m_rspCallbacks.end();) {
-        auto& container = *it;
-        if (timercmp(&tvNow, &container->expireTime, >)) {
-            // 超时了
-            container->callback(event);
+    for (auto& container: todoCallbacks) {
+        // 没找到
+        if (std::find(m_rspCallbacks.begin(), m_rspCallbacks.end(), container) == m_rspCallbacks.end()) {
+            continue;
+        }
 
-            delete container;
-            // 移除
-            it = m_rspCallbacks.erase(it);
-        }
-        else {
-            ++it;
-            // 找到第一个没超时的，那么后面就都没有超时了
-            break;
-        }
+        container->callback(event);
+
+        delete container;
+
+        m_rspCallbacks.remove(container);
     }
 
     delete event;
