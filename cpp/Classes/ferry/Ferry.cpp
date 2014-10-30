@@ -26,9 +26,10 @@ Ferry::Ferry() {
 
 Ferry::~Ferry() {
     stop();
-    pthread_mutex_destroy(&m_eventsMutex);
-
     delAllCallbacks();
+    clearEvents();
+
+    pthread_mutex_destroy(&m_eventsMutex);
 }
 
 ferry::Service*Ferry::getService() {
@@ -278,6 +279,18 @@ void Ferry::pushEvent(Event *event) {
     pthread_mutex_unlock(&m_eventsMutex);
 }
 
+void Ferry::clearEvents() {
+    pthread_mutex_lock(&m_eventsMutex);
+
+    for (auto& event: m_events) {
+        delete event;
+    }
+
+    m_events.clear();
+
+    pthread_mutex_unlock(&m_eventsMutex);
+}
+
 void Ferry::onEvent(Event *event) {
     if (event->box && getSnFromBox(event->box) > 0) {
         // SEND, RECV, ERROR
@@ -327,12 +340,17 @@ void Ferry::onCheckRspTimeout() {
 
     // 提前申请好，免得每次都要传
     // 因为纯删除，且挡住主线程，不会导致结构被破坏
-    for(auto& container: m_rspCallbacks) {
+    for(auto it = m_rspCallbacks.begin(); it != m_rspCallbacks.end();) {
+        // 不可以用引用
+        auto container = *it;
+
         if (timercmp(&tvNow, &container->expireTime, >)) {
             todoCallbacks.push_back(container);
             // 移除
+            it = m_rspCallbacks.erase(it);
         }
         else {
+            ++it;
             // 找到第一个没超时的，那么后面就都没有超时了
             break;
         }
@@ -356,8 +374,6 @@ void Ferry::onCheckRspTimeout() {
         container->callback(event);
 
         delete container;
-
-        m_rspCallbacks.remove(container);
     }
 
     delete event;

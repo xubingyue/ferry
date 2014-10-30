@@ -129,6 +129,7 @@ protected:
 
     void loopEvents();
     void pushEvent(Event *event);
+    void clearEvents();
 
     int newBoxSn();
 
