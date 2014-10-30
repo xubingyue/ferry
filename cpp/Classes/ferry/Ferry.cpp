@@ -332,7 +332,6 @@ void Ferry::checkRspTimeout() {
     for(auto& container: m_rspCallbacks) {
         if (timercmp(&tvNow, &container->expireTime, >)) {
             todoCallbacks.push_back(container);
-            // 移除
         }
         else {
             // 找到第一个没超时的，那么后面就都没有超时了
