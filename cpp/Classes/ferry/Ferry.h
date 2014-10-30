@@ -122,7 +122,7 @@ protected:
 
     // 继承后可以修改
     virtual void onEvent(Event *event);
-    virtual void onCheckRspTimeout();
+    virtual void checkRspTimeout();
 
     virtual void setSnToBox(netkit::IBox* ibox, int sn);
     virtual int getSnFromBox(netkit::IBox* ibox);
@@ -133,13 +133,11 @@ protected:
 
     int newBoxSn();
 
-    void cocosScheduleLoopEvents();
-    void cocosScheduleRspTimeoutCheck();
+    void cocosSchedule();
+    void cocosUnSchedule();
 
     void handleWithRspCallbacks(Event *event);
     void handleWithEventCallbacks(Event *event);
-
-    void cocosUnScheduleAll();
 
 protected:
     ferry::Service m_service;

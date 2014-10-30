@@ -174,11 +174,11 @@ void ScriptFerry::onEvent(Event *event) {
 
     scriptOnEvent(event);
 }
-void ScriptFerry::onCheckRspTimeout() {
+void ScriptFerry::checkRspTimeout() {
     // 父类
-    Ferry::onCheckRspTimeout();
+    Ferry::checkRspTimeout();
 
-    scriptOnCheckRspTimeout();
+    scriptCheckRspTimeout();
 }
 
 void ScriptFerry::scriptOnEvent(Event *event) {
@@ -196,7 +196,7 @@ void ScriptFerry::scriptOnEvent(Event *event) {
     }
 }
 
-void ScriptFerry::scriptOnCheckRspTimeout() {
+void ScriptFerry::scriptCheckRspTimeout() {
     struct timeval tvNow;
     gettimeofday(&tvNow, NULL);
 

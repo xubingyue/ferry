@@ -93,10 +93,10 @@ public:
 
 protected:
     virtual void onEvent(Event *event);
-    virtual void onCheckRspTimeout();
+    virtual void checkRspTimeout();
 
     void scriptOnEvent(Event *event);
-    void scriptOnCheckRspTimeout();
+    void scriptCheckRspTimeout();
 
     void scriptHandleWithRspCallbacks(ScriptEvent *event);
     void scriptHandleWithEventCallbacks(ScriptEvent *event);

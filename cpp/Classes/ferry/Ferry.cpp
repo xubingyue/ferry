@@ -46,8 +46,7 @@ void Ferry::start() {
     }
     m_running = true;
 
-    cocosScheduleLoopEvents();
-    cocosScheduleRspTimeoutCheck();
+    cocosSchedule();
 
     m_service.start();
 }
@@ -60,7 +59,7 @@ void Ferry::stop() {
 
     m_service.stop();
 
-    cocosUnScheduleAll();
+    cocosUnSchedule();
 }
 
 void Ferry::connect() {
@@ -311,28 +310,18 @@ int Ferry::newBoxSn() {
     return ++m_boxSn;
 }
 
-void Ferry::cocosScheduleLoopEvents() {
+void Ferry::cocosSchedule() {
     auto func = [this](float dt){
         loopEvents();
+
+        checkRspTimeout();
     };
 
     // 先调用这个
     cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, __FUNCTION__);
 }
 
-void Ferry::cocosScheduleRspTimeoutCheck() {
-    auto func = [this](float dt){
-        onCheckRspTimeout();
-    };
-
-    // 先调用这个
-    cocos2d::Director::getInstance()->getScheduler()->schedule(
-            func, this, 0, false, __FUNCTION__
-    );
-}
-
-void Ferry::onCheckRspTimeout() {
-
+void Ferry::checkRspTimeout() {
     struct timeval tvNow;
     gettimeofday(&tvNow, NULL);
 
@@ -340,17 +329,12 @@ void Ferry::onCheckRspTimeout() {
 
     // 提前申请好，免得每次都要传
     // 因为纯删除，且挡住主线程，不会导致结构被破坏
-    for(auto it = m_rspCallbacks.begin(); it != m_rspCallbacks.end();) {
-        // 不可以用引用
-        auto container = *it;
-
+    for(auto& container: m_rspCallbacks) {
         if (timercmp(&tvNow, &container->expireTime, >)) {
             todoCallbacks.push_back(container);
             // 移除
-            it = m_rspCallbacks.erase(it);
         }
         else {
-            ++it;
             // 找到第一个没超时的，那么后面就都没有超时了
             break;
         }
@@ -374,6 +358,8 @@ void Ferry::onCheckRspTimeout() {
         container->callback(event);
 
         delete container;
+
+        m_rspCallbacks.remove(container);
     }
 
     delete event;
@@ -418,7 +404,7 @@ void Ferry::handleWithEventCallbacks(Event *event) {
     }
 }
 
-void Ferry::cocosUnScheduleAll() {
+void Ferry::cocosUnSchedule() {
     cocos2d::Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
 }
 }
