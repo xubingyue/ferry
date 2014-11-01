@@ -5,8 +5,6 @@
 #include "Ferry.h"
 #include "netkit/Box.h"
 
-#define LOG_TAG "ferry"
-
 namespace ferry {
 Ferry *Ferry::getInstance() {
     // 用指针可以保证进程结束时，释放晚一些，不会报错
@@ -187,7 +185,7 @@ void Ferry::delAllEventCallbacks() {
 }
 
 void Ferry::onOpen(ferry::Service *service) {
-    cocos2d::log("[%s]-[%s][%d][%s]", LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
+    cocos2d::log("[%s][%d][%s]", __FILE__, __LINE__, __FUNCTION__);
 
     Event *event = new Event();
     event->what = EVENT_OPEN;
@@ -195,7 +193,7 @@ void Ferry::onOpen(ferry::Service *service) {
 }
 
 void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
-    cocos2d::log("[%s]-[%s][%d][%s] box: %s", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, ibox->toString().c_str());
+    cocos2d::log("[%s][%d][%s] box: %s", __FILE__, __LINE__, __FUNCTION__, ibox->toString().c_str());
     Event *event = new Event();
     event->what = EVENT_SEND;
     event->box = (netkit::Box*)ibox;
@@ -203,7 +201,7 @@ void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
 }
 
 void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
-    cocos2d::log("[%s]-[%s][%d][%s] box: %s", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, ibox->toString().c_str());
+    cocos2d::log("[%s][%d][%s] box: %s", __FILE__, __LINE__, __FUNCTION__, ibox->toString().c_str());
 
     Event *event = new Event();
     event->what = EVENT_RECV;
@@ -212,7 +210,7 @@ void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
 }
 
 void Ferry::onClose(ferry::Service *service) {
-    cocos2d::log("[%s]-[%s][%d][%s]", LOG_TAG, __FILE__, __LINE__, __FUNCTION__);
+    cocos2d::log("[%s][%d][%s]", __FILE__, __LINE__, __FUNCTION__);
 
     Event *event = new Event();
     event->what = EVENT_CLOSE;
@@ -220,7 +218,8 @@ void Ferry::onClose(ferry::Service *service) {
 }
 
 void Ferry::onError(ferry::Service *service, int code, netkit::IBox *ibox) {
-    cocos2d::log("[%s]-[%s][%d][%s] code: %d", LOG_TAG, __FILE__, __LINE__, __FUNCTION__, code);
+    cocos2d::log("[%s][%d][%s] code: %d, box: %s",
+        __FILE__, __LINE__, __FUNCTION__, code, ibox ? ibox->toString().c_str() : "null");
 
     Event *event = new Event();
     event->what = EVENT_ERROR;
