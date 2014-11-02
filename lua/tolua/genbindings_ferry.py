@@ -124,7 +124,7 @@ def main():
     try:
 
         tolua_root = '%s/tools/tolua' % project_root
-        output_dir = '%s/cocos/scripting/lua-bindings/auto' % project_root
+        output_dir = '%s/../runtime-src/Classes/script_ferry/' % project_root
 
         cmd_args = {'ferry.ini' : ('ferry', 'lua_ferry_auto'), \
                     }
