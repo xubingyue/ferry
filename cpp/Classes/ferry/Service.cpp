@@ -17,6 +17,7 @@
 #else
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
 #define FERRY_SLEEP(sec) sleep(sec);
 #endif
 
