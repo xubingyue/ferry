@@ -8,7 +8,7 @@
 #include <iostream>
 #include <pthread.h>
 #include "BlockQueue.h"
-#include "netkit/TcpClient.h"
+#include "netkit/Stream.h"
 #include "netkit/IBox.h"
 #include "Constants.h"
 
@@ -114,7 +114,7 @@ private:
     BlockQueue<netkit::IBox *> *m_msgQueueToServer;
 
     // 网络
-    netkit::TcpClient *m_client;
+    netkit::Stream *m_client;
 
     pthread_t m_recvThread;
     pthread_t m_sendThread;

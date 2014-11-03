@@ -114,7 +114,7 @@ namespace ferry {
 
     void Service::disconnect() {
         if (m_client) {
-            m_client->shutdownStream(2);
+            m_client->shutdown(2);
         }
     }
 
@@ -139,17 +139,46 @@ namespace ferry {
     void Service::_connectToServer() {
         _closeConn();
         // 没有超时
-        m_client = new netkit::TcpClient(m_host, m_port, -1);
 
-        int ret = m_client->connectServer();
-        if (ret) {
+        struct sockaddr_in serv_addr;
+        struct in_addr ip_addr;
+        ip_addr.s_addr = inet_addr(m_host.c_str());
+
+        memset(&serv_addr, 0, sizeof(serv_addr));
+        serv_addr.sin_family = AF_INET;
+        serv_addr.sin_port   = htons(m_port);
+        serv_addr.sin_addr = ip_addr;
+
+        netkit::SocketType sockFd;
+
+        bool succ = false;
+
+        sockFd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockFd > 0) {
+            int ret = ::connect(sockFd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+            if (ret < 0) {
+                CLOSE_SOCKET(sockFd);
+            }
+            else {
+                succ = true;
+            }
+        }
+
+        if (succ) {
+            if (m_client) {
+                m_client->setSockFd(sockFd);
+            }
+            else {
+                m_client = new netkit::Stream(sockFd);
+            }
+
+            // 分发连接成功的消息
+            _onConnOpen();
+        }
+        else {
             // 连接失败了
             // 没关系，下个循环还会继续重连
             _onError(ERROR_OPEN, nullptr);
-        }
-        else {
-            // 分发连接成功的消息
-            _onConnOpen();
         }
     }
 
@@ -158,9 +187,7 @@ namespace ferry {
         // _clearMsgQueueToServer();
 
         if (m_client) {
-            m_client->closeStream();
-            delete m_client;
-            m_client = nullptr;
+            m_client->close();
         }
     }
 
