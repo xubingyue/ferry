@@ -154,7 +154,8 @@ static int tolua_ferry_ScriptBox_getBody(lua_State *tolua_S)
 
     argc = lua_gettop(tolua_S) - 1;
     if (0 == argc) {
-        std::string strBody = self->getStringBody();
+        // 减少内存拷贝
+        const std::string& strBody = self->getStringBody();
         // 二进制
         lua_pushlstring(tolua_S, strBody.c_str(), strBody.size());
         return 1;
