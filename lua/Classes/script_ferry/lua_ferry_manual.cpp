@@ -206,9 +206,8 @@ static int tolua_ferry_ScriptBox_setBody(lua_State* tolua_S)
 #endif
         size_t size = 0;
         const char* pBody = lua_tolstring(tolua_S, 2, &size);
-        if (pBody) {
-            self->setBody(pBody, size);
-        }
+        // null也调用，代表body设置为空
+        self->setBody(pBody, size);
 
         // 没有返回值
         return 0;
