@@ -50,7 +50,7 @@ static int tolua_ferry_ScriptFerry_scriptAddEventCallback(lua_State *tolua_S)
         return 1;
     }
 
-    CCLOG("'scriptAddEventCallback' has wrong number of arguments: %d, was expecting %d\n", argc, 1);
+    CCLOG("'scriptAddEventCallback' has wrong number of arguments: %d, was expecting %d\n", argc, 2);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
@@ -120,7 +120,7 @@ static int tolua_ferry_ScriptFerry_scriptSend(lua_State* tolua_S)
         return 1;
     }
 
-    CCLOG("'scriptSend' has wrong number of arguments: %d, was expecting %d\n", argc, 3);
+    CCLOG("'scriptSend' has wrong number of arguments: %d, was expecting %d or %d\n", argc, 1, 4);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
@@ -160,7 +160,7 @@ static int tolua_ferry_ScriptBox_getBody(lua_State *tolua_S)
         return 1;
     }
 
-    CCLOG("'getBody' has wrong number of arguments: %d, was expecting %d\n", argc, 1);
+    CCLOG("'getBody' has wrong number of arguments: %d, was expecting %d\n", argc, 0);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
@@ -196,7 +196,6 @@ static int tolua_ferry_ScriptBox_setBody(lua_State* tolua_S)
 
     if (1 == argc) {
 #if COCOS2D_DEBUG >= 1
-        // 只有一个参数也是可以的
         if (
                 !tolua_isstring(tolua_S,2, 0, &tolua_err)
                 )
@@ -204,36 +203,17 @@ static int tolua_ferry_ScriptBox_setBody(lua_State* tolua_S)
             goto tolua_lerror;
         }
 #endif
-        const char* pBody = tolua_tostring(tolua_S, 2, 0);
+        size_t size = 0;
+        const char* pBody = lua_tolstring(tolua_S, 2, &size);
         if (pBody) {
-            self->setBody(pBody, strlen(pBody));
+            self->setBody(pBody, size);
         }
 
         // 没有返回值
         return 0;
     }
-    else if (2 == argc) {
-#if COCOS2D_DEBUG >= 1
-        if (
-                !tolua_isstring(tolua_S,2, 0, &tolua_err) ||
-                !tolua_isnumber(tolua_S,3,0,&tolua_err)
-                )
-        {
-            goto tolua_lerror;
-        }
-#endif
-        // 最后一个参数是size指针
-        const char* pBody = tolua_tostring(tolua_S, 2, 0);
-        int len = (int) tolua_tonumber(tolua_S,3,0);
 
-        if (pBody) {
-            self->setBody(pBody, len);
-        }
-
-        return 0;
-    }
-
-    CCLOG("'setBody' has wrong number of arguments: %d, was expecting %d\n", argc, 3);
+    CCLOG("'setBody' has wrong number of arguments: %d, was expecting %d\n", argc, 1);
     return 0;
 
 #if COCOS2D_DEBUG >= 1

@@ -66,6 +66,7 @@ function GameScene:startFerry()
             if (event:getWhat() == ferry.EventType.open) then
                 local box = ferry.ScriptFerry:getInstance():createBox()
                 box:setCmd(1)
+                -- 二进制也可以
                 box:setBody("woaini")
                 local rspEntryID = ferry.ScriptFerry:getInstance():send(box,
                     function(event)
