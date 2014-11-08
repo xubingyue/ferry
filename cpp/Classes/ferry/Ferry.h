@@ -128,7 +128,7 @@ protected:
     virtual int getSnFromBox(netkit::IBox* ibox);
 
     void loopEvents();
-    void pushEvent(Event *event);
+    void postEvent(Event *event);
     void clearEvents();
 
     int newBoxSn();

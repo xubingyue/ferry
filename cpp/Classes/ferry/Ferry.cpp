@@ -189,7 +189,7 @@ void Ferry::onOpen(ferry::Service *service) {
 
     Event *event = new Event();
     event->what = EVENT_OPEN;
-    pushEvent(event);
+    postEvent(event);
 }
 
 void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
@@ -197,7 +197,7 @@ void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
     Event *event = new Event();
     event->what = EVENT_SEND;
     event->box = (netkit::Box*)ibox;
-    pushEvent(event);
+    postEvent(event);
 }
 
 void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
@@ -206,7 +206,7 @@ void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
     Event *event = new Event();
     event->what = EVENT_RECV;
     event->box = (netkit::Box*)ibox;
-    pushEvent(event);
+    postEvent(event);
 }
 
 void Ferry::onClose(ferry::Service *service) {
@@ -214,7 +214,7 @@ void Ferry::onClose(ferry::Service *service) {
 
     Event *event = new Event();
     event->what = EVENT_CLOSE;
-    pushEvent(event);
+    postEvent(event);
 }
 
 void Ferry::onError(ferry::Service *service, int code, netkit::IBox *ibox) {
@@ -225,7 +225,7 @@ void Ferry::onError(ferry::Service *service, int code, netkit::IBox *ibox) {
     event->what = EVENT_ERROR;
     event->code = code;
     event->box = ibox;
-    pushEvent(event);
+    postEvent(event);
 }
 
 netkit::IBox*Ferry::createBox() {
@@ -269,7 +269,7 @@ void Ferry::loopEvents() {
     pthread_mutex_unlock(&m_eventsMutex);
 }
 
-void Ferry::pushEvent(Event *event) {
+void Ferry::postEvent(Event *event) {
     pthread_mutex_lock(&m_eventsMutex);
 
     m_events.push_back(event);
