@@ -234,7 +234,6 @@ namespace ferry {
         ret= pthread_create(&m_recvThread, &attr, &Service::_recvMsgFromServerThreadWorker, (void *) this);
         if(ret!=0){
             //ERROR_LOG("Thread creation failed:%d",ret);
-            pthread_attr_destroy (&attr);
         }
 
         pthread_attr_destroy (&attr);
@@ -249,7 +248,6 @@ namespace ferry {
         ret= pthread_create(&m_sendThread, &attr, &Service::_sendMsgToServerThreadWorker, (void *) this);
         if(ret!=0){
             //ERROR_LOG("Thread creation failed:%d",ret);
-            pthread_attr_destroy (&attr);
         }
 
         pthread_attr_destroy (&attr);
