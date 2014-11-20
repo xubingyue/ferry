@@ -6,50 +6,6 @@
 
 
 
-int lua_ferry_IBox_packetLen(lua_State* tolua_S)
-{
-    int argc = 0;
-    netkit::IBox* cobj = nullptr;
-    bool ok  = true;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_Error tolua_err;
-#endif
-
-
-#if COCOS2D_DEBUG >= 1
-    if (!tolua_isusertype(tolua_S,1,"netkit.IBox",0,&tolua_err)) goto tolua_lerror;
-#endif
-
-    cobj = (netkit::IBox*)tolua_tousertype(tolua_S,1,0);
-
-#if COCOS2D_DEBUG >= 1
-    if (!cobj) 
-    {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_IBox_packetLen'", nullptr);
-        return 0;
-    }
-#endif
-
-    argc = lua_gettop(tolua_S)-1;
-    if (argc == 0) 
-    {
-        if(!ok)
-            return 0;
-        int ret = cobj->packetLen();
-        tolua_pushnumber(tolua_S,(lua_Number)ret);
-        return 1;
-    }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "packetLen",argc, 0);
-    return 0;
-
-#if COCOS2D_DEBUG >= 1
-    tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_IBox_packetLen'.",&tolua_err);
-#endif
-
-    return 0;
-}
 int lua_ferry_IBox_toString(lua_State* tolua_S)
 {
     int argc = 0;
@@ -199,51 +155,39 @@ int lua_ferry_IBox_pack(lua_State* tolua_S)
     int argc = 0;
     netkit::IBox* cobj = nullptr;
     bool ok  = true;
+
 #if COCOS2D_DEBUG >= 1
     tolua_Error tolua_err;
 #endif
 
+
 #if COCOS2D_DEBUG >= 1
     if (!tolua_isusertype(tolua_S,1,"netkit.IBox",0,&tolua_err)) goto tolua_lerror;
 #endif
+
     cobj = (netkit::IBox*)tolua_tousertype(tolua_S,1,0);
+
 #if COCOS2D_DEBUG >= 1
-    if (!cobj)
+    if (!cobj) 
     {
         tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_IBox_pack'", nullptr);
         return 0;
     }
 #endif
+
     argc = lua_gettop(tolua_S)-1;
-    do{
-        if (argc == 1) {
-            std::string arg0;
-            ok &= luaval_to_std_string(tolua_S, 2,&arg0);
+    if (argc == 1) 
+    {
+        std::string arg0;
 
-            if (!ok) { break; }
-            int ret = cobj->pack(arg0);
-            tolua_pushnumber(tolua_S,(lua_Number)ret);
-            return 1;
-        }
-    }while(0);
-    ok  = true;
-    do{
-        if (argc == 2) {
-            char* arg0;
-            std::string arg0_tmp; ok &= luaval_to_std_string(tolua_S, 2, &arg0_tmp); arg0 = (char*)arg0_tmp.c_str();
-
-            if (!ok) { break; }
-            int arg1;
-            ok &= luaval_to_int32(tolua_S, 3,(int *)&arg1);
-
-            if (!ok) { break; }
-            int ret = cobj->pack(arg0, arg1);
-            tolua_pushnumber(tolua_S,(lua_Number)ret);
-            return 1;
-        }
-    }while(0);
-    ok  = true;
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "pack",argc, 2);
+        ok &= luaval_to_std_string(tolua_S, 2,&arg0);
+        if(!ok)
+            return 0;
+        int ret = cobj->pack(arg0);
+        tolua_pushnumber(tolua_S,(lua_Number)ret);
+        return 1;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "pack",argc, 1);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
@@ -265,7 +209,6 @@ int lua_register_ferry_IBox(lua_State* tolua_S)
     tolua_cclass(tolua_S,"IBox","netkit.IBox","",nullptr);
 
     tolua_beginmodule(tolua_S,"IBox");
-        tolua_function(tolua_S,"packetLen",lua_ferry_IBox_packetLen);
         tolua_function(tolua_S,"toString",lua_ferry_IBox_toString);
         tolua_function(tolua_S,"unpack",lua_ferry_IBox_unpack);
         tolua_function(tolua_S,"check",lua_ferry_IBox_check);
@@ -2100,51 +2043,39 @@ int lua_ferry_Box_pack(lua_State* tolua_S)
     int argc = 0;
     netkit::Box* cobj = nullptr;
     bool ok  = true;
+
 #if COCOS2D_DEBUG >= 1
     tolua_Error tolua_err;
 #endif
 
+
 #if COCOS2D_DEBUG >= 1
     if (!tolua_isusertype(tolua_S,1,"netkit.Box",0,&tolua_err)) goto tolua_lerror;
 #endif
+
     cobj = (netkit::Box*)tolua_tousertype(tolua_S,1,0);
+
 #if COCOS2D_DEBUG >= 1
-    if (!cobj)
+    if (!cobj) 
     {
         tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Box_pack'", nullptr);
         return 0;
     }
 #endif
+
     argc = lua_gettop(tolua_S)-1;
-    do{
-        if (argc == 1) {
-            std::string arg0;
-            ok &= luaval_to_std_string(tolua_S, 2,&arg0);
+    if (argc == 1) 
+    {
+        std::string arg0;
 
-            if (!ok) { break; }
-            int ret = cobj->pack(arg0);
-            tolua_pushnumber(tolua_S,(lua_Number)ret);
-            return 1;
-        }
-    }while(0);
-    ok  = true;
-    do{
-        if (argc == 2) {
-            char* arg0;
-            std::string arg0_tmp; ok &= luaval_to_std_string(tolua_S, 2, &arg0_tmp); arg0 = (char*)arg0_tmp.c_str();
-
-            if (!ok) { break; }
-            int arg1;
-            ok &= luaval_to_int32(tolua_S, 3,(int *)&arg1);
-
-            if (!ok) { break; }
-            int ret = cobj->pack(arg0, arg1);
-            tolua_pushnumber(tolua_S,(lua_Number)ret);
-            return 1;
-        }
-    }while(0);
-    ok  = true;
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "pack",argc, 2);
+        ok &= luaval_to_std_string(tolua_S, 2,&arg0);
+        if(!ok)
+            return 0;
+        int ret = cobj->pack(arg0);
+        tolua_pushnumber(tolua_S,(lua_Number)ret);
+        return 1;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "pack",argc, 1);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
