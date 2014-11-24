@@ -72,7 +72,7 @@ public:
     }
 
     // block_sec: 0: 不阻塞; <0: 永久阻塞; >0: 阻塞时间
-    int push(const DataType &d, int block_sec) {
+    int push(const DataType &d, float block_sec) {
 
         int ret;
 
@@ -81,8 +81,8 @@ public:
             if (block_sec > 0) {
                 struct timespec timeout;
 
-                timeout.tv_sec = time(NULL) + block_sec;
-                timeout.tv_nsec = 0;
+                timeout.tv_sec = time(NULL) + (int)block_sec;
+                timeout.tv_nsec = (block_sec - (int)block_sec) * 1000000;
 
                 // 如果要阻塞，就等在这里
                 ret = pthread_cond_timedwait(&m_not_full_cond, &m_push_mutex, &timeout);
@@ -114,7 +114,7 @@ public:
         return 0;
     }
 
-    int pop(DataType &d, int block_sec) {
+    int pop(DataType &d, float block_sec) {
         int ret;
 
         pthread_mutex_lock(&m_pop_mutex);
@@ -122,8 +122,8 @@ public:
             if (block_sec > 0) {
                 struct timespec timeout;
 
-                timeout.tv_sec = time(NULL) + block_sec;
-                timeout.tv_nsec = 0;
+                timeout.tv_sec = time(NULL) + (int)block_sec;
+                timeout.tv_nsec = (block_sec - (int)block_sec) * 1000000;
                 
                 ret = pthread_cond_timedwait(&m_not_empty_cond, &m_pop_mutex, &timeout);
                 if (ret == ETIMEDOUT) {
