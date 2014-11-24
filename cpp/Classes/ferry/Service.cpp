@@ -209,6 +209,8 @@ namespace ferry {
         }
 
         delete params;
+
+        return NULL;
     }
 
     void Service::_startThreads() {
