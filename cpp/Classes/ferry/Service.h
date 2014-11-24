@@ -53,8 +53,7 @@ public:
 
 private:
     // 为了启动线程使用的，外面不要使用
-    static void* _recvMsgFromServerThreadWorker(void *args);
-    static void* _sendMsgToServerThreadWorker(void *args);
+    static void* _threadWorkerProxy(void *args);
 
     // 真实连接
     void _connectToServer();
@@ -66,11 +65,6 @@ private:
     void _startThreads();
     // 关闭线程
     void _stopThreads();
-
-    // 启动接收线程
-    void _startRecvMsgFromServerThread();
-    // 启动接收线程
-    void _startSendMsgToServerThread();
 
     // 从网络获取消息
     void _recvMsgFromServer();

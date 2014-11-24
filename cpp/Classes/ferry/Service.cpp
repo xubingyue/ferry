@@ -192,27 +192,39 @@ namespace ferry {
         }
     }
 
-    void* Service::_recvMsgFromServerThreadWorker(void *args) {
+    void* Service::_threadWorkerProxy(void *args) {
         signal(SIGTERM,(void (*)(int))sigTermHandler);
 
-        Service* service = (Service*)args;
-        service->_recvMsgFromServer();
+        std::pair<Service*, int> *params = (std::pair<Service*, int>*) args;
+        switch (params->second) {
+            case 0:
+                params->first->_recvMsgFromServer();
+                break;
+            case 1:
+                params->first->_sendMsgToServer();
+                break;
+            
+            default:
+                break;
+        }
 
-        return nullptr;
-    }
-
-    void* Service::_sendMsgToServerThreadWorker(void *args) {
-        signal(SIGTERM,(void (*)(int))sigTermHandler);
-
-        Service* service = (Service*)args;
-        service->_sendMsgToServer();
-
-        return nullptr;
+        delete params;
     }
 
     void Service::_startThreads() {
-        _startRecvMsgFromServerThread();
-        _startSendMsgToServerThread();
+        pthread_attr_t attr;
+        pthread_attr_init (&attr);
+        pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
+
+        int ret;
+        for (size_t i = 0; i < 2; ++i) {
+            ret= pthread_create(&m_recvThread, &attr, &Service::_threadWorkerProxy, (void *) (new std::pair<Service*, int>(this, i)));
+            if(ret!=0){
+                //ERROR_LOG("Thread creation failed:%d",ret);
+            }
+        }
+
+        pthread_attr_destroy (&attr);
     }
 
     void Service::_stopThreads() {
@@ -223,34 +235,6 @@ namespace ferry {
         if (pthread_kill(m_sendThread, 0) == 0) {
             pthread_kill(m_sendThread, SIGTERM);
         }
-    }
-
-    void Service::_startRecvMsgFromServerThread() {
-        pthread_attr_t attr;
-        pthread_attr_init (&attr);
-        pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
-
-        int ret;
-        ret= pthread_create(&m_recvThread, &attr, &Service::_recvMsgFromServerThreadWorker, (void *) this);
-        if(ret!=0){
-            //ERROR_LOG("Thread creation failed:%d",ret);
-        }
-
-        pthread_attr_destroy (&attr);
-    }
-
-    void Service::_startSendMsgToServerThread() {
-        pthread_attr_t attr;
-        pthread_attr_init (&attr);
-        pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
-
-        int ret;
-        ret= pthread_create(&m_sendThread, &attr, &Service::_sendMsgToServerThreadWorker, (void *) this);
-        if(ret!=0){
-            //ERROR_LOG("Thread creation failed:%d",ret);
-        }
-
-        pthread_attr_destroy (&attr);
     }
 
     void Service::_recvMsgFromServer() {
