@@ -73,17 +73,7 @@ public class Service {
 
     public void disconnect() {
         if (client != null) {
-            try{
-                client.shutdownInput();
-            }
-            catch (Exception e) {
-            }
-
-            try{
-                client.shutdownOutput();
-            }
-            catch (Exception e) {
-            }
+            client.shutdown(2);
         }
     }
 
