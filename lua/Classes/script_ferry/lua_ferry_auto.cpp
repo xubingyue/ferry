@@ -2139,6 +2139,50 @@ int lua_ferry_ScriptBox_getCmd(lua_State* tolua_S)
 
     return 0;
 }
+int lua_ferry_ScriptBox_getFlag(lua_State* tolua_S)
+{
+    int argc = 0;
+    ferry::ScriptBox* cobj = nullptr;
+    bool ok  = true;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+
+
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptBox",0,&tolua_err)) goto tolua_lerror;
+#endif
+
+    cobj = (ferry::ScriptBox*)tolua_tousertype(tolua_S,1,0);
+
+#if COCOS2D_DEBUG >= 1
+    if (!cobj) 
+    {
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_ScriptBox_getFlag'", nullptr);
+        return 0;
+    }
+#endif
+
+    argc = lua_gettop(tolua_S)-1;
+    if (argc == 0) 
+    {
+        if(!ok)
+            return 0;
+        int32_t ret = cobj->getFlag();
+        tolua_pushnumber(tolua_S,(lua_Number)ret);
+        return 1;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "getFlag",argc, 0);
+    return 0;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_ScriptBox_getFlag'.",&tolua_err);
+#endif
+
+    return 0;
+}
 int lua_ferry_ScriptBox_setRet(lua_State* tolua_S)
 {
     int argc = 0;
@@ -2275,6 +2319,52 @@ int lua_ferry_ScriptBox_getRet(lua_State* tolua_S)
 
     return 0;
 }
+int lua_ferry_ScriptBox_setFlag(lua_State* tolua_S)
+{
+    int argc = 0;
+    ferry::ScriptBox* cobj = nullptr;
+    bool ok  = true;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+
+
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertype(tolua_S,1,"ferry.ScriptBox",0,&tolua_err)) goto tolua_lerror;
+#endif
+
+    cobj = (ferry::ScriptBox*)tolua_tousertype(tolua_S,1,0);
+
+#if COCOS2D_DEBUG >= 1
+    if (!cobj) 
+    {
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_ScriptBox_setFlag'", nullptr);
+        return 0;
+    }
+#endif
+
+    argc = lua_gettop(tolua_S)-1;
+    if (argc == 1) 
+    {
+        int32_t arg0;
+
+        ok &= luaval_to_int32(tolua_S, 2,&arg0);
+        if(!ok)
+            return 0;
+        cobj->setFlag(arg0);
+        return 0;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "setFlag",argc, 1);
+    return 0;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_ScriptBox_setFlag'.",&tolua_err);
+#endif
+
+    return 0;
+}
 int lua_ferry_ScriptBox_setSn(lua_State* tolua_S)
 {
     int argc = 0;
@@ -2395,7 +2485,7 @@ int lua_ferry_ScriptBox_getVersion(lua_State* tolua_S)
     {
         if(!ok)
             return 0;
-        int ret = cobj->getVersion();
+        int32_t ret = cobj->getVersion();
         tolua_pushnumber(tolua_S,(lua_Number)ret);
         return 1;
     }
@@ -2437,9 +2527,9 @@ int lua_ferry_ScriptBox_setVersion(lua_State* tolua_S)
     argc = lua_gettop(tolua_S)-1;
     if (argc == 1) 
     {
-        int arg0;
+        int32_t arg0;
 
-        ok &= luaval_to_int32(tolua_S, 2,(int *)&arg0);
+        ok &= luaval_to_int32(tolua_S, 2,&arg0);
         if(!ok)
             return 0;
         cobj->setVersion(arg0);
@@ -2499,9 +2589,11 @@ int lua_register_ferry_ScriptBox(lua_State* tolua_S)
 
     tolua_beginmodule(tolua_S,"ScriptBox");
         tolua_function(tolua_S,"getCmd",lua_ferry_ScriptBox_getCmd);
+        tolua_function(tolua_S,"getFlag",lua_ferry_ScriptBox_getFlag);
         tolua_function(tolua_S,"setRet",lua_ferry_ScriptBox_setRet);
         tolua_function(tolua_S,"setCmd",lua_ferry_ScriptBox_setCmd);
         tolua_function(tolua_S,"getRet",lua_ferry_ScriptBox_getRet);
+        tolua_function(tolua_S,"setFlag",lua_ferry_ScriptBox_setFlag);
         tolua_function(tolua_S,"setSn",lua_ferry_ScriptBox_setSn);
         tolua_function(tolua_S,"getSn",lua_ferry_ScriptBox_getSn);
         tolua_function(tolua_S,"getVersion",lua_ferry_ScriptBox_getVersion);

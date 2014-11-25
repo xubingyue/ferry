@@ -16,11 +16,18 @@ public:
         return new ScriptBox();
     }
 
-    int getVersion() {
+    short getVersion() {
         return version;
     }
-    void setVersion(int _version) {
+    void setVersion(short _version) {
         version = _version;
+    }
+
+    short getFlag() {
+        return flag;
+    }
+    void setFlag(short _flag) {
+        flag = _flag;
     }
 
     int getCmd() {
