@@ -223,7 +223,12 @@ public class Service {
             return;
         }
         // 第二步创建stream对象
-        client = new Stream(socket);
+        if (client != null) {
+            client.setSocket(socket);
+        }
+        else {
+            client = new Stream(socket);
+        }
 
         onConnOpen();
     }
