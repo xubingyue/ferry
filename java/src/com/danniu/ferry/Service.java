@@ -77,22 +77,6 @@ public class Service {
         }
     }
 
-    public void closeConn() {
-
-        if (client != null) {
-            try{
-                client.close();
-            }
-            catch (Exception e) {
-                Log.e(LOG_TAG, "e: " + e);
-            }
-            finally {
-                client = null;
-            }
-
-        }
-    }
-
     public boolean isConnected() {
         return client != null && !client.isClosed();
     }
@@ -110,6 +94,22 @@ public class Service {
 
     public void setTryConnectInterval(int interval) {
         tryConnectInterval = interval;
+    }
+
+    private void closeConn() {
+
+        if (client != null) {
+            try{
+                client.close();
+            }
+            catch (Exception e) {
+                Log.e(LOG_TAG, "e: " + e);
+            }
+            finally {
+                client = null;
+            }
+
+        }
     }
 
     private void startThreads() {
