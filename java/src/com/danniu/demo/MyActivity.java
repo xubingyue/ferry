@@ -16,7 +16,7 @@ public class MyActivity extends Activity {
 
         G.eventBus.register(this);
 
-        G.service.init(new MyFerryDelegate(), "192.168.0.106", 7777);
+        G.service.init(new MyFerryDelegate(), "192.168.1.110", 7777);
         G.service.start();
     }
 

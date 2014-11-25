@@ -13,6 +13,8 @@ public class MyFerryDelegate implements Delegate {
     public void onOpen(Service service) {
         Log.v(G.LOG_TAG, "onOpen");
         Box box = new Box();
+        box.version = 100;
+        box.flag = 99;
         box.cmd = 1;
         box.body = new String("I love you").getBytes();
 
