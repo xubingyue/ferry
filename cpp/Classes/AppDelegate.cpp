@@ -87,6 +87,8 @@ void AppDelegate::eventCallback(ferry::Event *event) {
             };
 
             netkit::Box *box = new netkit::Box();
+            box->version = 1;
+            box->flag = 2;
             box->cmd = 1;
             box->setBody("aini");
 
