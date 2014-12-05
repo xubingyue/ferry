@@ -19,7 +19,6 @@ Ferry::Ferry() {
     pthread_mutex_init(&m_eventsMutex, NULL);
 
     m_boxSn = 0;
-    m_running = false;
 }
 
 Ferry::~Ferry() {
@@ -39,10 +38,9 @@ int Ferry::init(const std::string& host, short port) {
 }
 
 void Ferry::start() {
-    if (m_running) {
+    if (isRunning()) {
         return;
     }
-    m_running = true;
 
     cocosSchedule();
 
@@ -50,10 +48,9 @@ void Ferry::start() {
 }
 
 void Ferry::stop() {
-    if (!m_running) {
+    if (!isRunning()) {
         return;
     }
-    m_running = false;
 
     m_service.stop();
 
@@ -66,6 +63,14 @@ void Ferry::connect() {
 
 void Ferry::disconnect() {
     m_service.disconnect();
+}
+
+bool Ferry::isConnected() {
+    return m_service.isConnected();
+}
+
+bool Ferry::isRunning() {
+    return m_service.isRunning();
 }
 
 void Ferry::delCallbacksForTarget(void *target) {

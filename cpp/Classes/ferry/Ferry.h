@@ -82,6 +82,10 @@ public:
 
     void disconnect();
 
+    bool isConnected();
+
+    bool isRunning();
+
     // 删除类对应的所有回调，务必在使用ferry的类的析构函数里调用
     void delCallbacksForTarget(void *target);
     // 删除所有回调
@@ -144,8 +148,6 @@ protected:
 
     pthread_mutex_t m_eventsMutex;
     std::list<Event*> m_events;
-
-    bool m_running;
 
 private:
     int m_boxSn;
