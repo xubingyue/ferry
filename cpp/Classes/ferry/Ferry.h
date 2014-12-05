@@ -139,13 +139,12 @@ protected:
     void handleWithRspCallbacks(Event *event);
     void handleWithEventCallbacks(Event *event);
 
-protected:
+private:
     ferry::Service m_service;
 
     pthread_mutex_t m_eventsMutex;
     std::list<Event*> m_events;
 
-private:
     int m_boxSn;
 
     std::list<EventCallbackContainer*> m_eventCallbacks;
