@@ -261,7 +261,7 @@ namespace ferry {
             ret = m_client->read(box);
             if (ret < 0) {
                 // 防止内存泄漏
-                _onError(ERROR_RECV, box);
+                m_delegate->releaseBox(box);
                 // 手工先关闭掉
                 _closeConn();
                 // 统一按照断掉连接处理

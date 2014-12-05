@@ -12,5 +12,4 @@ ferry.EventType = {
 ferry.ErrorCode = {
     open = 1,
     send = 2,
-    recv = 3,
 }

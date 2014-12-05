@@ -21,7 +21,6 @@ namespace ferry {
     enum ERROR_CODE {
         ERROR_OPEN = 1,
         ERROR_SEND,
-        ERROR_RECV,
     };
 
 }

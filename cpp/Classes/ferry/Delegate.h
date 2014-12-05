@@ -23,6 +23,7 @@ public:
     virtual void onError(Service *service, int code, netkit::IBox *ibox) = 0;
 
     virtual netkit::IBox* createBox() = 0;
+    virtual void releaseBox(netkit::IBox* ibox)=0;
 };
 
 }

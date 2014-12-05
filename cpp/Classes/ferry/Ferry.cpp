@@ -233,8 +233,14 @@ void Ferry::onError(ferry::Service *service, int code, netkit::IBox *ibox) {
     postEvent(event);
 }
 
-netkit::IBox*Ferry::createBox() {
+netkit::IBox* Ferry::createBox() {
     return new netkit::Box();
+}
+
+void Ferry::releaseBox(netkit::IBox* ibox) {
+    if (ibox) {
+        delete ibox;
+    }
 }
 
 void Ferry::setSnToBox(netkit::IBox* ibox, int sn) {
