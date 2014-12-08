@@ -65,6 +65,18 @@ void Ferry::disconnect() {
     m_service.disconnect();
 }
 
+void Ferry::pauseSchedule() {
+    cocos2d::Director::getInstance()->getScheduler()->pauseTarget(this);
+}
+
+void Ferry::resumeSchedule() {
+    cocos2d::Director::getInstance()->getScheduler()->resumeTarget(this);
+}
+
+bool Ferry::isSchedulePaused() {
+    return cocos2d::Director::getInstance()->getScheduler()->isTargetPaused(this);
+}
+
 bool Ferry::isConnected() {
     return m_service.isConnected();
 }

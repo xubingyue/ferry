@@ -82,6 +82,16 @@ public:
 
     void disconnect();
 
+    // 暂停schedule
+    void pauseSchedule();
+    // 恢复schedule
+    void resumeSchedule();
+    // 是否被暂停了
+    bool isSchedulePaused();
+
+    // 清空所有事件
+    void clearEvents();
+
     bool isConnected();
 
     bool isRunning();
@@ -129,7 +139,6 @@ protected:
 
     void loopEvents();
     void postEvent(Event *event);
-    void clearEvents();
 
     int newBoxSn();
 
