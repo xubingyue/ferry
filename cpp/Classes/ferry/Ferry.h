@@ -28,7 +28,6 @@ public:
         what = 0;
         box = nullptr;
         code = 0;
-        _done = false;
     }
 
     virtual ~Event() {
@@ -42,8 +41,6 @@ public:
     int what;
     netkit::IBox *box;
     int code;
-
-    bool _done;
 };
 
 // 事件注册的回调
