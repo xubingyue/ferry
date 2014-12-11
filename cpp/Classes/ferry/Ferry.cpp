@@ -311,9 +311,7 @@ void Ferry::onEvent(Event *event) {
 }
 
 int Ferry::newBoxSn() {
-    if (m_boxSn <= 0) {
-        m_boxSn = 0;
-    }
+    m_boxSn %= 2100000000;
 
     // 即最小也是1
     return ++m_boxSn;
