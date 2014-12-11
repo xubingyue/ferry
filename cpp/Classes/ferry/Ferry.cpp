@@ -17,6 +17,7 @@ Ferry *Ferry::getInstance() {
 
 Ferry::Ferry() {
     pthread_mutex_init(&m_eventsMutex, NULL);
+    pthread_mutex_init(&m_boxSnMutex, NULL);
 
     m_boxSn = 0;
 }
@@ -27,6 +28,7 @@ Ferry::~Ferry() {
     clearEvents();
 
     pthread_mutex_destroy(&m_eventsMutex);
+    pthread_mutex_destroy(&m_boxSnMutex);
 }
 
 ferry::Service*Ferry::getService() {
@@ -311,10 +313,16 @@ void Ferry::onEvent(Event *event) {
 }
 
 int Ferry::newBoxSn() {
+    pthread_mutex_lock(&m_boxSnMutex);
+
     m_boxSn %= 2100000000;
 
     // 即最小也是1
-    return ++m_boxSn;
+    int boxSn = ++m_boxSn;
+
+    pthread_mutex_unlock(&m_boxSnMutex);
+
+    return boxSn;
 }
 
 void Ferry::cocosSchedule() {

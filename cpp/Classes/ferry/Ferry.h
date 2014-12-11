@@ -98,7 +98,7 @@ public:
     // 删除所有回调
     void delAllCallbacks();
 
-    // 发送消息
+    // 发送消息(线程安全)
     void send(netkit::IBox *box);
     // 带回调的发送，以及超时，超时为秒。target很有用，可以用来防止崩溃
     // callback 会收到 SEND, RECV, ERROR, TIMEOUT 事件
@@ -152,6 +152,7 @@ protected:
     std::list<Event*> m_events;
 
 private:
+    pthread_mutex_t m_boxSnMutex;
     int m_boxSn;
 
     std::list<EventCallbackContainer*> m_eventCallbacks;
