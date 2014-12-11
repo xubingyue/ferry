@@ -40,11 +40,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     G::getFerry()->init(new MyFerryDelegate(), "127.0.0.1", 7777);
     G::getFerry()->start();
 
-    auto func = [this](float dt){
-        G::getEventBus()->loopEvents();
-    };
+    G:getEventBus()->start();
 
-    cocos2d::Director::getInstance()->getScheduler()->schedule(func, this, 0, false, "eventbus_loop");
     */
 
 
