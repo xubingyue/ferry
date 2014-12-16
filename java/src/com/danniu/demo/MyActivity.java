@@ -21,7 +21,7 @@ public class MyActivity extends Activity {
 
         regEventCallback();
 
-        Ferry.getInstance().init("192.168.1.115", 7777);
+        Ferry.getInstance().init("192.168.0.106", 7777);
         Ferry.getInstance().start();
     }
 
@@ -34,6 +34,7 @@ public class MyActivity extends Activity {
 
     private void regEventCallback() {
         Ferry.getInstance().addEventCallback(new Ferry.CallbackListener() {
+            @Override
             public void onOpen() {
                 Box box = new Box();
                 box.version = 100;
@@ -42,16 +43,19 @@ public class MyActivity extends Activity {
                 box.body = new String("I love you").getBytes();
 
                 Ferry.getInstance().send(box, new Ferry.CallbackListener() {
+                    @Override
                     public void onRecv(IBox ibox) {
                         Log.d(LOG_TAG, "recv: " + ibox);
                     }
                 }, 5, this);
             }
 
+            @Override
             public void onRecv(IBox ibox) {
                 Log.d(LOG_TAG, "recv: " + ibox);
             }
 
+            @Override
             public void onClose() {
                 Ferry.getInstance().connect();
             }

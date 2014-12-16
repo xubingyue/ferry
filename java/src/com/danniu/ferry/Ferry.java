@@ -114,6 +114,8 @@ public class Ferry implements Delegate {
                 break;
             }
         }
+
+        service.send(ibox);
     }
 
     public void delRspCallbacksForTarget(Object target) {
