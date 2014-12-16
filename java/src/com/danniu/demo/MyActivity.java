@@ -3,6 +3,7 @@ package com.danniu.demo;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import com.danniu.ferry.Ferry;
 import com.danniu.ferry.R;
 
 public class MyActivity extends Activity {

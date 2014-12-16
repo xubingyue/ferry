@@ -16,6 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Created by dantezhu on 14-12-16.
  */
 public class Ferry implements Delegate {
+    private static Ferry ferryInstance;
     private Service service;
     private EventBus eventBus;
     private int boxSn;
@@ -32,6 +33,14 @@ public class Ferry implements Delegate {
         rspCallbacks = new LinkedList<CallbackListener>();
         eventCallbacks = new LinkedList<CallbackListener>();
         timeoutChecker = new Handler();
+    }
+
+    public static Ferry getInstance() {
+        if (ferryInstance == null) {
+            ferryInstance = new Ferry();
+        }
+
+        return ferryInstance;
     }
 
     public int init(String host, int port) {
