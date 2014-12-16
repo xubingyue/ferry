@@ -1,6 +1,7 @@
 package com.danniu.ferry;
 
 import android.os.Handler;
+import android.util.Log;
 import com.danniu.netkit.Box;
 import com.danniu.netkit.IBox;
 import de.greenrobot.event.EventBus;
@@ -155,10 +156,12 @@ public class Ferry implements Delegate {
     }
 
     public void onOpen(Service service) {
+        Log.d(Constants.LOG_TAG, "onOpen.");
         eventBus.post(new Event(Constants.EVENT_OPEN));
     }
 
     public void onSend(Service service, IBox ibox) {
+        Log.d(Constants.LOG_TAG, String.format("onSend. box: %s", ibox));
         Event event = new Event(Constants.EVENT_SEND);
         event.box = ibox;
 
@@ -166,6 +169,7 @@ public class Ferry implements Delegate {
     }
 
     public void onRecv(Service service, IBox ibox) {
+        Log.d(Constants.LOG_TAG, String.format("onRecv. box: %s", ibox));
         Event event = new Event(Constants.EVENT_RECV);
         event.box = ibox;
 
@@ -173,10 +177,12 @@ public class Ferry implements Delegate {
     }
 
     public void onClose(Service service) {
+        Log.d(Constants.LOG_TAG, String.format("onClose."));
         eventBus.post(new Event(Constants.EVENT_CLOSE));
     }
 
     public void onError(Service service, int code, IBox ibox) {
+        Log.d(Constants.LOG_TAG, String.format("onError. code: %s, box: %s", code, ibox));
         Event event = new Event(Constants.EVENT_ERROR);
         event.code = code;
         event.box = ibox;
@@ -233,14 +239,14 @@ public class Ferry implements Delegate {
             case Constants.EVENT_OPEN:
                 listener.onOpen();
                 break;
-            case Constants.EVENT_CLOSE:
-                listener.onClose();
-                break;
             case Constants.EVENT_SEND:
                 listener.onSend(event.box);
                 break;
             case Constants.EVENT_RECV:
                 listener.onRecv(event.box);
+                break;
+            case Constants.EVENT_CLOSE:
+                listener.onClose();
                 break;
             case Constants.EVENT_ERROR:
                 listener.onError(event.code, event.box);
@@ -308,6 +314,8 @@ public class Ferry implements Delegate {
         Event event = new Event(Constants.EVENT_TIMEOUT);
 
         for (CallbackListener listener: todoListeners) {
+            Log.d(Constants.LOG_TAG, String.format("onTimeout. sn: %s", listener.sn));
+
             callListener(listener, event);
             rspCallbacks.remove(listener);
         }
