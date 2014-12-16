@@ -197,6 +197,10 @@ void ScriptFerry::scriptOnEvent(Event *event) {
 }
 
 void ScriptFerry::scriptCheckRspTimeout() {
+    if (m_scriptRspCallbacks.empty()) {
+        return;
+    }
+
     struct timeval tvNow;
     gettimeofday(&tvNow, NULL);
 
