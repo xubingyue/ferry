@@ -4,9 +4,6 @@ import android.util.Log;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.danniu.netkit.IBox;
 import com.danniu.netkit.Stream;
