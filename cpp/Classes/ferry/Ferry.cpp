@@ -337,6 +337,10 @@ void Ferry::cocosSchedule() {
 }
 
 void Ferry::checkRspTimeout() {
+    if (m_rspCallbacks.empty()) {
+        return;
+    }
+
     struct timeval tvNow;
     gettimeofday(&tvNow, NULL);
 
