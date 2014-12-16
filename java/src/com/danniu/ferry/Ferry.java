@@ -330,7 +330,8 @@ public class Ferry implements Delegate {
         }
     }
 
-    public class CallbackListener {
+    // 加static，才可以在外面访问
+    public static class CallbackListener {
         public String name;
         public Object target;
         public int sn;
