@@ -106,8 +106,8 @@ public class Ferry implements Delegate {
         listener.expireTime = (long)(timeout * 1000) + System.currentTimeMillis();
         listener.sn = sn;
 
-        for (int i=0; i<rspCallbacks.size(); i++) {
-            if (i == rspCallbacks.size()-1 ||
+        for (int i=0; ; i++) {
+            if (i >= rspCallbacks.size() ||
                     listener.expireTime < rspCallbacks.get(i).expireTime) {
                 // 插入到i前面
                 rspCallbacks.add(i, listener);
@@ -227,7 +227,9 @@ public class Ferry implements Delegate {
             if (listener.sn == sn) {
                 callListener(listener, event);
 
-                rspCallbacks.remove(listener);
+                if (event.what == Constants.EVENT_RECV || event.what == Constants.EVENT_ERROR) {
+                    rspCallbacks.remove(listener);
+                }
             }
         }
     }

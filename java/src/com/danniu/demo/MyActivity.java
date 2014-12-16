@@ -47,6 +47,11 @@ public class MyActivity extends Activity {
                     public void onRecv(IBox ibox) {
                         Log.d(LOG_TAG, "recv: " + ibox);
                     }
+
+                    @Override
+                    public void onTimeout() {
+                        Log.d(LOG_TAG, "timeout");
+                    }
                 }, 5, this);
             }
 
