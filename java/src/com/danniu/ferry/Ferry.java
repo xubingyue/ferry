@@ -35,7 +35,7 @@ public class Ferry implements Delegate {
 
     public int init(String host, int port) {
         // 准备好
-        startTimeoutChecker();
+        initTimeoutChecker();
         return service.init(this, host, port);
     }
 
@@ -272,7 +272,7 @@ public class Ferry implements Delegate {
         return ((Box)ibox).sn;
     }
 
-    private void startTimeoutChecker() {
+    private void initTimeoutChecker() {
         timeoutChecker.postDelayed(new Runnable() {
             @Override
             public void run() {
