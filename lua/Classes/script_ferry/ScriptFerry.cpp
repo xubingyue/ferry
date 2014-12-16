@@ -230,6 +230,7 @@ void ScriptFerry::scriptCheckRspTimeout() {
             continue;
         }
 
+        cocos2d::log("[%s][%d][%s] timeout. sn: %d", __FILE__, __LINE__, __FUNCTION__, container->sn);
         container->scriptCallbackEntry->call(scriptEvent);
 
         cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(container->scriptCallbackEntry->getHandler());
