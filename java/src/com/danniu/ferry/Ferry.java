@@ -1,10 +1,10 @@
 package com.danniu.ferry;
 
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import com.danniu.netkit.Box;
 import com.danniu.netkit.IBox;
-import de.greenrobot.event.EventBus;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -18,21 +18,28 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Ferry implements Delegate {
     private static Ferry ferryInstance;
     private Service service;
-    private EventBus eventBus;
     private int boxSn;
     private Lock boxSnLock;
     private List<CallbackListener> rspCallbacks;
     private List<CallbackListener> eventCallbacks;
     private Handler timeoutChecker;
+    private Handler eventHandler;
 
     public Ferry() {
         service = new Service();
-        eventBus = new EventBus();
-        eventBus.register(this);
         boxSnLock = new ReentrantLock();
         rspCallbacks = new LinkedList<CallbackListener>();
         eventCallbacks = new LinkedList<CallbackListener>();
         timeoutChecker = new Handler();
+
+        eventHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                onMessageMainThread(msg);
+                super.handleMessage(msg);
+            }
+        };
+
     }
 
     public static Ferry getInstance() {
@@ -168,54 +175,57 @@ public class Ferry implements Delegate {
 
     public void onOpen(Service service) {
         Log.d(Constants.LOG_TAG, "onOpen.");
-        eventBus.post(new Event(Constants.EVENT_OPEN));
+        eventHandler.sendEmptyMessage(Constants.EVENT_OPEN);
     }
 
     public void onSend(Service service, IBox ibox) {
         Log.d(Constants.LOG_TAG, String.format("onSend. box: %s", ibox));
-        Event event = new Event(Constants.EVENT_SEND);
-        event.box = ibox;
+        Message msg = new Message();
+        msg.what = Constants.EVENT_SEND;
+        msg.obj = ibox;
 
-        eventBus.post(event);
+        eventHandler.sendMessage(msg);
     }
 
     public void onRecv(Service service, IBox ibox) {
         Log.d(Constants.LOG_TAG, String.format("onRecv. box: %s", ibox));
-        Event event = new Event(Constants.EVENT_RECV);
-        event.box = ibox;
+        Message msg = new Message();
+        msg.what = Constants.EVENT_RECV;
+        msg.obj = ibox;
 
-        eventBus.post(event);
+        eventHandler.sendMessage(msg);
     }
 
     public void onClose(Service service) {
         Log.d(Constants.LOG_TAG, String.format("onClose."));
-        eventBus.post(new Event(Constants.EVENT_CLOSE));
+        eventHandler.sendEmptyMessage(Constants.EVENT_CLOSE);
     }
 
     public void onError(Service service, int code, IBox ibox) {
         Log.d(Constants.LOG_TAG, String.format("onError. code: %s, box: %s", code, ibox));
-        Event event = new Event(Constants.EVENT_ERROR);
-        event.code = code;
-        event.box = ibox;
+        Message msg = new Message();
+        msg.what = Constants.EVENT_ERROR;
+        msg.arg1 = code;
+        msg.obj = ibox;
 
-        eventBus.post(event);
+        eventHandler.sendMessage(msg);
     }
 
     public IBox createBox() {
         return new Box();
     }
 
-    public void onEventMainThread(Event event) {
-        if (event.box != null && getSnFromBox(event.box) > 0) {
-            handleWithRspCallbacks(event);
+    public void onMessageMainThread(Message msg) {
+        if (msg.obj != null && getSnFromBox((IBox)msg.obj) > 0) {
+            handleWithRspCallbacks(msg);
         }
         else {
-            handleWithEventCallbacks(event);
+            handleWithEventCallbacks(msg);
         }
     }
 
-    private void handleWithRspCallbacks(Event event) {
-        int sn = getSnFromBox(event.box);
+    private void handleWithRspCallbacks(Message msg) {
+        int sn = getSnFromBox((IBox)msg.obj);
         LinkedList<CallbackListener> tmpListeners = new LinkedList<CallbackListener>(rspCallbacks);
 
         for (CallbackListener listener: tmpListeners) {
@@ -225,16 +235,16 @@ public class Ferry implements Delegate {
             }
 
             if (listener.sn == sn) {
-                callListener(listener, event);
+                callListener(listener, msg);
 
-                if (event.what == Constants.EVENT_RECV || event.what == Constants.EVENT_ERROR) {
+                if (msg.what == Constants.EVENT_RECV || msg.what == Constants.EVENT_ERROR) {
                     rspCallbacks.remove(listener);
                 }
             }
         }
     }
 
-    private void handleWithEventCallbacks(Event event) {
+    private void handleWithEventCallbacks(Message event) {
         LinkedList<CallbackListener> tmpListeners = new LinkedList<CallbackListener>(eventCallbacks);
 
         for (CallbackListener listener: tmpListeners) {
@@ -247,25 +257,23 @@ public class Ferry implements Delegate {
         }
     }
 
-    private void callListener(CallbackListener listener, Event event) {
-        switch (event.what) {
+    private void callListener(CallbackListener listener, Message msg) {
+        IBox box = (IBox) msg.obj;
+        switch (msg.what) {
             case Constants.EVENT_OPEN:
                 listener.onOpen();
                 break;
             case Constants.EVENT_SEND:
-                listener.onSend(event.box);
+                listener.onSend(box);
                 break;
             case Constants.EVENT_RECV:
-                listener.onRecv(event.box);
+                listener.onRecv(box);
                 break;
             case Constants.EVENT_CLOSE:
                 listener.onClose();
                 break;
             case Constants.EVENT_ERROR:
-                listener.onError(event.code, event.box);
-                break;
-            case Constants.EVENT_TIMEOUT:
-                listener.onTimeout();
+                listener.onError(msg.arg1, box);
                 break;
         }
     }
@@ -324,12 +332,10 @@ public class Ferry implements Delegate {
             return;
         }
 
-        Event event = new Event(Constants.EVENT_TIMEOUT);
-
         for (CallbackListener listener: todoListeners) {
             Log.d(Constants.LOG_TAG, String.format("onTimeout. sn: %s", listener.sn));
 
-            callListener(listener, event);
+            listener.onTimeout();
             rspCallbacks.remove(listener);
         }
     }
@@ -352,15 +358,5 @@ public class Ferry implements Delegate {
         public void onError(int code, IBox ibox) {}
 
         public void onTimeout() {}
-    }
-
-    public class Event {
-        public int what;
-        public IBox box;
-        public int code;
-
-        Event(int what_) {
-            what = what_;
-        }
     }
 }
