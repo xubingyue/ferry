@@ -19,4 +19,9 @@ def index(request):
     print 'rsp', request.box, '\n'
     request.write(request.box)
 
+    box = Box()
+    box.cmd = 15
+    print 'event', box, '\n'
+    request.write(box)
+
 app.run(host="0.0.0.0", port=7777, debug=True)

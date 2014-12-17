@@ -9,7 +9,8 @@ import com.danniu.netkit.Box;
 import com.danniu.netkit.IBox;
 
 public class MyActivity extends Activity {
-    public static final String LOG_TAG = "ferry_test";
+    public static final String LOG_TAG_EVENT = "ferry_event";
+    public static final String LOG_TAG_RSP = "ferry_rsp";
 
     /**
      * Called when the activity is first created.
@@ -21,7 +22,7 @@ public class MyActivity extends Activity {
 
         regEventCallback();
 
-        Ferry.getInstance().init("192.168.0.106", 7777);
+        Ferry.getInstance().init("192.168.1.77", 7777);
         Ferry.getInstance().start();
     }
 
@@ -36,6 +37,8 @@ public class MyActivity extends Activity {
         Ferry.getInstance().addEventCallback(new Ferry.CallbackListener() {
             @Override
             public void onOpen() {
+                Log.d(LOG_TAG_EVENT, "onOpen");
+
                 Box box = new Box();
                 box.version = 100;
                 box.flag = 99;
@@ -44,25 +47,41 @@ public class MyActivity extends Activity {
 
                 Ferry.getInstance().send(box, new Ferry.CallbackListener() {
                     @Override
+                    public void onSend(IBox ibox) {
+                        Log.d(LOG_TAG_RSP, String.format("onSend, box: %s", ibox));
+                    }
+
+                    @Override
                     public void onRecv(IBox ibox) {
-                        Log.d(LOG_TAG, "recv: " + ibox);
+                        Log.d(LOG_TAG_RSP, String.format("onRecv, box: %s", ibox));
+                    }
+
+                    @Override
+                    public void onError(int code, IBox ibox) {
+                        Log.d(LOG_TAG_RSP, String.format("onError, code: %s, box: %s", code, ibox));
                     }
 
                     @Override
                     public void onTimeout() {
-                        Log.d(LOG_TAG, "timeout");
+                        Log.d(LOG_TAG_RSP, "onTimeout");
                     }
                 }, 5, this);
             }
 
             @Override
             public void onRecv(IBox ibox) {
-                Log.d(LOG_TAG, "recv: " + ibox);
+                Log.d(LOG_TAG_EVENT, String.format("onRecv, box: %s", ibox));
             }
 
             @Override
             public void onClose() {
+                Log.d(LOG_TAG_EVENT, "onClose");
                 Ferry.getInstance().connect();
+            }
+
+            @Override
+            public void onError(int code, IBox ibox) {
+                Log.d(LOG_TAG_EVENT, String.format("onError, code: %s, box: %s", code, ibox));
             }
 
         }, this, "ok");
