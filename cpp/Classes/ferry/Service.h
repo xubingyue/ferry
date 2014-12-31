@@ -23,7 +23,7 @@ public:
     virtual ~Service();
 
     // 初始化
-    int init(Delegate *delegate, const std::string& host, short port);
+    int init(Delegate *delegate, const std::string& host, int port);
     // 启动
     void start();
     // 停止，一般在游戏结束时
@@ -98,7 +98,7 @@ private:
 
     Delegate *m_delegate;
     std::string m_host;
-    short m_port;
+    int m_port;
 
     // 是否要尝试连接，因为有时候会要提示用户连接断开
     // 用户点击重试才继续尝试

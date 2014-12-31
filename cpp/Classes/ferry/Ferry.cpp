@@ -35,7 +35,7 @@ ferry::Service*Ferry::getService() {
     return &m_service;
 }
 
-int Ferry::init(const std::string& host, short port) {
+int Ferry::init(const std::string& host, int port) {
     return m_service.init(this, host, port);
 }
 

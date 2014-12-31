@@ -69,7 +69,7 @@ public:
 
     ferry::Service* getService();
 
-    virtual int init(const std::string &host, short port);
+    virtual int init(const std::string &host, int port);
 
     void start();
 

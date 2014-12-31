@@ -71,7 +71,7 @@ namespace ferry {
 
     }
 
-    int Service::init(Delegate *delegate, const std::string& host, short port) {
+    int Service::init(Delegate *delegate, const std::string& host, int port) {
         m_delegate = delegate;
         m_host = host;
         m_port = port;
@@ -147,7 +147,7 @@ namespace ferry {
 
         memset(&serv_addr, 0, sizeof(serv_addr));
         serv_addr.sin_family = AF_INET;
-        serv_addr.sin_port   = htons(m_port);
+        serv_addr.sin_port   = htons((unsigned short)m_port);
         serv_addr.sin_addr = ip_addr;
 
         netkit::SocketType sockFd;

@@ -365,13 +365,13 @@ int lua_ferry_Service_init(lua_State* tolua_S)
     {
         ferry::Delegate* arg0;
         std::string arg1;
-        int32_t arg2;
+        int arg2;
 
         ok &= luaval_to_object<ferry::Delegate>(tolua_S, 2, "ferry.Delegate",&arg0);
 
         ok &= luaval_to_std_string(tolua_S, 3,&arg1);
 
-        ok &= luaval_to_int32(tolua_S, 4,&arg2);
+        ok &= luaval_to_int32(tolua_S, 4,(int *)&arg2);
         if(!ok)
             return 0;
         int ret = cobj->init(arg0, arg1, arg2);
@@ -828,11 +828,11 @@ int lua_ferry_Ferry_init(lua_State* tolua_S)
     if (argc == 2) 
     {
         std::string arg0;
-        int32_t arg1;
+        int arg1;
 
         ok &= luaval_to_std_string(tolua_S, 2,&arg0);
 
-        ok &= luaval_to_int32(tolua_S, 3,&arg1);
+        ok &= luaval_to_int32(tolua_S, 3,(int *)&arg1);
         if(!ok)
             return 0;
         int ret = cobj->init(arg0, arg1);
