@@ -13,6 +13,7 @@
 ### 三. 服务器端
 
 * python
+    * [maple](https://github.com/dantezhu/maple)
     * [haven](https://github.com/dantezhu/haven)
     * [melon](https://github.com/dantezhu/melon)
 
