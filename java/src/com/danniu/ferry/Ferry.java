@@ -279,10 +279,9 @@ public class Ferry implements Delegate {
     }
 
     private int newBoxSn() {
-        boxSn %= 2100000000;
-
         boxSnLock.lock();
         try {
+            boxSn %= 2100000000;
             return ++boxSn;
         }
         finally {
