@@ -1,4 +1,4 @@
-package com.danniu.ferry;
+package cn.vimer.ferry;
 
 /**
  * Created by dantezhu on 14-10-25.

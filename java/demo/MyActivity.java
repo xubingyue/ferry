@@ -1,12 +1,12 @@
-package com.danniu.demo;
+package cn.vimer.ferry_demo;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
-import com.danniu.ferry.Ferry;
-import com.danniu.ferry.R;
-import com.danniu.netkit.Box;
-import com.danniu.netkit.IBox;
+import cn.vimer.ferry.Ferry;
+import cn.vimer.ferry.R;
+import cn.vimer.netkit.Box;
+import cn.vimer.netkit.IBox;
 
 public class MyActivity extends Activity {
     public static final String LOG_TAG_EVENT = "ferry_event";

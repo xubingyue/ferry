@@ -1,12 +1,12 @@
-package com.danniu.ferry;
+package cn.vimer.ferry;
 
 import android.util.Log;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import com.danniu.netkit.IBox;
-import com.danniu.netkit.Stream;
+import cn.vimer.netkit.IBox;
+import cn.vimer.netkit.Stream;
 
 
 /**

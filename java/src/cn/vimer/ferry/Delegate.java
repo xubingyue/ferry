@@ -1,6 +1,6 @@
-package com.danniu.ferry;
+package cn.vimer.ferry;
 
-import com.danniu.netkit.IBox;
+import cn.vimer.netkit.IBox;
 
 /**
  * Created by dantezhu on 14-10-19.
