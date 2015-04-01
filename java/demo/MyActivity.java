@@ -3,8 +3,8 @@ package cn.vimer.ferry_demo;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import cn.vimer.ferry_demo.R;
 import cn.vimer.ferry.Ferry;
-import cn.vimer.ferry.R;
 import cn.vimer.netkit.Box;
 import cn.vimer.netkit.IBox;
 
