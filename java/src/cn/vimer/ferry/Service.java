@@ -125,12 +125,13 @@ public class Service {
 
     private void stopThreads() {
         if (sendThread != null && sendThread.isAlive()) {
-            sendThread.stop();
+            // stop 在android上会抛异常
+            sendThread.interrupt();
             sendThread = null;
         }
 
         if (recvThread != null && recvThread.isAlive()) {
-            recvThread.stop();
+            recvThread.interrupt();
             recvThread = null;
         }
     }
