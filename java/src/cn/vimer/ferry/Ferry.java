@@ -2,7 +2,6 @@ package cn.vimer.ferry;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import cn.vimer.netkit.Box;
 import cn.vimer.netkit.IBox;
 
@@ -174,12 +173,12 @@ public class Ferry implements Delegate {
     }
 
     public void onOpen(Service service) {
-        Log.d(Constants.LOG_TAG, "onOpen.");
+        FLog.d("");
         eventHandler.sendEmptyMessage(Constants.EVENT_OPEN);
     }
 
     public void onSend(Service service, IBox ibox) {
-        Log.d(Constants.LOG_TAG, String.format("onSend. box: %s", ibox));
+        FLog.d(String.format("box: %s", ibox));
         Message msg = new Message();
         msg.what = Constants.EVENT_SEND;
         msg.obj = ibox;
@@ -188,7 +187,7 @@ public class Ferry implements Delegate {
     }
 
     public void onRecv(Service service, IBox ibox) {
-        Log.d(Constants.LOG_TAG, String.format("onRecv. box: %s", ibox));
+        FLog.d(String.format("box: %s", ibox));
         Message msg = new Message();
         msg.what = Constants.EVENT_RECV;
         msg.obj = ibox;
@@ -197,12 +196,12 @@ public class Ferry implements Delegate {
     }
 
     public void onClose(Service service) {
-        Log.d(Constants.LOG_TAG, String.format("onClose."));
+        FLog.d("");
         eventHandler.sendEmptyMessage(Constants.EVENT_CLOSE);
     }
 
     public void onError(Service service, int code, IBox ibox) {
-        Log.d(Constants.LOG_TAG, String.format("onError. code: %s, box: %s", code, ibox));
+        FLog.d(String.format("code: %s, box: %s", code, ibox));
         Message msg = new Message();
         msg.what = Constants.EVENT_ERROR;
         msg.arg1 = code;
@@ -332,7 +331,7 @@ public class Ferry implements Delegate {
         }
 
         for (CallbackListener listener: todoListeners) {
-            Log.d(Constants.LOG_TAG, String.format("onTimeout. sn: %s", listener.sn));
+            FLog.d(String.format("timeout. sn: %s", listener.sn));
 
             listener.onTimeout();
             rspCallbacks.remove(listener);

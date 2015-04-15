@@ -3,7 +3,6 @@ package cn.vimer.ferry_demo;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
-import cn.vimer.ferry_demo.R;
 import cn.vimer.ferry.Ferry;
 import cn.vimer.netkit.Box;
 import cn.vimer.netkit.IBox;
@@ -22,7 +21,7 @@ public class MyActivity extends Activity {
 
         regEventCallback();
 
-        Ferry.getInstance().init("192.168.1.77", 7777);
+        Ferry.getInstance().init("192.168.0.108", 7777);
         Ferry.getInstance().start();
     }
 

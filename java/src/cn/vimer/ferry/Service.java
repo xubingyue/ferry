@@ -1,6 +1,5 @@
 package cn.vimer.ferry;
 
-import android.util.Log;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -13,9 +12,6 @@ import cn.vimer.netkit.Stream;
  * Created by dantezhu on 14-10-19.
  */
 public class Service {
-
-    public final static String LOG_TAG = "ferry";
-
 
     private ArrayBlockingQueue<IBox> msgQueueToServer = new ArrayBlockingQueue<IBox>(Constants.MSG_QUEUE_TO_SERVER_MAX_SIZE);
 
@@ -100,7 +96,7 @@ public class Service {
                 client.close();
             }
             catch (Exception e) {
-                Log.e(LOG_TAG, "e: " + e);
+                FLog.e("e: " + e);
             }
             finally {
                 client = null;
@@ -152,7 +148,7 @@ public class Service {
                         Thread.sleep(tryConnectInterval * 1000);
                     }
                     catch (Exception e) {
-                        Log.e(LOG_TAG, "e: " + e);
+                        FLog.e("e: " + e);
                     }
 
                     continue;
@@ -173,7 +169,7 @@ public class Service {
                 }
             }
             catch (Exception e) {
-                Log.e(LOG_TAG, "e: " + e);
+                FLog.e("e: " + e);
                 closeConn();
                 onConnClose();
             }
@@ -198,7 +194,7 @@ public class Service {
                 }
             }
             catch (Exception e) {
-                Log.e(LOG_TAG, "e: " + e);
+                FLog.e("e: " + e);
                 onError(Constants.ERROR_SEND, box);
             }
         }
@@ -215,7 +211,7 @@ public class Service {
             socket.connect(address);
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "e: " + e);
+            FLog.e("e: " + e);
             onError(Constants.ERROR_OPEN, null);
             return;
         }
