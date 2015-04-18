@@ -2,6 +2,7 @@ package cn.vimer.ferry;
 
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import cn.vimer.netkit.Box;
 import cn.vimer.netkit.IBox;
 
@@ -15,6 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Created by dantezhu on 14-12-16.
  */
 public class Ferry implements Delegate {
+    private static boolean debug = false;
     private static Ferry ferryInstance;
     private Service service;
     private int boxSn;
@@ -47,6 +49,21 @@ public class Ferry implements Delegate {
         }
 
         return ferryInstance;
+    }
+
+    public static void setDebug(boolean debug_) {
+        debug = debug_;
+
+        if (debug) {
+            FLog.setLevel(Log.DEBUG);
+        }
+        else {
+            FLog.setLevel(Log.ERROR);
+        }
+    }
+
+    public static boolean getDebug() {
+        return debug;
     }
 
     public int init(String host, int port) {
