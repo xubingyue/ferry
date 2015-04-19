@@ -24,4 +24,11 @@ def index(request):
     print 'event', box, '\n'
     request.write(box)
 
+@app.route(7)
+def heartbeat(request):
+    request.write(dict(
+        ret=0
+    ))
+    return
+
 app.run(host="0.0.0.0", port=7777, debug=True)

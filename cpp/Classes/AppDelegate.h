@@ -36,6 +36,8 @@ public:
     virtual void applicationWillEnterForeground();
 
     void eventCallback(ferry::Event* event);
+
+    void heartbeat();
 };
 
 #endif // _APP_DELEGATE_H_

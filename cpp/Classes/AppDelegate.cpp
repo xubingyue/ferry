@@ -3,6 +3,19 @@
 
 USING_NS_CC;
 
+#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+#include <winsock2.h>
+#pragma comment(lib,"pthreadVSE2.lib")
+#define MY_SLEEP(sec) Sleep((sec)*1000);
+
+#else
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#define MY_SLEEP(sec) sleep(sec);
+#endif
+
+
 AppDelegate::AppDelegate() {
     ferry::Ferry::getInstance()->addEventCallback(
             std::bind(&AppDelegate::eventCallback, this, std::placeholders::_1),
@@ -48,6 +61,10 @@ bool AppDelegate::applicationDidFinishLaunching() {
     ferry::Ferry::getInstance()->init("127.0.0.1", 7777);
     ferry::Ferry::getInstance()->start();
 
+    // 启动心跳
+    std::thread* hbThread = new std::thread(&AppDelegate::heartbeat,this);
+    // 脱离
+    hbThread->detach();
 
     return true;
 }
@@ -99,3 +116,28 @@ void AppDelegate::eventCallback(ferry::Event *event) {
         };
     }
 }
+
+void AppDelegate::heartbeat() {
+    while(1) {
+        netkit::Box* box = new netkit::Box();
+        box->cmd = 7;
+
+        // 必须已经连接的状态，才发送心跳
+        if (ferry::Ferry::getInstance()->isConnected()) {
+            ferry::Ferry::getInstance()->send(box);
+        }
+
+        // 检查超时
+        if (ferry::Ferry::getInstance()->getLastRecvTime() > 0 &&
+                time(NULL) - ferry::Ferry::getInstance()->getLastRecvTime() > 30)
+        {
+            // 说明保持连接超时了
+            cocos2d::log("conn alive timeout, disconnect");
+            ferry::Ferry::getInstance()->disconnect();
+        }
+
+        // 10秒
+        MY_SLEEP(10);
+    }
+}
+
