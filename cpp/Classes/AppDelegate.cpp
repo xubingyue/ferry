@@ -72,10 +72,11 @@ void AppDelegate::eventCallback(ferry::Event *event) {
     cocos2d::log("event->what: %d", event->what);
 
     switch (event->what) {
-        case ferry::EVENT_CLOSE:
+        case ferry::EVENT_CLOSE: {
             ferry::Ferry::getInstance()->connect();
             break;
-        case ferry::EVENT_OPEN:
+        };
+        case ferry::EVENT_OPEN: {
             auto func = [&](ferry::Event* event) {
                 cocos2d::log("rsp, event->what: %d", event->what);
 
@@ -91,5 +92,10 @@ void AppDelegate::eventCallback(ferry::Event *event) {
 
             ferry::Ferry::getInstance()->send(box, func, 0.5, this);
             break;
+        };
+        case ferry::EVENT_RECV: {
+            cocos2d::log("lastRecvTime: %d", ferry::Ferry::getInstance()->getLastRecvTime());
+            break;
+        };
     }
 }

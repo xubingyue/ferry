@@ -65,3 +65,11 @@
         frameworks/cocos2d-x/cocos/scripting/lua-bindings/auto/lua_ferry_auto.cpp
 
 8. 搞定
+
+### 四. 说明
+1. 版本库中目前自动生成的cpp文件使用环境为:
+    
+        mac 10.9
+        cocos2dx-3.2
+        ndk-r9d
+        python 2.7

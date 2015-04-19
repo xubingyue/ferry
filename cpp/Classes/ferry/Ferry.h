@@ -93,6 +93,8 @@ public:
 
     bool isRunning();
 
+    int getLastRecvTime();
+
     // 删除类对应的所有回调，务必在使用ferry的类的析构函数里调用
     void delCallbacksForTarget(void *target);
     // 删除所有回调
@@ -158,6 +160,8 @@ private:
     std::list<EventCallbackContainer*> m_eventCallbacks;
     // 最先过期的排在最左边
     std::list<RspCallbackContainer*> m_rspCallbacks;
+
+    time_t m_lastRecvTime;
 };
 
 }
