@@ -42,6 +42,9 @@ public:
     // 是否运行中
     bool isRunning();
 
+    // 最近一次onOpen或onRecv的时间
+    int getLastActiveTime();
+
     // 发送消息
     void send(netkit::IBox* box);
 
@@ -99,6 +102,8 @@ private:
     Delegate *m_delegate;
     std::string m_host;
     int m_port;
+
+    time_t m_lastActiveTime;
 
     // 是否要尝试连接，因为有时候会要提示用户连接断开
     // 用户点击重试才继续尝试

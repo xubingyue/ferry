@@ -44,6 +44,7 @@ namespace ferry {
         m_client = nullptr;
 
         m_shouldConnect = false;
+        m_lastActiveTime = 0;
 
 #if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
     netkit::Stream::startupSocket();
@@ -117,6 +118,10 @@ namespace ferry {
         if (m_client) {
             m_client->shutdown(2);
         }
+    }
+
+    int Service::getLastActiveTime() {
+        return (int)m_lastActiveTime;
     }
 
     void Service::send(netkit::IBox *box) {
@@ -303,10 +308,12 @@ namespace ferry {
     }
 
     void Service::_onConnOpen() {
+        m_lastActiveTime = time(NULL);
         m_delegate->onOpen(this);
     }
 
     void Service::_onConnClose() {
+        m_lastActiveTime = 0;
         // 设置为不重连，等触发connectToServer再改状态
         m_shouldConnect = false;
         m_delegate->onClose(this);
@@ -317,6 +324,7 @@ namespace ferry {
     }
 
     void Service::_onRecvMsgFromServer(netkit::IBox *box) {
+        m_lastActiveTime = time(NULL);
         m_delegate->onRecv(this, box);
     }
 

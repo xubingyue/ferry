@@ -20,7 +20,6 @@ Ferry::Ferry() {
     pthread_mutex_init(&m_boxSnMutex, NULL);
 
     m_boxSn = 0;
-    m_lastRecvTime = 0;
 }
 
 Ferry::~Ferry() {
@@ -88,9 +87,9 @@ bool Ferry::isRunning() {
     return m_service.isRunning();
 }
 
-int Ferry::getLastRecvTime() {
+int Ferry::getLastActiveTime() {
     // 2038年之前都可以正常
-    return (int)m_lastRecvTime;
+    return m_service.getLastActiveTime();
 }
 
 void Ferry::delCallbacksForTarget(void *target) {
@@ -227,8 +226,6 @@ void Ferry::onSend(ferry::Service *service, netkit::IBox *ibox) {
 
 void Ferry::onRecv(ferry::Service *service, netkit::IBox *ibox) {
     cocos2d::log("[%s][%d][%s] box: %s", __FILE__, __LINE__, __FUNCTION__, ibox->toString().c_str());
-
-    m_lastRecvTime = time(NULL);
 
     Event *event = new Event();
     event->what = EVENT_RECV;

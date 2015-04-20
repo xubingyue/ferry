@@ -110,10 +110,6 @@ void AppDelegate::eventCallback(ferry::Event *event) {
             ferry::Ferry::getInstance()->send(box, func, 0.5, this);
             break;
         };
-        case ferry::EVENT_RECV: {
-            cocos2d::log("lastRecvTime: %d", ferry::Ferry::getInstance()->getLastRecvTime());
-            break;
-        };
     }
 }
 
@@ -128,8 +124,8 @@ void AppDelegate::heartbeat() {
         }
 
         // 检查超时
-        if (ferry::Ferry::getInstance()->getLastRecvTime() > 0 &&
-                time(NULL) - ferry::Ferry::getInstance()->getLastRecvTime() > 30)
+        if (ferry::Ferry::getInstance()->getLastActiveTime() > 0 &&
+                time(NULL) - ferry::Ferry::getInstance()->getLastActiveTime() > 30)
         {
             // 说明保持连接超时了
             cocos2d::log("conn alive timeout, disconnect");
