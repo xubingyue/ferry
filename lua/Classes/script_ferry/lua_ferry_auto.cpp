@@ -475,6 +475,50 @@ int lua_ferry_Service_isRunning(lua_State* tolua_S)
 
     return 0;
 }
+int lua_ferry_Service_getLastActiveTime(lua_State* tolua_S)
+{
+    int argc = 0;
+    ferry::Service* cobj = nullptr;
+    bool ok  = true;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+
+
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertype(tolua_S,1,"ferry.Service",0,&tolua_err)) goto tolua_lerror;
+#endif
+
+    cobj = (ferry::Service*)tolua_tousertype(tolua_S,1,0);
+
+#if COCOS2D_DEBUG >= 1
+    if (!cobj) 
+    {
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Service_getLastActiveTime'", nullptr);
+        return 0;
+    }
+#endif
+
+    argc = lua_gettop(tolua_S)-1;
+    if (argc == 0) 
+    {
+        if(!ok)
+            return 0;
+        int ret = cobj->getLastActiveTime();
+        tolua_pushnumber(tolua_S,(lua_Number)ret);
+        return 1;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "getLastActiveTime",argc, 0);
+    return 0;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Service_getLastActiveTime'.",&tolua_err);
+#endif
+
+    return 0;
+}
 int lua_ferry_Service_setMsgQueueToServerMaxSize(lua_State* tolua_S)
 {
     int argc = 0;
@@ -575,6 +619,7 @@ int lua_register_ferry_Service(lua_State* tolua_S)
         tolua_function(tolua_S,"init",lua_ferry_Service_init);
         tolua_function(tolua_S,"connect",lua_ferry_Service_connect);
         tolua_function(tolua_S,"isRunning",lua_ferry_Service_isRunning);
+        tolua_function(tolua_S,"getLastActiveTime",lua_ferry_Service_getLastActiveTime);
         tolua_function(tolua_S,"setMsgQueueToServerMaxSize",lua_ferry_Service_setMsgQueueToServerMaxSize);
     tolua_endmodule(tolua_S);
     std::string typeName = typeid(ferry::Service).name();
@@ -980,7 +1025,7 @@ int lua_ferry_Ferry_getService(lua_State* tolua_S)
 
     return 0;
 }
-int lua_ferry_Ferry_getLastRecvTime(lua_State* tolua_S)
+int lua_ferry_Ferry_getLastActiveTime(lua_State* tolua_S)
 {
     int argc = 0;
     ferry::Ferry* cobj = nullptr;
@@ -1000,7 +1045,7 @@ int lua_ferry_Ferry_getLastRecvTime(lua_State* tolua_S)
 #if COCOS2D_DEBUG >= 1
     if (!cobj) 
     {
-        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_getLastRecvTime'", nullptr);
+        tolua_error(tolua_S,"invalid 'cobj' in function 'lua_ferry_Ferry_getLastActiveTime'", nullptr);
         return 0;
     }
 #endif
@@ -1010,16 +1055,16 @@ int lua_ferry_Ferry_getLastRecvTime(lua_State* tolua_S)
     {
         if(!ok)
             return 0;
-        int ret = cobj->getLastRecvTime();
+        int ret = cobj->getLastActiveTime();
         tolua_pushnumber(tolua_S,(lua_Number)ret);
         return 1;
     }
-    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "getLastRecvTime",argc, 0);
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d \n", "getLastActiveTime",argc, 0);
     return 0;
 
 #if COCOS2D_DEBUG >= 1
     tolua_lerror:
-    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_getLastRecvTime'.",&tolua_err);
+    tolua_error(tolua_S,"#ferror in function 'lua_ferry_Ferry_getLastActiveTime'.",&tolua_err);
 #endif
 
     return 0;
@@ -1239,7 +1284,7 @@ int lua_register_ferry_Ferry(lua_State* tolua_S)
         tolua_function(tolua_S,"isSchedulePaused",lua_ferry_Ferry_isSchedulePaused);
         tolua_function(tolua_S,"stop",lua_ferry_Ferry_stop);
         tolua_function(tolua_S,"getService",lua_ferry_Ferry_getService);
-        tolua_function(tolua_S,"getLastRecvTime",lua_ferry_Ferry_getLastRecvTime);
+        tolua_function(tolua_S,"getLastActiveTime",lua_ferry_Ferry_getLastActiveTime);
         tolua_function(tolua_S,"pauseSchedule",lua_ferry_Ferry_pauseSchedule);
         tolua_function(tolua_S,"isRunning",lua_ferry_Ferry_isRunning);
         tolua_function(tolua_S,"clearEvents",lua_ferry_Ferry_clearEvents);
