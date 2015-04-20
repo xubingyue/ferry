@@ -19,6 +19,8 @@ public class Service {
     private String host;
     private int port;
     private boolean running = false;
+    // 最后一次活跃时间，包括onOpen和onRecv。onClose时要清零
+    private long lastActiveTimeMills = 0;
 
     private boolean shouldConnect = false;
 
@@ -76,6 +78,10 @@ public class Service {
 
     public boolean isRunning() {
         return running;
+    }
+
+    public long getLastActiveTimeMills() {
+        return lastActiveTimeMills;
     }
 
     public void send(IBox ibox) {
@@ -228,11 +234,13 @@ public class Service {
     }
 
     private void onConnClose() {
+        lastActiveTimeMills = 0;
         shouldConnect = false;
         delegate.onClose(this);
     }
 
     private void onConnOpen() {
+        lastActiveTimeMills = System.currentTimeMillis();
         delegate.onOpen(this);
     }
     private void onError(int code, IBox ibox) {
@@ -244,6 +252,7 @@ public class Service {
     }
 
     private void onRecvMsgFromServer(IBox ibox) {
+        lastActiveTimeMills = System.currentTimeMillis();
         delegate.onRecv(this, ibox);
     }
 

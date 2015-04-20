@@ -25,7 +25,6 @@ public class Ferry implements Delegate {
     private List<CallbackListener> eventCallbacks;
     private Handler timeoutChecker;
     private Handler eventHandler;
-    private long lastRecvTimeMills;
 
     public Ferry() {
         service = new Service();
@@ -105,8 +104,8 @@ public class Ferry implements Delegate {
         return service.isRunning();
     }
 
-    public long getLastRecvTimeMills() {
-        return lastRecvTimeMills;
+    public long getLastActiveTimeMills() {
+        return service.getLastActiveTimeMills();
     }
 
     public void delCallbacksForTarget(Object target) {
@@ -210,7 +209,6 @@ public class Ferry implements Delegate {
 
     public void onRecv(Service service, IBox ibox) {
         FLog.d(String.format("box: %s", ibox));
-        lastRecvTimeMills = System.currentTimeMillis();
         Message msg = new Message();
         msg.what = Constants.EVENT_RECV;
         msg.obj = ibox;
