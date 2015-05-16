@@ -8,7 +8,7 @@
 3. 修改 AppDelegate.cpp，参考 
 
         ferry/lua/Classes/AppDelegate.cpp
-4. 复制相关的lua文件至心工程的src目录
+4. 复制相关的lua文件至新工程的src目录
 
         ferry/lua/script/*
 5. 修改main.lua，参考
