@@ -87,7 +87,7 @@ bool Ferry::isRunning() {
     return m_service.isRunning();
 }
 
-int Ferry::getLastActiveTime() {
+unsigned int Ferry::getLastActiveTime() {
     // 2038年之前都可以正常
     return m_service.getLastActiveTime();
 }

@@ -505,7 +505,7 @@ int lua_ferry_Service_getLastActiveTime(lua_State* tolua_S)
     {
         if(!ok)
             return 0;
-        int ret = cobj->getLastActiveTime();
+        unsigned int ret = cobj->getLastActiveTime();
         tolua_pushnumber(tolua_S,(lua_Number)ret);
         return 1;
     }
@@ -1055,7 +1055,7 @@ int lua_ferry_Ferry_getLastActiveTime(lua_State* tolua_S)
     {
         if(!ok)
             return 0;
-        int ret = cobj->getLastActiveTime();
+        unsigned int ret = cobj->getLastActiveTime();
         tolua_pushnumber(tolua_S,(lua_Number)ret);
         return 1;
     }

@@ -43,7 +43,7 @@ public:
     bool isRunning();
 
     // 最近一次onOpen或onRecv的时间
-    int getLastActiveTime();
+    unsigned int getLastActiveTime();
 
     // 发送消息
     void send(netkit::IBox* box);

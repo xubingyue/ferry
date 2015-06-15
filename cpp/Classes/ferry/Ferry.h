@@ -93,7 +93,7 @@ public:
 
     bool isRunning();
 
-    int getLastActiveTime();
+    unsigned int getLastActiveTime();
 
     // 删除类对应的所有回调，务必在使用ferry的类的析构函数里调用
     void delCallbacksForTarget(void *target);

@@ -120,8 +120,8 @@ namespace ferry {
         }
     }
 
-    int Service::getLastActiveTime() {
-        return (int)m_lastActiveTime;
+    unsigned int Service::getLastActiveTime() {
+        return (unsigned int)m_lastActiveTime;
     }
 
     void Service::send(netkit::IBox *box) {
