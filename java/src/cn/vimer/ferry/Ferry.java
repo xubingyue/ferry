@@ -2,7 +2,6 @@ package cn.vimer.ferry;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import cn.vimer.netkit.Box;
 import cn.vimer.netkit.IBox;
 
@@ -55,10 +54,10 @@ public class Ferry implements Delegate {
         debug = debug_;
 
         if (debug) {
-            FLog.setLevel(Log.DEBUG);
+            FLog.setLevel(FLog.DEBUG);
         }
         else {
-            FLog.setLevel(Log.ERROR);
+            FLog.setLevel(FLog.ERROR);
         }
     }
 
