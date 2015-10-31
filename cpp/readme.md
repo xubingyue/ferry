@@ -61,3 +61,30 @@
             在 User Header Search Path 中添加
 
             "$(SRCROOT)/../Classes"
+
+### 四. 最佳实践
+1. send函数调用后，box依然可以确保存在。
+
+    调用方可以在send后安全获取box，不会出现box被删除的情况。
+    因为box会在主线程回调onSend后被删除。
+    即使触发onDisconnect也不会清楚历史events，所以不会删除历史box。
+    同时box.sn会被修改为最新的sn，所以调用方可以用来标识最后一次发送的sn。
+
+### 五. 注意
+1. stop始终找不到太好的方法，原因如下:
+
+    1. stop不关闭thread，只是标记为不运行
+
+        这种在正常使用没有问题，但是在c++的对象释放时，会释放不了
+
+    2. stop 直接杀死进程（cpp用信号，java用stop）
+
+        这种可能会导致死锁的问题，即锁没有被释放
+
+    综上所述，最好不要反复的调用start和stop，在正常开发中也确实没有必要调用
+
+2. service内部client的线程安全
+
+    这个一直没有太好的方法解决，主要因为client.read是阻塞的，无法加锁
+
+    不过出现的概率很低，只有在判断client != null 而 client又被置为null时会出现
