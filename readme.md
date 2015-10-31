@@ -13,6 +13,6 @@
 ### 三. 服务器端
 
 * python
-    * [maple](https://github.com/dantezhu/maple)
-    * [haven](https://github.com/dantezhu/haven)
-    * [melon](https://github.com/dantezhu/melon)
+    * [maple](https://github.com/dantezhu/maple)  基于cpp + epoll + python的分布式服务器，在生产环境长期运行，性能优异，强烈推荐。
+    * [haven](https://github.com/dantezhu/haven)  基于python+gevent的多协程服务器
+    * [melon](https://github.com/dantezhu/melon)  基于python+twisted的多进程服务器
