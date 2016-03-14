@@ -24,7 +24,9 @@
             EVENT_SEND
             EVENT_RECV
             EVENT_ERROR
+                CODE: ERROR_SEND
             EVENT_TIMEOUT
+                CODE: ERROR_RECV
 
     * 事件回调
 
@@ -35,8 +37,10 @@
             EVENT_SEND
             EVENT_RECV
             EVENT_ERROR
+                CODE: ERROR_OPEN
             EVENT_CLOSE
             EVENT_TIMEOUT
+                CODE: ERROR_OPEN
 
 ##### 注意:
     * 所有使用send、或者addEventCallback的类，析构函数里面务必调用如下代码，防止崩溃
