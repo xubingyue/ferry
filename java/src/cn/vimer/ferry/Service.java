@@ -226,6 +226,7 @@ public class Service {
         catch (SocketTimeoutException e) {
             FLog.e("e: " + e);
             onTimeout();
+            return;
         }
         catch (Exception e) {
             FLog.e("e: " + e);
