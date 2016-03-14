@@ -89,6 +89,10 @@ function GameScene:startFerry()
 
             elseif (event:getWhat() == ferry.EventType.close) then
                 ferry.ScriptFerry:getInstance():connect()
+            elseif (event:getWhat() == ferry.EventType.error) then
+                -- 连接失败
+            elseif (event:getWhat() == ferry.EventType.timeout) then
+                -- 连接超时
             end
         end, self)
 

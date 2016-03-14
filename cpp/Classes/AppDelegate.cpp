@@ -90,6 +90,14 @@ void AppDelegate::eventCallback(ferry::Event *event) {
     cocos2d::log("event->what: %d", event->what);
 
     switch (event->what) {
+        case ferry::EVENT_ERROR: {
+            // 连接失败
+            break;
+        };
+        case ferry::EVENT_TIMEOUT: {
+            // 连接超时
+            break;
+        };
         case ferry::EVENT_CLOSE: {
             ferry::Ferry::getInstance()->connect();
             break;
