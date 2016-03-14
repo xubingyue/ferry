@@ -168,6 +168,18 @@ namespace ferry {
 
         sockFd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockFd > 0) {
+
+#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+
+            // windows 下的异步代码写起来实在太麻烦了，先暂时这么顶一下
+
+            if (::connect(sockFd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) == 0) {
+                // 成功了
+                connectResult = 0;
+            }
+
+# else
+
             int backupValue = fcntl(sockFd, F_GETFD, 0);
 
             // 设置为非阻塞
@@ -210,6 +222,8 @@ namespace ferry {
             
             // 恢复到原来的设置
             fcntl(sockFd, F_SETFL, backupValue);
+
+#endif
             
             if (connectResult != 0) {
                 CLOSE_SOCKET(sockFd);
