@@ -386,6 +386,8 @@ void Ferry::checkRspTimeout() {
     // 再进入下一帧之前，不会释放
     Event *event = new Event();
     event->what = EVENT_TIMEOUT;
+    // 接收超时
+    event->code = ERROR_RECV;
 
     for (auto& container: todoCallbacks) {
         // 没找到
