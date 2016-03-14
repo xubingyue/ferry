@@ -230,12 +230,10 @@ public class Ferry implements Delegate {
         eventHandler.sendMessage(msg);
     }
 
-    public void onTimeout(Service service, int code, IBox ibox) {
+    public void onTimeout(Service service) {
         FLog.d(String.format("code: %s, box: %s", code, ibox));
         Message msg = new Message();
         msg.what = Constants.EVENT_TIMEOUT;
-        msg.arg1 = code;
-        msg.obj = ibox;
 
         eventHandler.sendMessage(msg);
     }
@@ -305,7 +303,7 @@ public class Ferry implements Delegate {
                 listener.onError(msg.arg1, box);
                 break;
             case Constants.EVENT_TIMEOUT:
-                listener.onTimeout(msg.arg1, box);
+                listener.onTimeout();
                 break;
         }
     }
@@ -366,7 +364,7 @@ public class Ferry implements Delegate {
         for (CallbackListener listener: todoListeners) {
             FLog.d(String.format("timeout. sn: %s", listener.sn));
 
-            listener.onTimeout(Constants.ERROR_RECV, null);
+            listener.onTimeout();
             rspCallbacks.remove(listener);
         }
     }
@@ -388,6 +386,6 @@ public class Ferry implements Delegate {
 
         public void onError(int code, IBox ibox) {}
 
-        public void onTimeout(int code, IBox ibox) {}
+        public void onTimeout() {}
     }
 }

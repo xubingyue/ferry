@@ -224,7 +224,7 @@ public class Service {
         }
         catch (SocketTimeoutException e) {
             FLog.e("e: " + e);
-            onTimeout(Constants.ERROR_OPEN, null);
+            onTimeout();
         }
         catch (Exception e) {
             FLog.e("e: " + e);
@@ -257,8 +257,8 @@ public class Service {
         delegate.onError(this, code, ibox);
     }
 
-    private void onTimeout(int code, IBox ibox) {
-        delegate.onTimeout(this, code, ibox);
+    private void onTimeout() {
+        delegate.onTimeout(this);
     }
 
     private void onSendMsgToServer(IBox ibox) {
