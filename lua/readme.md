@@ -69,7 +69,19 @@
 ### 四. 说明
 1. 版本库中目前自动生成的cpp文件使用环境为:
     
-        mac 10.9
+        mac 10.9 ~ 10.11
         cocos2dx-3.2
         ndk-r9d
         python 2.7 (pip install cheetah pyyaml)
+
+
+### 五. 注意
+1. 在mac 10.11下，tolua会报错
+
+
+    LibclangError: dlopen(libclang.dylib, 6): image not found. To provide a path to libclang use Config.set_library_path() or Config.set_library_file().
+
+
+解决方案为:
+
+    ./frameworks/cocos2d-x/tools/bindings-generator/clang/cindex.py 第 3395 行 改为 ： library = cdll.LoadLibrary("../bindings-generator/libclang/" + self.get_filename())
