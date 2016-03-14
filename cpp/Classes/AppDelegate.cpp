@@ -58,7 +58,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     */
 
 
-    ferry::Ferry::getInstance()->init("127.0.0.1", 7777);
+    // ferry::Ferry::getInstance()->init("127.0.0.1", 7777);
+    ferry::Ferry::getInstance()->init("10.55.33.22", 7777);
     ferry::Ferry::getInstance()->start();
 
     // 启动心跳

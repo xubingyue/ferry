@@ -39,6 +39,10 @@ int Ferry::init(const std::string& host, int port) {
     return m_service.init(this, host, port);
 }
 
+void Ferry::setConnectTimeout(int timeout) {
+    m_service.setConnectTimeout(timeout);
+}
+
 void Ferry::start() {
     if (isRunning()) {
         return;

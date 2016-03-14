@@ -71,6 +71,9 @@ public:
 
     virtual int init(const std::string &host, int port);
 
+    // 设置连接超时
+    void setConnectTimeout(int timeout);
+
     void start();
 
     void stop();
