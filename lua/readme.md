@@ -59,10 +59,10 @@
 
         python genbindings_ferry.py
 
-7. 拷贝生成的hpp和cpp文件到script_ferry中
+7. 生成hpp和cpp文件到script_ferry中
     
-        frameworks/cocos2d-x/cocos/scripting/lua-bindings/auto/lua_ferry_auto.hpp
-        frameworks/cocos2d-x/cocos/scripting/lua-bindings/auto/lua_ferry_auto.cpp
+        runtime-src/Classes/script_ferry/lua_ferry_auto.hpp
+        runtime-src/Classes/script_ferry/lua_ferry_auto.cpp
 
 8. 搞定
 
