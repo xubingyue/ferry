@@ -230,7 +230,7 @@ namespace ferry {
         else if (connectResult == EVENT_TIMEOUT) {
             // 连接超时了
             // 没关系，下个循环还会继续重连
-            _onTimeout(ERROR_OPEN, nullptr);
+            _onTimeout();
         }
         else {
             // 连接失败了
@@ -383,8 +383,8 @@ namespace ferry {
         m_delegate->onError(this, code, ibox);
     }
 
-    void Service::_onTimeout(int code, netkit::IBox *ibox) {
-        m_delegate->onTimeout(this, code, ibox);
+    void Service::_onTimeout() {
+        m_delegate->onTimeout(this);
     }
 
     void Service::_clearMsgQueueToServer() {

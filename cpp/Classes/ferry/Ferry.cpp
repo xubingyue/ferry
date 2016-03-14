@@ -256,14 +256,11 @@ void Ferry::onError(ferry::Service *service, int code, netkit::IBox *ibox) {
     postEvent(event);
 }
 
-void Ferry::onTimeout(ferry::Service *service, int code, netkit::IBox *ibox) {
-    cocos2d::log("[%s][%d][%s] code: %d, box: %s",
-        __FILE__, __LINE__, __FUNCTION__, code, ibox ? ibox->toString().c_str() : "null");
+void Ferry::onTimeout(ferry::Service *service) {
+    cocos2d::log("[%s][%d][%s]", __FILE__, __LINE__, __FUNCTION__);
 
     Event *event = new Event();
     event->what = EVENT_TIMEOUT;
-    event->code = code;
-    event->box = ibox;
     postEvent(event);
 }
 
@@ -386,8 +383,6 @@ void Ferry::checkRspTimeout() {
     // 再进入下一帧之前，不会释放
     Event *event = new Event();
     event->what = EVENT_TIMEOUT;
-    // 接收超时
-    event->code = ERROR_RECV;
 
     for (auto& container: todoCallbacks) {
         // 没找到
