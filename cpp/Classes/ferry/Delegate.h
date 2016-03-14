@@ -22,7 +22,7 @@ public:
     // 出错调用，传入发送失败的box or null
     virtual void onError(Service *service, int code, netkit::IBox *ibox) = 0;
     // 超时
-    virtual void onTimeout(Service *service, int code, netkit::IBox *ibox) = 0;
+    virtual void onTimeout(Service *service) = 0;
 
     virtual netkit::IBox* createBox() = 0;
     virtual void releaseBox(netkit::IBox* ibox)=0;

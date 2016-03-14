@@ -128,7 +128,7 @@ protected:
     virtual void onRecv(ferry::Service *service, netkit::IBox *ibox);
     virtual void onClose(ferry::Service *service);
     virtual void onError(ferry::Service *service, int code, netkit::IBox *ibox);
-    virtual void onTimeout(ferry::Service *service, int code, netkit::IBox *ibox);
+    virtual void onTimeout(ferry::Service *service);
     virtual netkit::IBox *createBox();
     virtual void releaseBox(netkit::IBox* ibox);
     // Delegate end
