@@ -13,6 +13,7 @@ public class Constants {
     // 错误代码
     public final static int ERROR_OPEN = 1;
     public final static int ERROR_SEND = 2;
+    public final static int ERROR_RECV = 3;
 
     // 事件类型
     public static final int EVENT_OPEN = 1;
