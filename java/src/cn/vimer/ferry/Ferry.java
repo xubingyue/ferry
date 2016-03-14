@@ -231,7 +231,7 @@ public class Ferry implements Delegate {
     }
 
     public void onTimeout(Service service) {
-        FLog.d(String.format("code: %s, box: %s", code, ibox));
+        FLog.d("");
         Message msg = new Message();
         msg.what = Constants.EVENT_TIMEOUT;
 
