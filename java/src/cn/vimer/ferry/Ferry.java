@@ -230,6 +230,16 @@ public class Ferry implements Delegate {
         eventHandler.sendMessage(msg);
     }
 
+    public void onTimeout(Service service, int code, IBox ibox) {
+        FLog.d(String.format("code: %s, box: %s", code, ibox));
+        Message msg = new Message();
+        msg.what = Constants.EVENT_TIMEOUT;
+        msg.arg1 = code;
+        msg.obj = ibox;
+
+        eventHandler.sendMessage(msg);
+    }
+
     public IBox createBox() {
         return new Box();
     }

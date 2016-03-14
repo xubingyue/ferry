@@ -26,6 +26,7 @@ public class Service {
 
     private Stream client;
     private int tryConnectInterval = Constants.TRY_CONNECT_INTERVAL;
+    private int connectTimeout = Constants.CONNECT_TIMEOUT;
 
     private Thread recvThread = null;
     private Thread sendThread = null;
@@ -93,6 +94,10 @@ public class Service {
 
     public void setTryConnectInterval(int interval) {
         tryConnectInterval = interval;
+    }
+
+    public void setConnectTimeout(int timeout) {
+        connectTimeout = timeout;
     }
 
     private void closeConn() {
@@ -215,7 +220,11 @@ public class Service {
         try {
             socket = new Socket();
             InetSocketAddress address = new InetSocketAddress(host, port);
-            socket.connect(address);
+            socket.connect(address, connectTimeout * 1000);
+        }
+        catch (SocketTimeoutException e) {
+            FLog.e("e: " + e);
+            onTimeout(Constants.ERROR_OPEN, null);
         }
         catch (Exception e) {
             FLog.e("e: " + e);
@@ -243,8 +252,13 @@ public class Service {
         lastActiveTimeMills = System.currentTimeMillis();
         delegate.onOpen(this);
     }
+
     private void onError(int code, IBox ibox) {
         delegate.onError(this, code, ibox);
+    }
+
+    private void onTimeout(int code, IBox ibox) {
+        delegate.onTimeout(this, code, ibox);
     }
 
     private void onSendMsgToServer(IBox ibox) {
