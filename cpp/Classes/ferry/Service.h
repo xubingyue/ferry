@@ -89,6 +89,9 @@ private:
     // 当报错的时候
     void _onError(int code, netkit::IBox *ibox);
 
+    // 当超时的时候
+    void _onTimeout(int code, netkit::IBox *ibox);
+
     void _clearMsgQueueToServer();
 
 

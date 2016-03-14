@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <iostream>
 #include <signal.h>
+#include <fcntl.h>
 
 #if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
 
@@ -157,20 +158,61 @@ namespace ferry {
 
         netkit::SocketType sockFd;
 
-        bool succ = false;
+        // 默认就是ERROR
+        bool connectResult = EVENT_ERROR;
 
         sockFd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockFd > 0) {
-            int ret = ::connect(sockFd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-            if (ret < 0) {
-                CLOSE_SOCKET(sockFd);
+            int backupValue = fcntl(sockFd, F_GETFD, 0);
+
+            // 设置为异步
+            fcntl(sockFd, F_SETFL, backupValue|O_NONBLOCK);
+
+            if (::connect(sockFd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) == -1) {
+                // 需要判断errno
+                
+                if (errno == EINPROGRESS) {
+                    // 进行中，准备用select判断超时
+                    struct timeval tv;
+                    // TODO 改时间
+                    tv.tv_sec = 10;
+                    tv.tv_usec = 0;
+                    
+                    fd_set writeFDs;
+                    FD_ZERO(&writeFDs);
+                    FD_SET(s, &writeFDs);
+                    
+                    if(select(sockFd + 1, NULL, &writeFDs, NULL, &tv) > 0){
+                        // 说明找到了
+                        int tmpError = 0;
+                        int tmpLen = sizeof(int);
+                        //下面的一句一定要，主要针对防火墙
+                        getsockopt(s, SOL_SOCKET, SO_ERROR, &tmpError, &tmpLen);
+                        if(tmpError==0) {
+                            // 成功
+                            connectResult = 0;
+                        }
+                    }
+                    else {
+                        // 超时了没返回
+                        connectResult = EVENT_TIMEOUT;
+                    }
+                }
             }
             else {
-                succ = true;
+                // 成功
+                connectResult = 0;
+            }
+            
+            // 恢复到原来的设置
+            fcntl(sockFd, F_SETFL, backupValue);
+            
+            if (!connectResult) {
+                CLOSE_SOCKET(sockFd);
             }
         }
 
-        if (succ) {
+        if (connectResult == 0) {
             if (m_client) {
                 m_client->setSockFd(sockFd);
             }
@@ -180,6 +222,11 @@ namespace ferry {
 
             // 分发连接成功的消息
             _onConnOpen();
+        }
+        else if (connectResult == EVENT_TIMEOUT) {
+            // 连接超时了
+            // 没关系，下个循环还会继续重连
+            _onTimeout(ERROR_OPEN, nullptr);
         }
         else {
             // 连接失败了
@@ -330,6 +377,10 @@ namespace ferry {
 
     void Service::_onError(int code, netkit::IBox *ibox) {
         m_delegate->onError(this, code, ibox);
+    }
+
+    void Service::_onTimeout(int code, netkit::IBox *ibox) {
+        m_delegate->onTimeout(this, code, ibox);
     }
 
     void Service::_clearMsgQueueToServer() {
