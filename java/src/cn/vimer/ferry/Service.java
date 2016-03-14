@@ -2,6 +2,7 @@ package cn.vimer.ferry;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import cn.vimer.netkit.IBox;
