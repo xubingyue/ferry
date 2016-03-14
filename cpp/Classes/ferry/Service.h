@@ -54,6 +54,9 @@ public:
     // 设置连接失败后的重连间隔
     void setTryConnectInterval(int interval);
 
+    // 设置连接超时
+    void setConnectTimeout(int timeout);
+
 private:
     // 为了启动线程使用的，外面不要使用
     static void* _threadWorkerProxy(void *args);
@@ -89,6 +92,9 @@ private:
     // 当报错的时候
     void _onError(int code, netkit::IBox *ibox);
 
+    // 当超时的时候
+    void _onTimeout(int code, netkit::IBox *ibox);
+
     void _clearMsgQueueToServer();
 
 
@@ -98,6 +104,9 @@ private:
 
     // 连接失败后的重连间隔
     int m_tryConnectInterval;
+    
+    // 连接超时
+    int m_connectTimeout;
 
     Delegate *m_delegate;
     std::string m_host;

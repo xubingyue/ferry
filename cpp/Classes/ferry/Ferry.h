@@ -71,6 +71,9 @@ public:
 
     virtual int init(const std::string &host, int port);
 
+    // 设置连接超时
+    void setConnectTimeout(int timeout);
+
     void start();
 
     void stop();
@@ -125,6 +128,7 @@ protected:
     virtual void onRecv(ferry::Service *service, netkit::IBox *ibox);
     virtual void onClose(ferry::Service *service);
     virtual void onError(ferry::Service *service, int code, netkit::IBox *ibox);
+    virtual void onTimeout(ferry::Service *service, int code, netkit::IBox *ibox);
     virtual netkit::IBox *createBox();
     virtual void releaseBox(netkit::IBox* ibox);
     // Delegate end

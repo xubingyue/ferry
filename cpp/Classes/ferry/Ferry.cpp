@@ -39,6 +39,10 @@ int Ferry::init(const std::string& host, int port) {
     return m_service.init(this, host, port);
 }
 
+void Ferry::setConnectTimeout(int timeout) {
+    m_service.setConnectTimeout(timeout);
+}
+
 void Ferry::start() {
     if (isRunning()) {
         return;
@@ -247,6 +251,17 @@ void Ferry::onError(ferry::Service *service, int code, netkit::IBox *ibox) {
 
     Event *event = new Event();
     event->what = EVENT_ERROR;
+    event->code = code;
+    event->box = ibox;
+    postEvent(event);
+}
+
+void Ferry::onTimeout(ferry::Service *service, int code, netkit::IBox *ibox) {
+    cocos2d::log("[%s][%d][%s] code: %d, box: %s",
+        __FILE__, __LINE__, __FUNCTION__, code, ibox ? ibox->toString().c_str() : "null");
+
+    Event *event = new Event();
+    event->what = EVENT_TIMEOUT;
     event->code = code;
     event->box = ibox;
     postEvent(event);
