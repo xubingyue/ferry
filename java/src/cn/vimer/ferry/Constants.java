@@ -5,11 +5,15 @@ package cn.vimer.ferry;
  */
 public class Constants {
     public final static int MSG_QUEUE_TO_SERVER_MAX_SIZE = 100;
+    // 连接重试间隔(秒)
     public final static int TRY_CONNECT_INTERVAL = 1;
+    // 连接超时(秒)
+    public final static int CONNECT_TIMEOUT = 10;
 
     // 错误代码
     public final static int ERROR_OPEN = 1;
     public final static int ERROR_SEND = 2;
+    public final static int ERROR_RECV = 3;
 
     // 事件类型
     public static final int EVENT_OPEN = 1;
