@@ -170,23 +170,23 @@ namespace ferry {
         if (sockFd > 0) {
             int backupValue = fcntl(sockFd, F_GETFD, 0);
 
-            // 设置为异步
+            // 设置为非阻塞
             fcntl(sockFd, F_SETFL, backupValue|O_NONBLOCK);
 
             if (::connect(sockFd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) == -1) {
+
                 // 需要判断errno
-                
                 if (errno == EINPROGRESS) {
                     // 进行中，准备用select判断超时
-                    struct timeval tv;
-                    tv.tv_sec = m_connectTimeout;
-                    tv.tv_usec = 0;
+                    struct timeval tvTimeout;
+                    tvTimeout.tv_sec = m_connectTimeout;
+                    tvTimeout.tv_usec = 0;
                     
                     fd_set writeFDs;
                     FD_ZERO(&writeFDs);
                     FD_SET(sockFd, &writeFDs);
                     
-                    if(select(sockFd + 1, NULL, &writeFDs, NULL, &tv) > 0){
+                    if(select(sockFd + 1, NULL, &writeFDs, NULL, &tvTimeout) > 0){
                         // 说明找到了
                         int tmpError = 0;
                         socklen_t tmpLen = sizeof(tmpError);
@@ -211,7 +211,7 @@ namespace ferry {
             // 恢复到原来的设置
             fcntl(sockFd, F_SETFL, backupValue);
             
-            if (!connectResult) {
+            if (connectResult != 0) {
                 CLOSE_SOCKET(sockFd);
             }
         }
