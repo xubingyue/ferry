@@ -61,7 +61,7 @@ public class MyActivity extends Activity {
                     }
 
                     @Override
-                    public void onTimeout(int code, IBox ibox) {
+                    public void onTimeout() {
                         Log.d(LOG_TAG_RSP, "onTimeout");
                     }
                 }, 5, this);
