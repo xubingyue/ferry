@@ -222,10 +222,6 @@ namespace ferry {
                         // 超时了没返回
                         connectResult = EVENT_TIMEOUT;
                     }
-                    else {
-                        // select 报错
-                        connectResult = EVENT_ERROR;
-                    }
                 }
             }
             else {
