@@ -15,6 +15,8 @@
 #pragma comment(lib,"pthreadVSE2.lib")
 #define FERRY_SLEEP(sec) Sleep((sec)*1000);
 #define SOCKET_OPT_LEN_TYPE int
+// 不能用 char*，否则编译不过
+#define SOCKET_OPT_VAL_PTR_TYPE char
 
 #else
 
@@ -23,6 +25,7 @@
 #include <sys/socket.h>
 #define FERRY_SLEEP(sec) sleep(sec);
 #define SOCKET_OPT_LEN_TYPE socklen_t
+#define SOCKET_OPT_VAL_PTR_TYPE void
 
 #endif
 
@@ -198,11 +201,12 @@ namespace ferry {
                     if(select(sockFd + 1, NULL, &writeFDs, NULL, &tvTimeout) > 0){
                         // 说明找到了
                         int tmpError = 0;
-
                         SOCKET_OPT_LEN_TYPE tmpLen = sizeof(tmpError);
+                        SOCKET_OPT_VAL_PTR_TYPE* ptrTmpError = (SOCKET_OPT_VAL_PTR_TYPE*) &tmpError;
+
                         // 下面的一句一定要，主要针对防火墙
-                        // 之所以转为char*，是因为win下必须为char*，而linux/mac可以不用转
-                        getsockopt(sockFd, SOL_SOCKET, SO_ERROR, (char*)&tmpError, &tmpLen);
+                        getsockopt(sockFd, SOL_SOCKET, SO_ERROR, ptrTmpError, &tmpLen);
+
                         if(tmpError==0) {
                             // 成功
                             connectResult = 0;
