@@ -8,7 +8,7 @@ public class Constants {
     // 连接重试间隔(秒)
     public final static int TRY_CONNECT_INTERVAL = 1;
     // 连接超时(秒)
-    public final static int CONNECT_TIMEOUT = 10;
+    public final static int CONNECT_TIMEOUT = 5;
 
     // 错误代码
     public final static int ERROR_OPEN = 1;
