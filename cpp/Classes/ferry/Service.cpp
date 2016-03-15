@@ -14,12 +14,16 @@
 #include <winsock2.h>
 #pragma comment(lib,"pthreadVSE2.lib")
 #define FERRY_SLEEP(sec) Sleep((sec)*1000);
+#define SOCKET_OPT_LEN_TYPE int
 
 #else
+
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #define FERRY_SLEEP(sec) sleep(sec);
+#define SOCKET_OPT_LEN_TYPE socklen_t
+
 #endif
 
 #include "Service.h"
@@ -169,26 +173,19 @@ namespace ferry {
         sockFd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockFd > 0) {
 
-#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
-
-            // windows 下的异步代码写起来实在太麻烦了，先暂时这么顶一下
-
-            if (::connect(sockFd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) == 0) {
-                // 成功了
-                connectResult = 0;
-            }
-
-# else
-
-            int backupValue = fcntl(sockFd, F_GETFD, 0);
-
             // 设置为非阻塞
-            fcntl(sockFd, F_SETFL, backupValue|O_NONBLOCK);
+            _setBlockSocket(sockFd, false);
 
             if (::connect(sockFd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) == -1) {
-
-                // 需要判断errno
-                if (errno == EINPROGRESS) {
+                
+#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+                // windows 下不判断errno
+#else
+                // 其他平台需要判断errno
+                if (errno == EINPROGRESS)
+#endif
+                    
+                {
                     // 进行中，准备用select判断超时
                     struct timeval tvTimeout;
                     tvTimeout.tv_sec = m_connectTimeout;
@@ -201,9 +198,11 @@ namespace ferry {
                     if(select(sockFd + 1, NULL, &writeFDs, NULL, &tvTimeout) > 0){
                         // 说明找到了
                         int tmpError = 0;
-                        socklen_t tmpLen = sizeof(tmpError);
-                        //下面的一句一定要，主要针对防火墙
-                        getsockopt(sockFd, SOL_SOCKET, SO_ERROR, &tmpError, &tmpLen);
+
+                        SOCKET_OPT_LEN_TYPE tmpLen = sizeof(tmpError);
+                        // 下面的一句一定要，主要针对防火墙
+                        // 之所以转为char*，是因为win下必须为char*，而linux/mac可以不用转
+                        getsockopt(sockFd, SOL_SOCKET, SO_ERROR, (char*)&tmpError, &tmpLen);
                         if(tmpError==0) {
                             // 成功
                             connectResult = 0;
@@ -220,10 +219,8 @@ namespace ferry {
                 connectResult = 0;
             }
             
-            // 恢复到原来的设置
-            fcntl(sockFd, F_SETFL, backupValue);
-
-#endif
+            // 重新设置为阻塞
+            _setBlockSocket(sockFd, true);
             
             if (connectResult != 0) {
                 CLOSE_SOCKET(sockFd);
@@ -407,5 +404,24 @@ namespace ferry {
         while (m_msgQueueToServer && m_msgQueueToServer->pop_nowait(box) == 0) {
             _onError(ERROR_SEND, box);
         }
+    }
+    
+    void Service::_setBlockSocket(netkit::SocketType sockFd, bool block) {
+#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+        u_long mode = block ? 0 : 1;
+        
+        ioctlsocket(sockFd, FIONBIO, &mode);
+#else
+        
+        int flags = fcntl(sockFd, F_GETFD, 0);
+        if (block) {
+            // 设置为阻塞
+            fcntl(sockFd, F_SETFL, flags & ~O_NONBLOCK);
+        }
+        else {
+            // 设置为非阻塞
+            fcntl(sockFd, F_SETFL, flags | O_NONBLOCK);
+        }
+#endif
     }
 }
