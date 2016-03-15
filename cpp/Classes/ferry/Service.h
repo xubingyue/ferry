@@ -96,6 +96,9 @@ private:
     void _onTimeout();
 
     void _clearMsgQueueToServer();
+    
+    // 设置阻塞/非阻塞socket
+    void _setBlockSocket(netkit::SocketType sockFd, bool block);
 
 
 private:
