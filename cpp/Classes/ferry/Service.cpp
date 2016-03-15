@@ -17,15 +17,19 @@
 #define SOCKET_OPT_LEN_TYPE int
 // 不能用 char*，否则编译不过
 #define SOCKET_OPT_VAL_PTR_TYPE char
+#define CUSTOM_CONNECT _selectConnect
 
 #else
 
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <poll.h>
 #define FERRY_SLEEP(sec) sleep(sec);
 #define SOCKET_OPT_LEN_TYPE socklen_t
 #define SOCKET_OPT_VAL_PTR_TYPE void
+#define CUSTOM_CONNECT _pollConnect
+
 
 #endif
 
@@ -161,7 +165,7 @@ namespace ferry {
 
         netkit::SocketType sockFd;
 
-        int connectResult = _selectConnect(m_host, m_port, m_connectTimeout, sockFd);
+        int connectResult = CUSTOM_CONNECT(m_host, m_port, m_connectTimeout, sockFd);
 
         if (connectResult == 0) {
             if (m_client) {
@@ -367,13 +371,13 @@ namespace ferry {
         int ret;
 
         struct sockaddr_in serverAddress;
-        struct in_addr ip_addr;
-        ip_addr.s_addr = inet_addr(host.c_str());
+        struct in_addr ipAddress;
+        ipAddress.s_addr = inet_addr(host.c_str());
 
         memset(&serverAddress, 0, sizeof(serverAddress));
         serverAddress.sin_family = AF_INET;
         serverAddress.sin_port   = htons((unsigned short)port);
-        serverAddress.sin_addr = ip_addr;
+        serverAddress.sin_addr = ipAddress;
         
         netkit::SocketType sockFd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -403,13 +407,13 @@ namespace ferry {
         int ret;
 
         struct sockaddr_in serverAddress;
-        struct in_addr ip_addr;
-        ip_addr.s_addr = inet_addr(host.c_str());
+        struct in_addr ipAddress;
+        ipAddress.s_addr = inet_addr(host.c_str());
 
         memset(&serverAddress, 0, sizeof(serverAddress));
         serverAddress.sin_family = AF_INET;
         serverAddress.sin_port   = htons((unsigned short)port);
-        serverAddress.sin_addr = ip_addr;
+        serverAddress.sin_addr = ipAddress;
         
         netkit::SocketType sockFd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockFd > 0) {
@@ -483,4 +487,86 @@ namespace ferry {
         return connectResult;
     }
 
+    int Service::_pollConnect(std::string host, int port, int timeout, netkit::SocketType &resultSock) {
+        // windows 下没有poll
+
+        // 默认就是ERROR
+        int connectResult = EVENT_ERROR;
+        int ret;
+
+        struct sockaddr_in serverAddress;
+        struct in_addr ipAddress;
+        ipAddress.s_addr = inet_addr(host.c_str());
+
+        memset(&serverAddress, 0, sizeof(serverAddress));
+        serverAddress.sin_family = AF_INET;
+        serverAddress.sin_port   = htons((unsigned short)port);
+        serverAddress.sin_addr = ipAddress;
+        
+        netkit::SocketType sockFd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockFd > 0) {
+            
+            // 设置为非阻塞
+            _setBlockSocket(sockFd, false);
+            
+            if (::connect(sockFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
+                
+                if (errno == EINPROGRESS) {
+                    
+                    struct pollfd fdList[1];
+                    
+                    struct pollfd &pollSock = fdList[0];
+                    
+                    memset(&pollSock, 0, sizeof(pollSock));
+                    pollSock.fd = sockFd;
+                    // 要可写
+                    pollSock.events = POLLOUT | POLLERR | POLLHUP;
+
+                    ret = ::poll(fdList, 1, timeout * 1000);
+                    if(ret > 0){
+                        // 说明找到了
+                        if ((pollSock.revents & POLLERR) || (pollSock.revents & POLLHUP)) {
+                            // 报错了
+                        }
+                        else if (pollSock.revents & POLLOUT) {
+                            int tmpError = 0;
+                            SOCKET_OPT_LEN_TYPE tmpLen = sizeof(tmpError);
+                            SOCKET_OPT_VAL_PTR_TYPE* ptrTmpError = (SOCKET_OPT_VAL_PTR_TYPE*) &tmpError;
+
+                            // 下面的一句一定要，主要针对防火墙
+                            getsockopt(sockFd, SOL_SOCKET, SO_ERROR, ptrTmpError, &tmpLen);
+
+                            if(tmpError==0) {
+                                // 成功
+                                connectResult = 0;
+                            }
+
+                        }
+                    }
+                    else if (ret == 0) {
+                        // 超时了没返回
+                        connectResult = EVENT_TIMEOUT;
+                    }
+                }
+            }
+            else {
+                // 成功
+                connectResult = 0;
+            }
+            
+            // 重新设置为阻塞
+            _setBlockSocket(sockFd, true);
+            
+            if (connectResult != 0) {
+                CLOSE_SOCKET(sockFd);
+            }
+        }
+
+        // 成功了之后才赋值
+        if (connectResult == 0) {
+            resultSock = sockFd;
+        }
+
+        return connectResult;
+    }
 }

@@ -108,6 +108,10 @@ private:
     int _selectConnect(std::string host, int port, int timeout,
                        netkit::SocketType &resultSock);
 
+    // 通过poll异步连接
+    int _pollConnect(std::string host, int port, int timeout,
+                       netkit::SocketType &resultSock);
+
 
 private:
     // 是否运行中
