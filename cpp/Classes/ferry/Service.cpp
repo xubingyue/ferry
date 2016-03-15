@@ -17,7 +17,6 @@
 #define SOCKET_OPT_LEN_TYPE int
 // 不能用 char*，否则编译不过
 #define SOCKET_OPT_VAL_PTR_TYPE char
-#define CUSTOM_CONNECT _selectConnect
 
 #else
 
@@ -28,8 +27,6 @@
 #define FERRY_SLEEP(sec) sleep(sec);
 #define SOCKET_OPT_LEN_TYPE socklen_t
 #define SOCKET_OPT_VAL_PTR_TYPE void
-#define CUSTOM_CONNECT _pollConnect
-
 
 #endif
 
@@ -165,7 +162,7 @@ namespace ferry {
 
         netkit::SocketType sockFd;
 
-        int connectResult = CUSTOM_CONNECT(m_host, m_port, m_connectTimeout, sockFd);
+        int connectResult = _customConnect(m_host, m_port, m_connectTimeout, sockFd);
 
         if (connectResult == 0) {
             if (m_client) {
@@ -364,6 +361,14 @@ namespace ferry {
         }
 #endif
     }
+
+    int Service::_customConnect(std::string host, int port, int timeout, netkit::SocketType &resultSock) {
+#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+        return _selectConnect(host, port, timeout, resultSock);
+#else
+        return _pollConnect(host, port, timeout, resultSock);
+#endif
+    }
     
     int Service::_blockConnect(std::string host, int port, netkit::SocketType &resultSock) {
         // 默认就是ERROR
@@ -441,23 +446,32 @@ namespace ferry {
                     tvTimeout.tv_sec = timeout;
                     tvTimeout.tv_usec = 0;
                     
-                    fd_set writeFDs;
+                    // 可写，和报错状态都检测
+                    fd_set writeFDs, errorFDs;
                     FD_ZERO(&writeFDs);
                     FD_SET(sockFd, &writeFDs);
+
+                    FD_ZERO(&errorFDs);
+                    FD_SET(sockFd, &errorFDs);
                     
-                    ret = select(sockFd + 1, NULL, &writeFDs, NULL, &tvTimeout);
+                    ret = select(sockFd + 1, NULL, &writeFDs, &errorFDs, &tvTimeout);
                     if(ret > 0){
-                        // 说明找到了
-                        int tmpError = 0;
-                        SOCKET_OPT_LEN_TYPE tmpLen = sizeof(tmpError);
-                        SOCKET_OPT_VAL_PTR_TYPE* ptrTmpError = (SOCKET_OPT_VAL_PTR_TYPE*) &tmpError;
-                        
-                        // 下面的一句一定要，主要针对防火墙
-                        getsockopt(sockFd, SOL_SOCKET, SO_ERROR, ptrTmpError, &tmpLen);
-                        
-                        if(tmpError==0) {
-                            // 成功
-                            connectResult = 0;
+                        if (FD_ISSET(sockFd, &errorFDs)) {
+                            // 报错了
+                        }
+                        else if (FD_ISSET(sockFd, &writeFDs)) {
+                            // 说明找到了
+                            int tmpError = 0;
+                            SOCKET_OPT_LEN_TYPE tmpLen = sizeof(tmpError);
+                            SOCKET_OPT_VAL_PTR_TYPE* ptrTmpError = (SOCKET_OPT_VAL_PTR_TYPE*) &tmpError;
+
+                            // 下面的一句一定要，主要针对防火墙
+                            getsockopt(sockFd, SOL_SOCKET, SO_ERROR, ptrTmpError, &tmpLen);
+
+                            if(tmpError==0) {
+                                // 成功
+                                connectResult = 0;
+                            }
                         }
                     }
                     else if (ret == 0) {
@@ -486,6 +500,8 @@ namespace ferry {
 
         return connectResult;
     }
+
+#if !defined(_WIN32) && !(defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
 
     int Service::_pollConnect(std::string host, int port, int timeout, netkit::SocketType &resultSock) {
         // windows 下没有poll
@@ -569,4 +585,6 @@ namespace ferry {
 
         return connectResult;
     }
+
+#endif
 }
