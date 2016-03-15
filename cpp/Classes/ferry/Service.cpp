@@ -182,9 +182,14 @@ namespace ferry {
             if (::connect(sockFd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) == -1) {
                 
 #if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
-                // windows 下不判断errno
+                // windows 下不会设置errno，所以无法根据errno判断
+                // 带来的坏处是: 端口不存在这种情况，本来可以立即报错，但是还是会等到超时
+
+                // 另外打印errno的时候，要存起来之后再打印，否则两次打印会不一致
 #else
                 // 其他平台需要判断errno
+                // host不存在或者连接进行中会进入到 EINPROGRESS
+                // port不存在errno会是别的错误，直接报错
                 if (errno == EINPROGRESS)
 #endif
                     
