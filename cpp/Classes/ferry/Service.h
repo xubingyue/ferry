@@ -99,6 +99,10 @@ private:
     
     // 设置阻塞/非阻塞socket
     void _setBlockSocket(netkit::SocketType sockFd, bool block);
+
+    // 同步连接
+    int _blockConnect(std::string host, int port,
+                       netkit::SocketType &resultSock);
     
     // 通过select异步连接
     int _selectConnect(std::string host, int port, int timeout,

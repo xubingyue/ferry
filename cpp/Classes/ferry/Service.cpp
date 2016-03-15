@@ -361,6 +361,39 @@ namespace ferry {
 #endif
     }
     
+    int Service::_blockConnect(std::string host, int port, netkit::SocketType &resultSock) {
+        // 默认就是ERROR
+        int connectResult = EVENT_ERROR;
+        int ret;
+
+        struct sockaddr_in serverAddress;
+        struct in_addr ip_addr;
+        ip_addr.s_addr = inet_addr(host.c_str());
+
+        memset(&serverAddress, 0, sizeof(serverAddress));
+        serverAddress.sin_family = AF_INET;
+        serverAddress.sin_port   = htons((unsigned short)port);
+        serverAddress.sin_addr = ip_addr;
+        
+        netkit::SocketType sockFd = socket(AF_INET, SOCK_STREAM, 0);
+
+        if (sockFd > 0) {
+            if (::connect(sockFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == 0) {
+                connectResult = 0;
+            }
+            else {
+                // 失败了
+                CLOSE_SOCKET(sockFd);
+            }
+        }
+
+        // 成功了之后才赋值
+        if (connectResult == 0) {
+            resultSock = sockFd;
+        }
+
+        return connectResult;
+    }
 
     int Service::_selectConnect(std::string host, int port, int timeout, netkit::SocketType &resultSock) {
         // windows 下 select是没有描述限制的
