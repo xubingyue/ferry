@@ -7,7 +7,7 @@ namespace ferry {
     const int TRY_CONNECT_INTERVAL = 1;
 
     // 连接超时(秒)
-    const int CONNECT_TIMEOUT = 10;
+    const int CONNECT_TIMEOUT = 5;
 
     // 发送队列大小(-1为不限制)
     const int MSG_QUEUE_TO_SERVER_MAX_SIZE = 100;
