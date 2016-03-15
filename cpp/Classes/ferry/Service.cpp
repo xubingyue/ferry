@@ -202,8 +202,9 @@ namespace ferry {
                     fd_set writeFDs;
                     FD_ZERO(&writeFDs);
                     FD_SET(sockFd, &writeFDs);
-                    
-                    if(select(sockFd + 1, NULL, &writeFDs, NULL, &tvTimeout) > 0){
+
+                    int ret = select(sockFd + 1, NULL, &writeFDs, NULL, &tvTimeout);
+                    if(ret > 0){
                         // 说明找到了
                         int tmpError = 0;
                         SOCKET_OPT_LEN_TYPE tmpLen = sizeof(tmpError);
@@ -217,9 +218,13 @@ namespace ferry {
                             connectResult = 0;
                         }
                     }
-                    else {
+                    else if (ret == 0) {
                         // 超时了没返回
                         connectResult = EVENT_TIMEOUT;
+                    }
+                    else {
+                        // select 报错
+                        connectResult = EVENT_ERROR;
                     }
                 }
             }
