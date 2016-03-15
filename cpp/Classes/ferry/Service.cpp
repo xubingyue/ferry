@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <poll.h>
 #define FERRY_SLEEP(sec) sleep(sec);
 #define SOCKET_OPT_LEN_TYPE socklen_t
 #define SOCKET_OPT_VAL_PTR_TYPE void
@@ -159,83 +160,9 @@ namespace ferry {
         _closeConn();
         // 没有超时
 
-        struct sockaddr_in serv_addr;
-        struct in_addr ip_addr;
-        ip_addr.s_addr = inet_addr(m_host.c_str());
-
-        memset(&serv_addr, 0, sizeof(serv_addr));
-        serv_addr.sin_family = AF_INET;
-        serv_addr.sin_port   = htons((unsigned short)m_port);
-        serv_addr.sin_addr = ip_addr;
-
         netkit::SocketType sockFd;
 
-        // 默认就是ERROR
-        int connectResult = EVENT_ERROR;
-
-        sockFd = socket(AF_INET, SOCK_STREAM, 0);
-        if (sockFd > 0) {
-
-            // 设置为非阻塞
-            _setBlockSocket(sockFd, false);
-
-            if (::connect(sockFd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) == -1) {
-                
-#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
-                // windows 下不会设置errno，所以无法根据errno判断
-                // 带来的坏处是: 端口不存在这种情况，本来可以立即报错，但是还是会等到超时
-
-                // 另外打印errno的时候，要存起来之后再打印，否则两次打印会不一致
-#else
-                // 其他平台需要判断errno
-                // host不存在或者连接进行中会进入到 EINPROGRESS
-                // port不存在errno会是别的错误，直接报错
-                if (errno == EINPROGRESS)
-#endif
-                    
-                {
-                    // 进行中，准备用select判断超时
-                    struct timeval tvTimeout;
-                    tvTimeout.tv_sec = m_connectTimeout;
-                    tvTimeout.tv_usec = 0;
-                    
-                    fd_set writeFDs;
-                    FD_ZERO(&writeFDs);
-                    FD_SET(sockFd, &writeFDs);
-
-                    int ret = select(sockFd + 1, NULL, &writeFDs, NULL, &tvTimeout);
-                    if(ret > 0){
-                        // 说明找到了
-                        int tmpError = 0;
-                        SOCKET_OPT_LEN_TYPE tmpLen = sizeof(tmpError);
-                        SOCKET_OPT_VAL_PTR_TYPE* ptrTmpError = (SOCKET_OPT_VAL_PTR_TYPE*) &tmpError;
-
-                        // 下面的一句一定要，主要针对防火墙
-                        getsockopt(sockFd, SOL_SOCKET, SO_ERROR, ptrTmpError, &tmpLen);
-
-                        if(tmpError==0) {
-                            // 成功
-                            connectResult = 0;
-                        }
-                    }
-                    else if (ret == 0) {
-                        // 超时了没返回
-                        connectResult = EVENT_TIMEOUT;
-                    }
-                }
-            }
-            else {
-                // 成功
-                connectResult = 0;
-            }
-            
-            // 重新设置为阻塞
-            _setBlockSocket(sockFd, true);
-            
-            if (connectResult != 0) {
-                CLOSE_SOCKET(sockFd);
-            }
-        }
+        int connectResult = _customConnect(m_host, m_port, m_connectTimeout, sockFd);
 
         if (connectResult == 0) {
             if (m_client) {
@@ -434,4 +361,230 @@ namespace ferry {
         }
 #endif
     }
+
+    int Service::_customConnect(std::string host, int port, int timeout, netkit::SocketType &resultSock) {
+#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+        return _selectConnect(host, port, timeout, resultSock);
+#else
+        return _pollConnect(host, port, timeout, resultSock);
+#endif
+    }
+    
+    int Service::_blockConnect(std::string host, int port, netkit::SocketType &resultSock) {
+        // 默认就是ERROR
+        int connectResult = EVENT_ERROR;
+        int ret;
+
+        struct sockaddr_in serverAddress;
+        struct in_addr ipAddress;
+        ipAddress.s_addr = inet_addr(host.c_str());
+
+        memset(&serverAddress, 0, sizeof(serverAddress));
+        serverAddress.sin_family = AF_INET;
+        serverAddress.sin_port   = htons((unsigned short)port);
+        serverAddress.sin_addr = ipAddress;
+        
+        netkit::SocketType sockFd = socket(AF_INET, SOCK_STREAM, 0);
+
+        if (sockFd > 0) {
+            if (::connect(sockFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == 0) {
+                connectResult = 0;
+            }
+            else {
+                // 失败了
+                CLOSE_SOCKET(sockFd);
+            }
+        }
+
+        // 成功了之后才赋值
+        if (connectResult == 0) {
+            resultSock = sockFd;
+        }
+
+        return connectResult;
+    }
+
+    int Service::_selectConnect(std::string host, int port, int timeout, netkit::SocketType &resultSock) {
+        // windows 下 select是没有描述限制的
+        
+        // 默认就是ERROR
+        int connectResult = EVENT_ERROR;
+        int ret;
+
+        struct sockaddr_in serverAddress;
+        struct in_addr ipAddress;
+        ipAddress.s_addr = inet_addr(host.c_str());
+
+        memset(&serverAddress, 0, sizeof(serverAddress));
+        serverAddress.sin_family = AF_INET;
+        serverAddress.sin_port   = htons((unsigned short)port);
+        serverAddress.sin_addr = ipAddress;
+        
+        netkit::SocketType sockFd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockFd > 0) {
+            
+            // 设置为非阻塞
+            _setBlockSocket(sockFd, false);
+            
+            if (::connect(sockFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
+                
+#if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+                // windows 下不会设置errno，所以无法根据errno判断
+                // 带来的坏处是: 端口不存在这种情况，本来可以立即报错，但是还是会等到超时
+                
+                // 另外打印errno的时候，要存起来之后再打印，否则两次打印会不一致
+#else
+                // 其他平台需要判断errno
+                // host不存在或者连接进行中会进入到 EINPROGRESS
+                // port不存在errno会是别的错误，直接报错
+                if (errno == EINPROGRESS)
+#endif
+                    
+                {
+                    // 进行中，准备用select判断超时
+                    struct timeval tvTimeout;
+                    tvTimeout.tv_sec = timeout;
+                    tvTimeout.tv_usec = 0;
+                    
+                    // 可写，和报错状态都检测
+                    fd_set writeFDs, errorFDs;
+                    FD_ZERO(&writeFDs);
+                    FD_SET(sockFd, &writeFDs);
+
+                    FD_ZERO(&errorFDs);
+                    FD_SET(sockFd, &errorFDs);
+                    
+                    ret = select(sockFd + 1, NULL, &writeFDs, &errorFDs, &tvTimeout);
+                    if(ret > 0){
+                        if (FD_ISSET(sockFd, &errorFDs)) {
+                            // 报错了
+                        }
+                        else if (FD_ISSET(sockFd, &writeFDs)) {
+                            // 说明找到了
+                            int tmpError = 0;
+                            SOCKET_OPT_LEN_TYPE tmpLen = sizeof(tmpError);
+                            SOCKET_OPT_VAL_PTR_TYPE* ptrTmpError = (SOCKET_OPT_VAL_PTR_TYPE*) &tmpError;
+
+                            // 下面的一句一定要，主要针对防火墙
+                            getsockopt(sockFd, SOL_SOCKET, SO_ERROR, ptrTmpError, &tmpLen);
+
+                            if(tmpError==0) {
+                                // 成功
+                                connectResult = 0;
+                            }
+                        }
+                    }
+                    else if (ret == 0) {
+                        // 超时了没返回
+                        connectResult = EVENT_TIMEOUT;
+                    }
+                }
+            }
+            else {
+                // 成功
+                connectResult = 0;
+            }
+            
+            // 重新设置为阻塞
+            _setBlockSocket(sockFd, true);
+            
+            if (connectResult != 0) {
+                CLOSE_SOCKET(sockFd);
+            }
+        }
+
+        // 成功了之后才赋值
+        if (connectResult == 0) {
+            resultSock = sockFd;
+        }
+
+        return connectResult;
+    }
+
+#if !defined(_WIN32) && !(defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
+
+    int Service::_pollConnect(std::string host, int port, int timeout, netkit::SocketType &resultSock) {
+        // windows 下没有poll
+
+        // 默认就是ERROR
+        int connectResult = EVENT_ERROR;
+        int ret;
+
+        struct sockaddr_in serverAddress;
+        struct in_addr ipAddress;
+        ipAddress.s_addr = inet_addr(host.c_str());
+
+        memset(&serverAddress, 0, sizeof(serverAddress));
+        serverAddress.sin_family = AF_INET;
+        serverAddress.sin_port   = htons((unsigned short)port);
+        serverAddress.sin_addr = ipAddress;
+        
+        netkit::SocketType sockFd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockFd > 0) {
+            
+            // 设置为非阻塞
+            _setBlockSocket(sockFd, false);
+            
+            if (::connect(sockFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
+                
+                if (errno == EINPROGRESS) {
+                    
+                    struct pollfd fdList[1];
+                    
+                    struct pollfd &pollSock = fdList[0];
+                    
+                    memset(&pollSock, 0, sizeof(pollSock));
+                    pollSock.fd = sockFd;
+                    // 要可写
+                    pollSock.events = POLLOUT | POLLERR | POLLHUP;
+
+                    ret = ::poll(fdList, 1, timeout * 1000);
+                    if(ret > 0){
+                        // 说明找到了
+                        if ((pollSock.revents & POLLERR) || (pollSock.revents & POLLHUP)) {
+                            // 报错了
+                        }
+                        else if (pollSock.revents & POLLOUT) {
+                            int tmpError = 0;
+                            SOCKET_OPT_LEN_TYPE tmpLen = sizeof(tmpError);
+                            SOCKET_OPT_VAL_PTR_TYPE* ptrTmpError = (SOCKET_OPT_VAL_PTR_TYPE*) &tmpError;
+
+                            // 下面的一句一定要，主要针对防火墙
+                            getsockopt(sockFd, SOL_SOCKET, SO_ERROR, ptrTmpError, &tmpLen);
+
+                            if(tmpError==0) {
+                                // 成功
+                                connectResult = 0;
+                            }
+
+                        }
+                    }
+                    else if (ret == 0) {
+                        // 超时了没返回
+                        connectResult = EVENT_TIMEOUT;
+                    }
+                }
+            }
+            else {
+                // 成功
+                connectResult = 0;
+            }
+            
+            // 重新设置为阻塞
+            _setBlockSocket(sockFd, true);
+            
+            if (connectResult != 0) {
+                CLOSE_SOCKET(sockFd);
+            }
+        }
+
+        // 成功了之后才赋值
+        if (connectResult == 0) {
+            resultSock = sockFd;
+        }
+
+        return connectResult;
+    }
+
+#endif
 }
