@@ -71,7 +71,7 @@
     
         mac 10.9 ~ 10.11
         cocos2dx-3.2
-        ndk-r9d
+        ndk-r9d ~ r10c
         python 2.7 (pip install cheetah pyyaml)
 
 
