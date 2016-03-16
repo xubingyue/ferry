@@ -390,7 +390,7 @@ void Ferry::checkRspTimeout() {
             continue;
         }
 
-        cocos2d::log("[%s][%d][%s] timeout. sn: %d", __FILE__, __LINE__, __FUNCTION__, container->sn);
+        cocos2d::log("[%s:%d %s] timeout. sn: %d", __FILE__, __LINE__, __FUNCTION__, container->sn);
         container->callback(event);
 
         delete container;
