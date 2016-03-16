@@ -350,7 +350,7 @@ namespace ferry {
         ioctlsocket(sockFd, FIONBIO, &mode);
 #else
         
-        int flags = fcntl(sockFd, F_GETFD, 0);
+        int flags = fcntl(sockFd, F_GETFL, 0);
         if (block) {
             // 设置为阻塞
             fcntl(sockFd, F_SETFL, flags & ~O_NONBLOCK);
@@ -373,7 +373,6 @@ namespace ferry {
     int Service::_blockConnect(std::string host, int port, netkit::SocketType &resultSock) {
         // 默认就是ERROR
         int connectResult = EVENT_ERROR;
-        int ret;
 
         struct sockaddr_in serverAddress;
         struct in_addr ipAddress;
@@ -407,7 +406,6 @@ namespace ferry {
     int Service::_selectConnect(std::string host, int port, int timeout, netkit::SocketType &resultSock) {
         // 默认就是ERROR
         int connectResult = EVENT_ERROR;
-        int ret;
 
         struct sockaddr_in serverAddress;
         struct in_addr ipAddress;
@@ -460,7 +458,7 @@ namespace ferry {
                     
                     // windows 下，第一个参数无用，select没有fd数量和fd大小的限制
                     // linux下，fd的个数和最大值都不能超过1024
-                    ret = select(sockFd + 1, NULL, &writeFDs, &errorFDs, &tvTimeout);
+                    int ret = select(sockFd + 1, NULL, &writeFDs, &errorFDs, &tvTimeout);
                     if(ret > 0){
                         if (FD_ISSET(sockFd, &errorFDs)) {
                             // 报错了
@@ -514,7 +512,6 @@ namespace ferry {
 
         // 默认就是ERROR
         int connectResult = EVENT_ERROR;
-        int ret;
 
         struct sockaddr_in serverAddress;
         struct in_addr ipAddress;
@@ -544,7 +541,7 @@ namespace ferry {
                     // 要可写
                     pollSock.events = POLLOUT | POLLERR | POLLHUP;
 
-                    ret = ::poll(fdList, 1, timeout * 1000);
+                    int ret = ::poll(fdList, 1, timeout * 1000);
                     if(ret > 0){
                         // 说明找到了
                         if ((pollSock.revents & POLLERR) || (pollSock.revents & POLLHUP)) {
