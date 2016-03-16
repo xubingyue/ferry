@@ -405,8 +405,6 @@ namespace ferry {
     }
 
     int Service::_selectConnect(std::string host, int port, int timeout, netkit::SocketType &resultSock) {
-        // windows 下 select是没有描述限制的
-        
         // 默认就是ERROR
         int connectResult = EVENT_ERROR;
         int ret;
@@ -428,15 +426,21 @@ namespace ferry {
             
             if (::connect(sockFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
                 
+                // host不存在和port不存在的最大区别时，client发出syn请求后，对方是否有响应.
+                // host不存在，syn没有响应
+                // port不存在, syn报错
+                // linux 默认connect 超时是75秒
 #if defined(_WIN32) || (defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM==CC_PLATFORM_WIN32)
                 // windows 下不会设置errno，所以无法根据errno判断
-                // 带来的坏处是: 端口不存在这种情况，本来可以立即报错，但是还是会等到超时
+                // host/port不存在 都会connect报错，然后进入select
+                // host不存在会等待至select超时. onTimeout
+                // port不存在会进入errorFDs判断，所以会很快报错. onError
                 
-                // 另外打印errno的时候，要存起来之后再打印，否则两次打印会不一致
+                // 注意: 打印errno的时候，要存起来之后再打印，否则可能两次打印会不一致
 #else
                 // 其他平台需要判断errno
-                // host不存在或者连接进行中会进入到 EINPROGRESS
-                // port不存在errno会是别的错误，直接报错
+                // host不存在或者连接进行中会进入到 EINPROGRESS. onTimeout
+                // port不存在errno会是别的错误，直接报错. onError
                 if (errno == EINPROGRESS)
 #endif
                     
@@ -454,6 +458,8 @@ namespace ferry {
                     FD_ZERO(&errorFDs);
                     FD_SET(sockFd, &errorFDs);
                     
+                    // windows 下，第一个参数无用，select没有fd数量和fd大小的限制
+                    // linux下，fd的个数和最大值都不能超过1024
                     ret = select(sockFd + 1, NULL, &writeFDs, &errorFDs, &tvTimeout);
                     if(ret > 0){
                         if (FD_ISSET(sockFd, &errorFDs)) {
