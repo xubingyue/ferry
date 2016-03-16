@@ -48,6 +48,8 @@
 ### 二. 设计说明
 
 1. Box、Event，均没有使用cocos2d的内存管理，原因autorelease函数不是线程安全。
+2. mac/linux下使用poll进行连接，因为这些平台select有限制; win下使用select，因为select没有限制。
+3. 使用send/recv各一个线程，而不是poll/select单线程，因为notify的fd需要是个文件，要创建到文件系统上，太麻烦。
 
 ### 三. IDE 配置
 
