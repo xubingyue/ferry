@@ -24,7 +24,4 @@ public class Constants {
 
     // 超时检测间隔
     public static final long TIMEOUT_CHECK_INTERVAL_MS = 500;
-
-    // LOG_TAG
-    public static final String LOG_TAG = "ferry";
 }
